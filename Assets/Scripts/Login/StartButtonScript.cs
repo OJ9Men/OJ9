@@ -21,6 +21,6 @@ public class StartButtonScript : MonoBehaviour
 
     public void OnButtonClicked()
     {
-        SceneManager.LoadScene("LobbyScene");
+        SceneManager.LoadScene("HockeyScene");
     }
 }
