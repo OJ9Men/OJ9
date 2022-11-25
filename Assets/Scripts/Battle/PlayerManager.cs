@@ -8,7 +8,8 @@ static class Constatns
 }
 public class PlayerManager : MonoBehaviour
 {
-    public AimJoystick aimJoystick;
+    [SerializeField]
+    private Joystick joystick;
     private GameObject[] rackets = new GameObject[Constatns.MAX_RACKET_NUM];
     // Start is called before the first frame update
     void Start()
@@ -28,13 +29,15 @@ public class PlayerManager : MonoBehaviour
             {
                 return;
             }
-
-            aimJoystick.gameObject.SetActive(true);
-            aimJoystick.gameObject.transform.position = Camera.main.WorldToScreenPoint(clickedObject.transform.position);
+            joystick.SetVisible(true);
+            
+            // Gunny BUG
+            // When change this position of joystick then event of joystick does not handled
+            joystick.gameObject.transform.position = Camera.main.WorldToScreenPoint(clickedObject.transform.position);
         }
         else if (Input.GetMouseButtonUp(0))
         {
-            aimJoystick.gameObject.SetActive(false);
+            joystick.SetVisible(false);
         }
     }
 
