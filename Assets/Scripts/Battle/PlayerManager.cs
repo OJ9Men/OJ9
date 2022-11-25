@@ -23,13 +23,14 @@ public class PlayerManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (!IsClickedRacket())
+            GameObject clickedObject = GetClickedObject();
+            if (clickedObject == null)
             {
                 return;
             }
 
             aimJoystick.gameObject.SetActive(true);
-            aimJoystick.gameObject.transform.position = Input.mousePosition;
+            aimJoystick.gameObject.transform.position = Camera.main.WorldToScreenPoint(clickedObject.transform.position);
         }
         else if (Input.GetMouseButtonUp(0))
         {
@@ -37,14 +38,14 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    private bool IsClickedRacket()
+    private GameObject GetClickedObject()
     {
         Vector2 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero, 0f);
 
         if (hit.collider == null)
         {
-            return false;
+            return null;
         }
 
         GameObject clickedObject = hit.transform.gameObject;
@@ -52,10 +53,10 @@ public class PlayerManager : MonoBehaviour
         {
             if (iter == clickedObject)
             {
-                return true;
+                return clickedObject;
             }
         }
 
-        return false;
+        return null;
     }
 }
