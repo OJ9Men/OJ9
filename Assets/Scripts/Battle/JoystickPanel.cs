@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class JoystickPanel : MonoBehaviour, IDragHandler, IPointerDownHandler, IPointerUpHandler
+public class JoystickPanel : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
     private Joystick joystick;
 
@@ -16,20 +16,16 @@ public class JoystickPanel : MonoBehaviour, IDragHandler, IPointerDownHandler, I
         joystick.transform.position = inPosition;
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public void OnBeginDrag(PointerEventData eventData)
     {
-        if(eventData == null)
-            throw new System.NotImplementedException();
         joystick.OnBeginDrag(eventData);
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    public void OnEndDrag(PointerEventData eventData)
     {
-        if (eventData == null)
-            throw new System.NotImplementedException();
-
         joystick.OnEndDrag(eventData);
     }
+
     public void OnDrag(PointerEventData eventData)
     {
         if (eventData == null)
@@ -43,5 +39,7 @@ public class JoystickPanel : MonoBehaviour, IDragHandler, IPointerDownHandler, I
     void Start()
     {
         joystick = transform.GetChild(0).transform.GetComponent<Joystick>();
+        SetJoystickVisible(false);
     }
+
 }
