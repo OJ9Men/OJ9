@@ -12,7 +12,6 @@ public class Joystick : MonoBehaviour
     private float leverRange;
 
     private Vector2 inputVector;
-    private bool isInput;
 
     public Vector2 GetInputVector()
     {
@@ -27,7 +26,6 @@ public class Joystick : MonoBehaviour
     public void OnBeginDrag(PointerEventData eventData)
     {
         ControlJoystickLever(eventData);
-        isInput = true;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -46,22 +44,5 @@ public class Joystick : MonoBehaviour
     public void OnEndDrag(PointerEventData eventData)
     {
         lever.anchoredPosition = Vector2.zero;
-        isInput = false;
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (isInput)
-        {
-            InputControlVector();
-        }
-    }
-
-    private void InputControlVector()
-    {
-        // TODO
-        Debug.Log(inputVector.x + " / " + inputVector.y);
-    }
-
 }

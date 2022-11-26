@@ -5,6 +5,11 @@ using UnityEngine.EventSystems;
 
 public class Racket : MonoBehaviour
 {
+    public void Shooting(Vector3 inputVector)
+    {
+        // Gunny TODO
+        Debug.Log("Aim : " + inputVector);
+    }
     // Start is called before the first frame update
     void Start()
     {

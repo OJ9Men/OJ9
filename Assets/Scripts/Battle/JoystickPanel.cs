@@ -7,6 +7,11 @@ public class JoystickPanel : MonoBehaviour, IDragHandler, IBeginDragHandler, IEn
 {
     private Joystick joystick;
 
+    public Vector3 GetInputVector()
+    {
+        return joystick.GetInputVector();
+    }
+
     public void SetJoystickVisible(bool isVisible)
     {
         joystick.gameObject.SetActive(isVisible);
@@ -39,7 +44,6 @@ public class JoystickPanel : MonoBehaviour, IDragHandler, IBeginDragHandler, IEn
     void Start()
     {
         joystick = transform.GetChild(0).transform.GetComponent<Joystick>();
-        SetJoystickVisible(false);
     }
 
 }

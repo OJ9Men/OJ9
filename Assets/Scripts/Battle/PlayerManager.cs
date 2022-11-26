@@ -11,6 +11,9 @@ public class PlayerManager : MonoBehaviour
     [SerializeField]
     private JoystickPanel joystickPanel;
     private GameObject[] rackets = new GameObject[Constatns.MAX_RACKET_NUM];
+
+    private Racket CachedSelectedRacket;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,14 +32,25 @@ public class PlayerManager : MonoBehaviour
             {
                 return;
             }
+
+            CachedSelectedRacket = clickedObject.GetComponent<Racket>();
+
             joystickPanel.SetJoystickVisible(true);
             joystickPanel.SetJoystickPosition(
-                Camera.main.WorldToScreenPoint(clickedObject.transform.position)
+                Camera.main.WorldToScreenPoint(CachedSelectedRacket.transform.position)
             );
         }
         else if (Input.GetMouseButtonUp(0))
         {
             joystickPanel.SetJoystickVisible(false);
+
+            if (CachedSelectedRacket == null)
+            {
+                return;
+            }
+
+            CachedSelectedRacket.Shooting(joystickPanel.GetInputVector());
+            CachedSelectedRacket = null;
         }
     }
 
