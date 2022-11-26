@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Joystick : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class Joystick : MonoBehaviour
 {
     [SerializeField]
     private RectTransform lever;
@@ -13,15 +13,6 @@ public class Joystick : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 
     private Vector2 inputVector;
     private bool isInput;
-
-    private Image joystickImage;
-    private Image leverImage;
-
-    public void SetVisible(bool isVisible)
-    {
-        joystickImage.enabled = isVisible;
-        leverImage.enabled = isVisible;
-    }
 
     public Vector2 GetInputVector()
     {
@@ -56,13 +47,6 @@ public class Joystick : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
     {
         lever.anchoredPosition = Vector2.zero;
         isInput = false;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        joystickImage = GetComponent<Image>();
-        leverImage = transform.GetChild(0).GetComponent<Image>();
     }
 
     // Update is called once per frame
