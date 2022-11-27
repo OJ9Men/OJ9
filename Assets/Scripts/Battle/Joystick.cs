@@ -6,6 +6,8 @@ public class Joystick : MonoBehaviour
 {
     [SerializeField]
     private GameObject powerDotPrefab;
+    [SerializeField]
+    private GameObject aimDotPrefab;
 
     [SerializeField]
     private RectTransform lever;
@@ -16,6 +18,7 @@ public class Joystick : MonoBehaviour
 
     private Vector2 inputVector;
     private GameObject[] powerDots;
+    private GameObject[] aimDots;
 
     public Vector2 GetInputVector()
     {
@@ -26,10 +29,12 @@ public class Joystick : MonoBehaviour
     {
         rectTransform = GetComponent<RectTransform>();
         powerDots = new GameObject[(int)leverRange];
+        aimDots = new GameObject[(int)leverRange];
 
         for (int i = 0; i < (int)leverRange; ++i)
         {
             powerDots[i] = Instantiate(powerDotPrefab, transform, false);
+            aimDots[i] = Instantiate(aimDotPrefab, transform, false);
         }
     }
 
@@ -61,16 +66,16 @@ public class Joystick : MonoBehaviour
         lever.anchoredPosition = clampedDir;
         inputVector = clampedDir / leverRange;
 
-        DrawPowerGuage();
+        DrawGuage();
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         lever.anchoredPosition = Vector2.zero;
-        HidePowerGuage();
+        HideGuage();
     }
 
-    private void DrawPowerGuage()
+    private void DrawGuage()
     {
         Vector3 diffVector = Input.mousePosition - transform.position;
 
@@ -81,19 +86,24 @@ public class Joystick : MonoBehaviour
             if (diffVector.magnitude < i)
             {
                 powerDots[i].gameObject.SetActive(false);
+                aimDots[i].gameObject.SetActive(false);
             }
             else
             {
                 powerDots[i].gameObject.SetActive(true);
                 powerDots[i].GetComponent<RectTransform>().anchoredPosition = diffVector * (i / diffVector.magnitude);
+
+                aimDots[i].gameObject.SetActive(true);
+                aimDots[i].GetComponent<RectTransform>().anchoredPosition = diffVector * (-1.0f) * (i / diffVector.magnitude);
             }
         }
     }
-    private void HidePowerGuage()
+    private void HideGuage()
     {
         for (int i = 0; i < (int)leverRange; ++i)
         {
             powerDots[i].gameObject.SetActive(false);
+            aimDots[i].gameObject.SetActive(false);
         }
     }
 }

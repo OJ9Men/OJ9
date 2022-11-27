@@ -733,6 +733,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   powerDotPrefab: {fileID: 1784759467859698760, guid: b778266f023ec8c43a8cc4a4d2d64dde, type: 3}
+  aimDotPrefab: {fileID: 1784759467859698760, guid: 374ae8a382200924bb184b5186239e7f, type: 3}
   lever: {fileID: 523974197}
   leverRange: 60
 --- !u!1 &991160326
