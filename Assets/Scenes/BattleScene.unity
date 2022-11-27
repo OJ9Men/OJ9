@@ -732,6 +732,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e796a55f520c1954ea63c376856bf217, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  powerDotPrefab: {fileID: 1784759467859698760, guid: b778266f023ec8c43a8cc4a4d2d64dde, type: 3}
   lever: {fileID: 523974197}
   leverRange: 60
 --- !u!1 &991160326
@@ -860,7 +861,7 @@ GameObject:
   - component: {fileID: 1180896926}
   - component: {fileID: 1180896928}
   m_Layer: 0
-  m_Name: Puck
+  m_Name: Ball
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

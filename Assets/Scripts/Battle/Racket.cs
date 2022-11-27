@@ -7,8 +7,12 @@ public class Racket : MonoBehaviour
 {
     public void Shooting(Vector3 inputVector)
     {
-        // Gunny TODO
         Debug.Log("Aim : " + inputVector);
+
+        var forceVector =
+            new Vector3(-inputVector.x, -inputVector.y, 0.0f);
+
+
     }
     // Start is called before the first frame update
     void Start()

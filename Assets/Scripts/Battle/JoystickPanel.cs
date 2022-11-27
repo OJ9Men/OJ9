@@ -41,7 +41,7 @@ public class JoystickPanel : MonoBehaviour, IDragHandler, IBeginDragHandler, IEn
     }
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         joystick = transform.GetChild(0).transform.GetComponent<Joystick>();
     }
