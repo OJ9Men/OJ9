@@ -56,11 +56,6 @@ public class Joystick : MonoBehaviour
             return;
         }
 
-        if (!gameObject.active)
-        {
-            return;
-        }
-
         var inputDir = eventData.position - rectTransform.anchoredPosition;
         var clampedDir = inputDir.magnitude < leverRange ? inputDir : inputDir.normalized * leverRange;
         lever.anchoredPosition = clampedDir;

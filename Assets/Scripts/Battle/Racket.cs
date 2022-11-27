@@ -7,7 +7,7 @@ public class Racket : MonoBehaviour
 {
     public void Shooting(Vector3 inputVector)
     {
-        Debug.Log("Aim : " + inputVector);
+        Debug.Log("[Name] : " + gameObject.name + " [Aim] : " + inputVector);
 
         var forceVector =
             new Vector3(-inputVector.x, -inputVector.y, 0.0f);
