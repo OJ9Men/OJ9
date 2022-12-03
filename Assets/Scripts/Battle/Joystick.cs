@@ -66,6 +66,11 @@ public class Joystick : MonoBehaviour
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (!gameObject.activeSelf)
+        {
+            return;
+        }
+
         lever.anchoredPosition = Vector2.zero;
         HideGuage();
     }
