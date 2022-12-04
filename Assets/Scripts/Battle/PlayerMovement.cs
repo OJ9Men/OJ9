@@ -1,78 +1,53 @@
 using UnityEngine;
+static class Constants
+{
+    public const float FORCE_MAGNITUDE = 1000.0f;
+}
 
 public class PlayerMovement : MonoBehaviour
 {
-    private bool wasJustCLicked;
-    private bool canMove;
-    private Vector2 playerSize;
+    bool onGoingAim;
     private Rigidbody2D rb;
 
-    public Transform boundaryHolder;
-    Boundary playerBoundary;
+    [SerializeField]
+    private JoystickPanel joystickPanel;
 
-    struct Boundary
-    {
-        public float Up, Down, Left, Right;
-
-        public Boundary(float up, float down, float left, float right)
-        {
-            Up = up;
-            Down = down;
-            Left = left;
-            Right = right;
-        }
-    }
     // Start is called before the first frame update
     void Start()
     {
-        playerSize = GetComponent<SpriteRenderer>().bounds.extents;
         rb = GetComponent<Rigidbody2D>();
-
-        playerBoundary = new Boundary(
-            boundaryHolder.GetChild(0).position.y,
-            boundaryHolder.GetChild(1).position.y,
-            boundaryHolder.GetChild(2).position.x,
-            boundaryHolder.GetChild(3).position.x
-        );
     }
 
-    // Update is called once per frame
-    void Update()
+    private bool CanAim()
     {
-        if (Input.GetMouseButton(0))
+        return rb.velocity.magnitude == 0.0f;
+    }
+
+    private void OnMouseDown()
+    {
+        if (!CanAim())
         {
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            if (wasJustCLicked)
-            {
-                wasJustCLicked = false;
-
-                // when you capture it
-                if ((mousePos.x >= transform.position.x && mousePos.x < transform.position.x + playerSize.x ||
-                    mousePos.x <= transform.position.x && mousePos.x > transform.position.x - playerSize.x) &&
-                    (mousePos.y >= transform.position.y && mousePos.y < transform.position.y + playerSize.y ||
-                    mousePos.y <= transform.position.y && mousePos.y > transform.position.y - playerSize.y))
-                {
-                    canMove = true;
-                }
-                else
-                {
-                    canMove = false;
-                }
-            }
-
-            if (canMove)
-            {
-                Vector2 clampedMousePos = new Vector2(
-                    Mathf.Clamp(mousePos.x, playerBoundary.Left, playerBoundary.Right),
-                    Mathf.Clamp(mousePos.y, playerBoundary.Down, playerBoundary.Up)
-                );
-
-                rb.MovePosition(clampedMousePos);
-            }
+            Debug.LogWarning("Should be stopped");
+            return;
         }
-        else
+
+        onGoingAim = true;
+        joystickPanel.SetJoystickVisible(true);
+        joystickPanel.SetJoystickPosition(Camera.main.WorldToScreenPoint(transform.position));
+
+    }
+    private void OnMouseUp()
+    {
+        if (!onGoingAim)
         {
-            wasJustCLicked = true;
+            return;
         }
+
+        joystickPanel.SetJoystickVisible(false);
+        Vector2 oppositeDir = -joystickPanel.GetInputVector();
+        Debug.Log("Vector size : " + oppositeDir.magnitude);
+        rb.AddForce(Constants.FORCE_MAGNITUDE * oppositeDir);
+
+        onGoingAim = false;
     }
 }

@@ -38,9 +38,18 @@ public class Joystick : MonoBehaviour
         }
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    public void SetVisible(bool isVisible)
     {
-        ControlJoystickLever(eventData);
+        gameObject.SetActive(isVisible);
+        if (isVisible)
+        {
+            ResetGuage();
+        }
+    }
+    public void SetPosition(Vector3 newPos)
+    {
+        transform.position = newPos;
+        lever.transform.position = newPos;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -64,23 +73,9 @@ public class Joystick : MonoBehaviour
         DrawGuage();
     }
 
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (!gameObject.activeSelf)
-        {
-            return;
-        }
-
-        lever.anchoredPosition = Vector2.zero;
-        HideGuage();
-    }
-
     private void DrawGuage()
     {
         Vector3 diffVector = Input.mousePosition - transform.position;
-
-        float force = Mathf.Clamp(diffVector.magnitude / leverRange, 0.0f, 1.0f);
-
         for (int i = 0; i < (int)leverRange; ++i)
         {
             if (diffVector.magnitude < i)
@@ -98,7 +93,7 @@ public class Joystick : MonoBehaviour
             }
         }
     }
-    private void HideGuage()
+    private void ResetGuage()
     {
         for (int i = 0; i < (int)leverRange; ++i)
         {
