@@ -1,8 +1,4 @@
 using UnityEngine;
-static class Constants
-{
-    public const float FORCE_MAGNITUDE = 1000.0f;
-}
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -45,7 +41,6 @@ public class PlayerMovement : MonoBehaviour
 
         joystickPanel.SetJoystickVisible(false);
         Vector2 oppositeDir = -joystickPanel.GetInputVector();
-        Debug.Log("Vector size : " + oppositeDir.magnitude);
         rb.AddForce(Constants.FORCE_MAGNITUDE * oppositeDir);
 
         onGoingAim = false;
