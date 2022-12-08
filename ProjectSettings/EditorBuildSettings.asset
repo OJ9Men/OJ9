@@ -9,9 +9,6 @@ EditorBuildSettings:
     path: Assets/Scenes/LoginScene.unity
     guid: 8ede61b4eb35eea44b2c2d176beb0608
   - enabled: 1
-    path: Assets/Scenes/HockeyScene.unity
+    path: Assets/Scenes/BattleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 1
-    path: Assets/Scenes/LobbyScene.unity
-    guid: 5ac54739a8e8dae479429e106faaf76a
   m_configObjects: {}
