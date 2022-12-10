@@ -8,6 +8,8 @@ public class SwipeUI : MonoBehaviour
     [SerializeField]
     private Scrollbar scrollBar;
     [SerializeField]
+    private Transform[] circleContents;
+    [SerializeField]
     private float swipeTime = 0.2f;
     [SerializeField]
     private float swipeDistance = 50.0f;
@@ -19,6 +21,7 @@ public class SwipeUI : MonoBehaviour
     private float startTouchX;
     private float endTouchX;
     private bool isSwipeMode = false;
+    private float circleContentScale = 1.6f;
 
     private void Awake()
     {
@@ -106,7 +109,7 @@ public class SwipeUI : MonoBehaviour
         }
         else
         {
-            if (currentPage == maxPage -1)
+            if (currentPage == maxPage - 1)
             {
                 return;
             }
@@ -141,5 +144,22 @@ public class SwipeUI : MonoBehaviour
     void Update()
     {
         UpdateInput();
+        UpdateIndicator();
+    }
+
+    private void UpdateIndicator()
+    {
+        for (int i = 0; i < scrollPageValues.Length; ++i)
+        {
+            circleContents[i].localScale = Vector2.one;
+            circleContents[i].GetComponent<Image>().color = Color.white;
+
+            if (scrollBar.value < scrollPageValues[i] + (valueDistance / 2) &&
+                scrollBar.value > scrollPageValues[i] - (valueDistance / 2))
+            {
+                circleContents[i].localScale = Vector2.one * circleContentScale;
+                circleContents[i].GetComponent<Image>().color = Color.black;
+            }
+        }
     }
 }
