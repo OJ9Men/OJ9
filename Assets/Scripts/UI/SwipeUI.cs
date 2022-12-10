@@ -8,11 +8,15 @@ public class SwipeUI : MonoBehaviour
     [SerializeField]
     private Scrollbar scrollBar;
     [SerializeField]
-    private Transform[] circleContents;
-    [SerializeField]
     private float swipeTime = 0.2f;
     [SerializeField]
     private float swipeDistance = 50.0f;
+    [SerializeField]
+    private GameObject indicatorCirclePrefab;
+    [SerializeField]
+    private Transform indicatorTransform;
+
+    private Transform[] indicators;
 
     private float[] scrollPageValues;
     private float valueDistance = 0.0f;
@@ -21,7 +25,7 @@ public class SwipeUI : MonoBehaviour
     private float startTouchX;
     private float endTouchX;
     private bool isSwipeMode = false;
-    private float circleContentScale = 1.6f;
+    private float indicatorCircleScale = 1.6f;
 
     private void Awake()
     {
@@ -42,6 +46,13 @@ public class SwipeUI : MonoBehaviour
     void Start()
     {
         SetScrollBarValue(0);
+
+        indicators = new Transform[(int)transform.childCount];
+        for (int i = 0; i < transform.childCount; ++i)
+        {
+            GameObject circle = Instantiate(indicatorCirclePrefab, indicatorTransform, false);
+            indicators[i] = circle.transform;
+        }
     }
 
     public void SetScrollBarValue(int index)
@@ -151,14 +162,14 @@ public class SwipeUI : MonoBehaviour
     {
         for (int i = 0; i < scrollPageValues.Length; ++i)
         {
-            circleContents[i].localScale = Vector2.one;
-            circleContents[i].GetComponent<Image>().color = Color.white;
+            indicators[i].localScale = Vector2.one;
+            indicators[i].GetComponent<Image>().color = Color.white;
 
             if (scrollBar.value < scrollPageValues[i] + (valueDistance / 2) &&
                 scrollBar.value > scrollPageValues[i] - (valueDistance / 2))
             {
-                circleContents[i].localScale = Vector2.one * circleContentScale;
-                circleContents[i].GetComponent<Image>().color = Color.black;
+                indicators[i].localScale = Vector2.one * indicatorCircleScale;
+                indicators[i].GetComponent<Image>().color = Color.black;
             }
         }
     }
