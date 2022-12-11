@@ -1,12 +1,12 @@
-﻿public class LoginServer
+﻿public class Program
 {
     static void Main(string[] Args)
     {
         Console.WriteLine("Start Login Server...");
         Console.Title = "LoginServer";
         
-        Auth auth = new Auth();
-        auth.Init();
+        LoginServer loginServer = new LoginServer();
+        loginServer.Init();
         
         while (true)
         {

@@ -1,9 +1,9 @@
-﻿class Auth
+﻿class LoginServer
 {
     public void Init()
     {
         Console.WriteLine("////////////////////////");
-        Console.WriteLine("Auth Init");
+        Console.WriteLine("LoginServer Init");
         Console.WriteLine("////////////////////////");
     }
 }
