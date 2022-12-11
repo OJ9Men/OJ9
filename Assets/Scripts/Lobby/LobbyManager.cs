@@ -59,7 +59,7 @@ public class LobbyManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        OnGameSelected((int)GameType.Soccer);
     }
 
     // Update is called once per frame
