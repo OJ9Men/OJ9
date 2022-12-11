@@ -1,1 +1,9 @@
 # This is server gitingnore file
+
+# ignore Rider setting files
+.idea/
+
+# .Net core
+# Release should be included
+*/bin/Debug/
+*/obj/
