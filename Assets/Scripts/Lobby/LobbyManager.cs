@@ -38,7 +38,7 @@ public class LobbyManager : MonoBehaviour
         {
             case GameType.Soccer:
             {
-                SceneManager.LoadScene("BattleScene");
+                SceneManager.LoadScene("SoccerScene");
             }
                 break;
             case GameType.Dummy1:

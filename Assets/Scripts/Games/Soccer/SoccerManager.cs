@@ -6,7 +6,7 @@ static class Constants
     public const int RACKET_NUM = 5;
 }
 
-public class GameManager : MonoBehaviour
+public class SoccerManager : MonoBehaviour
 {
     struct GoalLineBoundary
     {
