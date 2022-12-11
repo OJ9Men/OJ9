@@ -2,21 +2,22 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public enum GameType
 {
     Soccer,
-    Dummy,
+    Dummy1,
+    Dummy2,
+    Dummy3,
     Max,
 }
 
 public class LobbyManager : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject gameHolder;
+    [SerializeField] private GameObject gameHolder;
 
-    [SerializeField]
-    private TMP_Text gameName;
+    [SerializeField] private TMP_Text gameName;
 
     private GameType selectedGameType;
 
@@ -26,28 +27,31 @@ public class LobbyManager : MonoBehaviour
         {
             throw new System.SystemException("올바르지 않은 GameType");
         }
+
         selectedGameType = (GameType)gameIndex;
         gameName.text = selectedGameType + " Game";
     }
 
     public void OnStartButtonClicked()
     {
-        switch(selectedGameType)
+        switch (selectedGameType)
         {
             case GameType.Soccer:
-                {
-                    SceneManager.LoadScene("BattleScene");
-                }
+            {
+                SceneManager.LoadScene("BattleScene");
+            }
                 break;
-            case GameType.Dummy:
-                {
-                    Debug.Log("더미 게임 실행");
-                }
+            case GameType.Dummy1:
+            case GameType.Dummy2:
+            case GameType.Dummy3:
+            {
+                Debug.Log("더미 게임 실행");
+            }
                 break;
             default:
-                {
-                    throw new System.SystemException("올바르지 않은 GameType");
-                }
+            {
+                throw new System.SystemException("올바르지 않은 GameType");
+            }
         }
     }
 
@@ -65,6 +69,5 @@ public class LobbyManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
     }
 }

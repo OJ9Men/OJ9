@@ -1779,6 +1779,21 @@ MonoBehaviour:
   swipeDistance: 50
   indicatorCirclePrefab: {fileID: 8601789860278860436, guid: 7f75ee971190583459502c4ef68b6c29, type: 3}
   indicatorTransform: {fileID: 383728523}
+  _swipeEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 320943039}
+        m_TargetAssemblyTypeName: LobbyManager, Assembly-CSharp
+        m_MethodName: OnGameSelected
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2059039754
 GameObject:
   m_ObjectHideFlags: 0

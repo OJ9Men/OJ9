@@ -1,20 +1,30 @@
+using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class SwipeUI : MonoBehaviour
 {
-    [SerializeField]
-    private Scrollbar scrollBar;
-    [SerializeField]
-    private float swipeTime = 0.2f;
-    [SerializeField]
-    private float swipeDistance = 50.0f;
-    [SerializeField]
-    private GameObject indicatorCirclePrefab;
-    [SerializeField]
-    private Transform indicatorTransform;
+    [SerializeField] private Scrollbar scrollBar;
+    [SerializeField] private float swipeTime = 0.2f;
+    [SerializeField] private float swipeDistance = 50.0f;
+    [SerializeField] private GameObject indicatorCirclePrefab;
+    [SerializeField] private Transform indicatorTransform;
+
+    [Serializable]
+    public class SwipeEvent : UnityEvent<int>
+    {
+    }
+
+    [SerializeField] private SwipeEvent _swipeEvent = new SwipeEvent();
+
+    public SwipeEvent onSwipe
+    {
+        get { return _swipeEvent; }
+        set { _swipeEvent = value; }
+    }
 
     private Transform[] indicators;
 
@@ -150,6 +160,7 @@ public class SwipeUI : MonoBehaviour
         }
 
         isSwipeMode = false;
+        _swipeEvent.Invoke(index);
     }
 
     void Update()
