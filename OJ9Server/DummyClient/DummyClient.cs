@@ -1,8 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 
-namespace DummyClient;
-
 public class DummyClient
 {
     private Socket socket;

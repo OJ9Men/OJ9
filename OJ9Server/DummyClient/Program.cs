@@ -7,7 +7,7 @@ static class Program
         Console.Title = "DummyClient";
         Console.WriteLine("Start DummyClient...");
 
-        DummyClient.DummyClient client = new DummyClient.DummyClient();
+        DummyClient client = new DummyClient();
         client.Connect();
 
         while (!client.isConnected)
