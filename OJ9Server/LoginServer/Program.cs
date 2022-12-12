@@ -4,13 +4,16 @@
     {
         Console.WriteLine("Start Login Server...");
         Console.Title = "LoginServer";
-        
+
         LoginServer loginServer = new LoginServer();
-        loginServer.Init();
-        
-        while (true)
+        loginServer.Start();
+
+        while (loginServer.isConnected == false)
         {
         }
+
+        byte[] msg = new byte[8];
+        loginServer.Send(msg);
 
         Console.ReadKey();
     }
