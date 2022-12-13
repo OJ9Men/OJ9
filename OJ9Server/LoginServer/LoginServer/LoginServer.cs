@@ -6,10 +6,34 @@ class LoginServer
     private Socket listeningSocket;
     private List<Socket> connectedClients = new List<Socket>();
     public bool isConnected = false;
+    private Thread disconnectDetectorThread;
+
+    private void DisconnectDetector()
+    {
+        while (true)
+        {
+            foreach (var iter in connectedClients.ToList())
+            {
+                if (iter == null)
+                {
+                    continue;
+                }
+                
+                if (iter.Poll(1, SelectMode.SelectRead) && iter.Available == 0)
+                {
+                    Console.WriteLine(iter.RemoteEndPoint + " is disconnected");
+                    connectedClients.Remove(iter);
+                }
+            }
+        }
+    }
 
     public void Start()
     {
         Init();
+        
+        disconnectDetectorThread = new Thread(DisconnectDetector);
+        disconnectDetectorThread.Start();
         
         try
         {
@@ -66,6 +90,7 @@ class LoginServer
         try
         {
             Socket client = listeningSocket.EndAccept(asyncResult);
+            Console.WriteLine("Client accepted : " + client.RemoteEndPoint);
             AsyncObject obj = new AsyncObject(1920 * 1080 * 3);
             obj.workingSocket = client;
             connectedClients.Add(client);

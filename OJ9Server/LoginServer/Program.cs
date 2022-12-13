@@ -8,8 +8,9 @@
         LoginServer loginServer = new LoginServer();
         loginServer.Start();
 
-        while (loginServer.isConnected == false)
+        while (true)
         {
+            Thread.Sleep(10);
         }
 
         byte[] msg = new byte[8];
