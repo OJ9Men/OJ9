@@ -3,10 +3,9 @@ using System.Net.Sockets;
 
 class LoginServer
 {
-    private Socket listeningSocket;
-    private List<Socket> connectedClients = new List<Socket>();
-    public bool isConnected = false;
-    private Thread disconnectDetectorThread;
+    private Socket? listeningSocket;
+    private readonly List<Socket> connectedClients = new List<Socket>();
+    private Thread? disconnectDetectorThread;
 
     private void DisconnectDetector()
     {
@@ -14,18 +13,16 @@ class LoginServer
         {
             foreach (var iter in connectedClients.ToList())
             {
-                if (iter == null)
+                if (!(iter.Poll(1, SelectMode.SelectRead) && iter.Available == 0))
                 {
                     continue;
                 }
                 
-                if (iter.Poll(1, SelectMode.SelectRead) && iter.Available == 0)
-                {
-                    Console.WriteLine(iter.RemoteEndPoint + " is disconnected");
-                    connectedClients.Remove(iter);
-                }
+                Console.WriteLine(iter.RemoteEndPoint + " is disconnected");
+                connectedClients.Remove(iter);
             }
         }
+        // ReSharper disable once FunctionNeverReturns
     }
 
     public void Start()
@@ -38,7 +35,7 @@ class LoginServer
         try
         {
             listeningSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Any, Constants.PORT_NUM);
+            var serverEndPoint = new IPEndPoint(IPAddress.Any, Constants.PORT_NUM);
             listeningSocket.Bind(serverEndPoint);
             listeningSocket.Listen(10);  // connection queue
             listeningSocket.BeginAccept(AcceptCallback, null);
@@ -77,6 +74,7 @@ class LoginServer
         {
             bufferSize = _bufferSize;
             buffer = new byte[(long)bufferSize];
+            workingSocket = null!;
         }
 
         public void ClearBuffer()
@@ -85,19 +83,26 @@ class LoginServer
         }
     }
 
-    private void AcceptCallback(IAsyncResult asyncResult)
+    private void AcceptCallback(IAsyncResult _asyncResult)
     {
         try
         {
-            Socket client = listeningSocket.EndAccept(asyncResult);
+            if (listeningSocket == null)
+            {
+                Console.WriteLine("listening socket does not exist.");
+                return;
+            }
+            
+            var client = listeningSocket.EndAccept(_asyncResult);
             Console.WriteLine("Client accepted : " + client.RemoteEndPoint);
-            AsyncObject obj = new AsyncObject(1920 * 1080 * 3);
-            obj.workingSocket = client;
+            var obj = new AsyncObject(1920 * 1080 * 3)
+            {
+                workingSocket = client
+            };
             connectedClients.Add(client);
             client.BeginReceive(obj.buffer, 0, 1920 * 1080 * 3, 0, DataReceived, obj);
 
             listeningSocket.BeginAccept(AcceptCallback, null);
-            isConnected = true;
         }
         catch (Exception e)
         {
@@ -106,16 +111,15 @@ class LoginServer
         }
     }
 
-    private void DataReceived(IAsyncResult asyncResult)
+    private void DataReceived(IAsyncResult _asyncResult)
     {
-        AsyncObject obj = (AsyncObject)asyncResult.AsyncState;
-        int received = obj.workingSocket.EndReceive(asyncResult);
-        byte[] buffer = new byte[received];
+        var obj = (AsyncObject)_asyncResult.AsyncState!;
+        var received = obj.workingSocket.EndReceive(_asyncResult);
+        var buffer = new byte[received];
         Array.Copy(obj.buffer, 0, buffer, 0, received);
     }
     private void Init()
     {
-        isConnected = false;
         listeningSocket = null;
         connectedClients.Clear();
         
@@ -124,8 +128,8 @@ class LoginServer
         Console.WriteLine("////////////////////////");
     }
 
-    public void Send(byte[] msg)
+    public void Send(byte[] _msg)
     {
-        connectedClients[0].Send(msg);
+        connectedClients[0].Send(_msg);
     }
 }

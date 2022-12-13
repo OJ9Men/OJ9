@@ -12,10 +12,5 @@
         {
             Thread.Sleep(10);
         }
-
-        byte[] msg = new byte[8];
-        loginServer.Send(msg);
-
-        Console.ReadKey();
     }
 }
