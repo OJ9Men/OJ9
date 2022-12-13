@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 class LoginServer
 {
-    private Socket socket;
+    private Socket listeningSocket;
     private List<Socket> connectedClients = new List<Socket>();
     public bool isConnected = false;
 
@@ -13,11 +13,11 @@ class LoginServer
         
         try
         {
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            listeningSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Any, Constants.PORT_NUM);
-            socket.Bind(serverEndPoint);
-            socket.Listen(10);  // connection queue
-            socket.BeginAccept(AcceptCallback, null);
+            listeningSocket.Bind(serverEndPoint);
+            listeningSocket.Listen(10);  // connection queue
+            listeningSocket.BeginAccept(AcceptCallback, null);
         }
         catch (Exception e)
         {
@@ -28,10 +28,10 @@ class LoginServer
 
     public void Close()
     {
-        if (socket != null)
+        if (listeningSocket != null)
         {
-            socket.Close();
-            socket.Dispose();
+            listeningSocket.Close();
+            listeningSocket.Dispose();
         }
 
         foreach (var iter in connectedClients)
@@ -65,13 +65,13 @@ class LoginServer
     {
         try
         {
-            Socket client = socket.EndAccept(asyncResult);
+            Socket client = listeningSocket.EndAccept(asyncResult);
             AsyncObject obj = new AsyncObject(1920 * 1080 * 3);
             obj.workingSocket = client;
             connectedClients.Add(client);
             client.BeginReceive(obj.buffer, 0, 1920 * 1080 * 3, 0, DataReceived, obj);
 
-            socket.BeginAccept(AcceptCallback, null);
+            listeningSocket.BeginAccept(AcceptCallback, null);
             isConnected = true;
         }
         catch (Exception e)
@@ -91,7 +91,7 @@ class LoginServer
     private void Init()
     {
         isConnected = false;
-        socket = null;
+        listeningSocket = null;
         connectedClients.Clear();
         
         Console.WriteLine("////////////////////////");
@@ -101,6 +101,6 @@ class LoginServer
 
     public void Send(byte[] msg)
     {
-        socket.Send(msg);
+        connectedClients[0].Send(msg);
     }
 }
