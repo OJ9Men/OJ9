@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 public class DummyClient
 {
@@ -48,6 +49,8 @@ public class DummyClient
         {
             Socket client = (Socket)_result.AsyncState;
             client.EndConnect(_result);
+            Console.WriteLine("Server connected : " + client.RemoteEndPoint);
+            
             AsyncObject obj = new AsyncObject(4096);
             obj.workingSocket = socket;
             socket.BeginReceive(obj.buffer, 0, obj.bufferSize, 0, DataReceived, obj);
@@ -67,10 +70,24 @@ public class DummyClient
         int recived = obj.workingSocket.EndReceive(_result);
         byte[] buffer = new byte[recived];
         Array.Copy(obj.buffer, 0, buffer, 0, recived);
+
+        string result = Encoding.UTF8.GetString(buffer);
+        Console.WriteLine("[Server] : " + result);
     }
 
-    public void Send(byte[] msg)
+    private void Send(byte[] msg)
     {
         socket.Send(msg);
+    }
+
+    public void SendString(string? _input)
+    {
+        if (_input == null)
+        {
+            return;
+        }
+
+        byte[] msg = Encoding.UTF8.GetBytes(_input);
+        Send(msg);
     }
 }

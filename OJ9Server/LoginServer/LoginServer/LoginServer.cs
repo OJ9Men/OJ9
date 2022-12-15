@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 class LoginServer
 {
@@ -13,11 +14,11 @@ class LoginServer
         {
             foreach (var iter in connectedClients.ToList())
             {
-                if (!(iter.Poll(1, SelectMode.SelectRead) && iter.Available == 0))
+                if (IsConnected(iter))
                 {
                     continue;
                 }
-                
+
                 Console.WriteLine(iter.RemoteEndPoint + " is disconnected");
                 connectedClients.Remove(iter);
             }
@@ -27,17 +28,17 @@ class LoginServer
 
     public void Start()
     {
-        Init();
-        
+        listeningSocket = null;
+        connectedClients.Clear();
         disconnectDetectorThread = new Thread(DisconnectDetector);
         disconnectDetectorThread.Start();
-        
+
         try
         {
             listeningSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             var serverEndPoint = new IPEndPoint(IPAddress.Any, Constants.PORT_NUM);
             listeningSocket.Bind(serverEndPoint);
-            listeningSocket.Listen(10);  // connection queue
+            listeningSocket.Listen(10); // connection queue
             listeningSocket.BeginAccept(AcceptCallback, null);
         }
         catch (Exception e)
@@ -45,6 +46,8 @@ class LoginServer
             Console.WriteLine(e);
             throw;
         }
+        
+        Console.WriteLine("Done!");
     }
 
     public void Close()
@@ -60,7 +63,7 @@ class LoginServer
             iter.Close();
             iter.Dispose();
         }
-        
+
         connectedClients.Clear();
     }
 
@@ -76,11 +79,6 @@ class LoginServer
             buffer = new byte[(long)bufferSize];
             workingSocket = null!;
         }
-
-        public void ClearBuffer()
-        {
-            Array.Clear(buffer, 0, bufferSize);
-        }
     }
 
     private void AcceptCallback(IAsyncResult _asyncResult)
@@ -92,15 +90,20 @@ class LoginServer
                 Console.WriteLine("listening socket does not exist.");
                 return;
             }
-            
+
             var client = listeningSocket.EndAccept(_asyncResult);
             Console.WriteLine("Client accepted : " + client.RemoteEndPoint);
-            var obj = new AsyncObject(1920 * 1080 * 3)
+
+            // Say Hi !
+            string helloMessage = "Hi there! " + client.RemoteEndPoint;
+            client.Send(Encoding.UTF8.GetBytes(helloMessage));
+
+            var obj = new AsyncObject(4096)
             {
                 workingSocket = client
             };
             connectedClients.Add(client);
-            client.BeginReceive(obj.buffer, 0, 1920 * 1080 * 3, 0, DataReceived, obj);
+            client.BeginReceive(obj.buffer, 0, 4096, 0, DataReceived, obj);
 
             listeningSocket.BeginAccept(AcceptCallback, null);
         }
@@ -114,22 +117,23 @@ class LoginServer
     private void DataReceived(IAsyncResult _asyncResult)
     {
         var obj = (AsyncObject)_asyncResult.AsyncState!;
+        if (!IsConnected(obj.workingSocket))
+        {
+            return;
+        }
+
         var received = obj.workingSocket.EndReceive(_asyncResult);
         var buffer = new byte[received];
         Array.Copy(obj.buffer, 0, buffer, 0, received);
-    }
-    private void Init()
-    {
-        listeningSocket = null;
-        connectedClients.Clear();
+
+        string receivedMessage = Encoding.UTF8.GetString(buffer);
+        Console.WriteLine("[" + obj.workingSocket.RemoteEndPoint + "] : " + receivedMessage);
         
-        Console.WriteLine("////////////////////////");
-        Console.WriteLine("LoginServer Init");
-        Console.WriteLine("////////////////////////");
+        obj.workingSocket.BeginReceive(obj.buffer, 0, 4096, 0, DataReceived, obj);
     }
 
-    public void Send(byte[] _msg)
+    private bool IsConnected(Socket _socket)
     {
-        connectedClients[0].Send(_msg);
+        return !(_socket.Poll(1, SelectMode.SelectRead) && _socket.Available == 0); 
     }
 }

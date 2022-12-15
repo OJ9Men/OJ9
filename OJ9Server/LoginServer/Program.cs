@@ -2,7 +2,7 @@
 {
     static void Main(string[] Args)
     {
-        Console.WriteLine("Start Login Server...");
+        Console.WriteLine("Starting Login Server...");
         Console.Title = "LoginServer";
 
         LoginServer loginServer = new LoginServer();

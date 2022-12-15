@@ -10,15 +10,14 @@ static class Program
         DummyClient client = new DummyClient();
         client.Connect();
 
-        while (!client.isConnected)
+        while (true)
         {
-            
+            // GameLogic
+            if (client.isConnected)
+            {
+                var input = Console.ReadLine();
+                client.SendString(input);
+            }
         }
-        
-        Console.WriteLine("Server connected!");
-        byte[] msg = new byte[8];
-        client.Send(msg);
-        
-        Console.ReadKey();
     }
 }
