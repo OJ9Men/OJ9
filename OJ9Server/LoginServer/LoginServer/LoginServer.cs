@@ -98,12 +98,12 @@ class LoginServer
             string helloMessage = "Hi there! " + client.RemoteEndPoint;
             client.Send(Encoding.UTF8.GetBytes(helloMessage));
 
-            var obj = new AsyncObject(4096)
+            var obj = new AsyncObject(Constants.BUFFER_SIZE)
             {
                 workingSocket = client
             };
             connectedClients.Add(client);
-            client.BeginReceive(obj.buffer, 0, 4096, 0, DataReceived, obj);
+            client.BeginReceive(obj.buffer, 0, Constants.BUFFER_SIZE, 0, DataReceived, obj);
 
             listeningSocket.BeginAccept(AcceptCallback, null);
         }
@@ -129,7 +129,7 @@ class LoginServer
         string receivedMessage = Encoding.UTF8.GetString(buffer);
         Console.WriteLine("[" + obj.workingSocket.RemoteEndPoint + "] : " + receivedMessage);
         
-        obj.workingSocket.BeginReceive(obj.buffer, 0, 4096, 0, DataReceived, obj);
+        obj.workingSocket.BeginReceive(obj.buffer, 0, Constants.BUFFER_SIZE, 0, DataReceived, obj);
     }
 
     private bool IsConnected(Socket _socket)

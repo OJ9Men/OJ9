@@ -51,7 +51,7 @@ public class DummyClient
             client.EndConnect(_result);
             Console.WriteLine("Server connected : " + client.RemoteEndPoint);
             
-            AsyncObject obj = new AsyncObject(4096);
+            AsyncObject obj = new AsyncObject(Constants.BUFFER_SIZE);
             obj.workingSocket = socket;
             socket.BeginReceive(obj.buffer, 0, obj.bufferSize, 0, DataReceived, obj);
             isConnected = true;
