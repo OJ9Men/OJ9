@@ -8,16 +8,12 @@ static class Program
         Console.WriteLine("Start DummyClient...");
 
         DummyClient client = new DummyClient();
-        client.Connect();
+        client.StartListening();
 
         while (true)
         {
-            // GameLogic
-            if (client.isConnected)
-            {
-                var input = Console.ReadLine();
-                client.SendString(input);
-            }
+            var input = Console.ReadLine();
+            client.SendString(input);
         }
     }
 }
