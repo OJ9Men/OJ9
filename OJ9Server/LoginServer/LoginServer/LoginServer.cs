@@ -25,12 +25,12 @@ class LoginServer
     {
         IPEndPoint groupEndPoint = null;
         var buffer = listener.EndReceive(_asyncResult, ref groupEndPoint);
-        IPacketBase packetBase = (IPacketBase)Constants.ByteArrayToObject(buffer);
-        switch (packetBase.packetType)
+        var packBase = Constants.ByteArrayToObject<IPacketBase>(buffer);
+        switch (packBase.packetType)
         {
             case PacketType.Test:
             {
-                C2LoginTest packet = (C2LoginTest)packetBase;
+                C2LoginTest packet = Constants.ByteArrayToObject<C2LoginTest>(buffer);
                 Console.WriteLine("[" + packet.port + "] : " + packet.str);
             } break;
             default:
