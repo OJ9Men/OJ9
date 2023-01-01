@@ -14,6 +14,9 @@
       <Compile Include="..\..\Common\Packets.cs">
         <Link>Packets.cs</Link>
       </Compile>
+      <Compile Include="..\Common\Functions.cs">
+        <Link>Functions.cs</Link>
+      </Compile>
     </ItemGroup>
 
 </Project>

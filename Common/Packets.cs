@@ -39,7 +39,6 @@ public class C2LLogin : IPacketBase
 
     public string id { get; set; }
     public string pw { get; set; }
-    public Int64 idKey { get; set; }
 }
 
 public class L2CLogin : IPacketBase
