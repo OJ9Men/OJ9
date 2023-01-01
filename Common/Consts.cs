@@ -1,4 +1,4 @@
-public static class Constants
+public static class OJ9Const
 {
     public static int PORT_NUM = 5000;
 }

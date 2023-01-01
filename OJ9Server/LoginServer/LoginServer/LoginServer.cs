@@ -7,7 +7,7 @@ class LoginServer
 
     public void Start()
     {
-        listener = new UdpClient(Constants.PORT_NUM);
+        listener = new UdpClient(OJ9Const.PORT_NUM);
 
         try
         {
@@ -29,7 +29,7 @@ class LoginServer
         {
             case PacketType.Test:
             {
-                C2LoginTest packet = OJ9Function.ByteArrayToObject<C2LoginTest>(buffer);
+                C2LTest packet = OJ9Function.ByteArrayToObject<C2LTest>(buffer);
                 Console.WriteLine("[" + packet.port + "] : " + packet.str);
             } break;
             default:

@@ -11,7 +11,7 @@ public class DummyClient
 
     public void StartListening()
     {
-        listener = new UdpClient(Constants.PORT_NUM + 1);
+        listener = new UdpClient(OJ9Const.PORT_NUM + 1);
 
         try
         {
@@ -37,8 +37,8 @@ public class DummyClient
         }
 
         Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        byte[] sendbuf = OJ9Function.ObjectToByteArray(new C2LoginTest(MY_PORT_NUM, _input));
-        IPEndPoint ep = IPEndPoint.Parse("127.0.0.1:" + Constants.PORT_NUM);
+        byte[] sendbuf = OJ9Function.ObjectToByteArray(new C2LTest(MY_PORT_NUM, _input));
+        IPEndPoint ep = IPEndPoint.Parse("127.0.0.1:" + OJ9Const.PORT_NUM);
 
         s.SendTo(sendbuf, ep);
 
