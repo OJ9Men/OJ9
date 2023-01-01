@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using System.Text;
 
 public class DummyClient
 {
@@ -38,8 +37,7 @@ public class DummyClient
         }
 
         Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        //byte[] sendbuf = Encoding.UTF8.GetBytes(_input);
-        byte[] sendbuf = Constants.ObjectToByteArray(new C2LoginTest(MY_PORT_NUM, _input));
+        byte[] sendbuf = OJ9Function.ObjectToByteArray(new C2LoginTest(MY_PORT_NUM, _input));
         IPEndPoint ep = IPEndPoint.Parse("127.0.0.1:" + Constants.PORT_NUM);
 
         s.SendTo(sendbuf, ep);

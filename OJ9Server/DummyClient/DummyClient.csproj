@@ -8,11 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Include="..\Common\CommonClasses.cs">
-        <Link>CommonClasses.cs</Link>
-      </Compile>
-      <Compile Include="..\Common\Constants.cs">
+      <Compile Include="..\..\Common\Constants.cs">
         <Link>Constants.cs</Link>
+      </Compile>
+      <Compile Include="..\..\Common\Packets.cs">
+        <Link>Packets.cs</Link>
       </Compile>
     </ItemGroup>
 

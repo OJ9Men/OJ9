@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using System.Text;
 
 class LoginServer
 {
@@ -25,12 +24,12 @@ class LoginServer
     {
         IPEndPoint groupEndPoint = null;
         var buffer = listener.EndReceive(_asyncResult, ref groupEndPoint);
-        var packBase = Constants.ByteArrayToObject<IPacketBase>(buffer);
+        var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
         switch (packBase.packetType)
         {
             case PacketType.Test:
             {
-                C2LoginTest packet = Constants.ByteArrayToObject<C2LoginTest>(buffer);
+                C2LoginTest packet = OJ9Function.ByteArrayToObject<C2LoginTest>(buffer);
                 Console.WriteLine("[" + packet.port + "] : " + packet.str);
             } break;
             default:
