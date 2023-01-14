@@ -37,7 +37,7 @@ public class DummyClient
         }
 
         Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        byte[] sendbuf = OJ9Function.ObjectToByteArray(new C2LTest(MY_PORT_NUM, _input));
+        byte[] sendbuf = OJ9Function.ObjectToByteArray(new C2LLogin("dummy Id", "dummy pw"));
         IPEndPoint ep = IPEndPoint.Parse("127.0.0.1:" + OJ9Const.PORT_NUM);
 
         s.SendTo(sendbuf, ep);

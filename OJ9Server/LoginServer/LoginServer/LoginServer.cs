@@ -27,11 +27,12 @@ class LoginServer
         var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
         switch (packBase.packetType)
         {
-            case PacketType.Test:
+            case PacketType.Login:
             {
-                C2LTest packet = OJ9Function.ByteArrayToObject<C2LTest>(buffer);
-                Console.WriteLine("[" + packet.port + "] : " + packet.str);
-            } break;
+                C2LLogin packet = OJ9Function.ByteArrayToObject<C2LLogin>(buffer);
+                Console.WriteLine("Id : " + packet.id + " pw : " + packet.pw);
+            }
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }

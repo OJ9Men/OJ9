@@ -8,14 +8,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Include="..\..\Common\Consts.cs">
+      <Compile Include="..\..\OJ9\Assets\Network\Consts.cs">
         <Link>Consts.cs</Link>
       </Compile>
-      <Compile Include="..\..\Common\Packets.cs">
-        <Link>Packets.cs</Link>
+      <Compile Include="..\..\OJ9\Assets\Network\OJ9Functions.cs">
+        <Link>OJ9Functions.cs</Link>
       </Compile>
-      <Compile Include="..\Common\Functions.cs">
-        <Link>Functions.cs</Link>
+      <Compile Include="..\..\OJ9\Assets\Network\Packets.cs">
+        <Link>Packets.cs</Link>
       </Compile>
     </ItemGroup>
 
