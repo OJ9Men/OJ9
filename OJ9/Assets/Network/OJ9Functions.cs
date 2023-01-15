@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Net;
+using System.Net.Sockets;
 
 public static class OJ9Function
 {
@@ -47,5 +48,24 @@ public static class OJ9Function
         }
 
         return new IPEndPoint(ip, port);
+    }
+
+    public static string GetLocalIpAddr()
+    {
+        var host = Dns.GetHostEntry(Dns.GetHostName());
+        foreach (var ip in host.AddressList)
+        {
+            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            {
+                return ip.ToString();
+            }
+        }
+        throw new Exception("No network adapters with an IPv4 address in the system!");
+    }
+
+    public static string GetExternalIpAddr()
+    {
+        var externalIpString = new WebClient().DownloadString("http://icanhazip.com").Replace("\\r\\n", "").Replace("\\n", "").Trim();
+        return externalIpString;
     }
 }

@@ -7,7 +7,7 @@ class LoginServer
 
     public void Start()
     {
-        listener = new UdpClient(OJ9Const.PORT_NUM);
+        listener = new UdpClient(OJ9Const.SERVER_PORT_NUM);
 
         try
         {
@@ -22,23 +22,37 @@ class LoginServer
 
     private void DataReceived(IAsyncResult _asyncResult)
     {
-        IPEndPoint groupEndPoint = null;
-        var buffer = listener.EndReceive(_asyncResult, ref groupEndPoint);
+        IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.None, 0);
+        var buffer = listener.EndReceive(_asyncResult, ref ipEndPoint);
         var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
         switch (packBase.packetType)
         {
             case PacketType.Login:
             {
                 C2LLogin packet = OJ9Function.ByteArrayToObject<C2LLogin>(buffer);
-                Console.WriteLine("Id : " + packet.id + " pw : " + packet.pw);
+                StartLogin(packet);
             }
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
 
-        // TODO 
-        // Instead of receiving, Send some hand shake packet
         listener.BeginReceive(DataReceived, null);
+    }
+
+    private void StartLogin(C2LLogin packet)
+    {
+        // TODO : Check id / pw
+        Console.WriteLine("Id : " + packet.id + " pw : " + packet.pw);
+
+        Socket socket = new Socket(
+            AddressFamily.InterNetwork,
+            SocketType.Dgram,
+            ProtocolType.Udp
+        );
+
+        byte[] sendBuff = OJ9Function.ObjectToByteArray(new L2CLogin("1923759127378", "Hello World"));
+        IPEndPoint endPoint = OJ9Function.CreateIPEndPoint(packet.ip + ":" + OJ9Const.CLIENT_PORT_NUM);
+        socket.SendTo(sendBuff, endPoint);
     }
 }
