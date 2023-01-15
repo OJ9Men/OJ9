@@ -12,18 +12,16 @@ public class C2LLogin : IPacketBase
 {
     public string id { get; set; }
     public string pw { get; set; }
-    public string ip { get; set; }
 
     public C2LLogin()
     {
     }
 
-    public C2LLogin(string _id, string _pw, string _ip)
+    public C2LLogin(string _id, string _pw)
     {
         packetType = PacketType.Login;
         id = _id;
         pw = _pw;
-        ip = _ip;
     }
 }
 

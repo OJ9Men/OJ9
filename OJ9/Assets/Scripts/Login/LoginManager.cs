@@ -11,7 +11,7 @@ public class LoginManager : MonoBehaviour
 
     [SerializeField] private TMP_InputField pwText;
 
-    private UdpClient listener;
+    private UdpClient udpClient;
     private bool loginSuccess = false;
 
     private void OnLoginButtonClicked()
@@ -21,27 +21,22 @@ public class LoginManager : MonoBehaviour
 
     private void ReqLogin()
     {
-        Socket socket = new Socket(
-            AddressFamily.InterNetwork,
-            SocketType.Dgram,
-            ProtocolType.Udp
-        );
+        udpClient = new UdpClient(OJ9Const.CLIENT_PORT_NUM);
 
         byte[] sendBuff =
-            OJ9Function.ObjectToByteArray(new C2LLogin(idText.text, pwText.text, OJ9Function.GetLocalIpAddr()));
+            OJ9Function.ObjectToByteArray(new C2LLogin(idText.text, pwText.text));
         IPEndPoint endPoint = OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.SERVER_PORT_NUM);
-        socket.SendTo(sendBuff, endPoint);
+        udpClient.Send(sendBuff, sendBuff.Length, endPoint);
 
         StartListen();
     }
 
     private void StartListen()
     {
-        listener = new UdpClient(OJ9Const.CLIENT_PORT_NUM);
 
         try
         {
-            listener.BeginReceive(DataReceived, null);
+            udpClient.BeginReceive(DataReceived, null);
         }
         catch (Exception e)
         {
@@ -53,14 +48,14 @@ public class LoginManager : MonoBehaviour
     private void DataReceived(IAsyncResult asyncResult)
     {
         IPEndPoint groupEndPoint = null;
-        var buffer = listener.EndReceive(asyncResult, ref groupEndPoint);
+        var buffer = udpClient.EndReceive(asyncResult, ref groupEndPoint);
         var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
         switch (packBase.packetType)
         {
             case PacketType.Login:
             {
                 L2CLogin packet = OJ9Function.ByteArrayToObject<L2CLogin>(buffer);
-                Console.WriteLine("[" + packet.dbId + "] : " + packet.welcomeMsg);
+                Debug.Log("[" + packet.dbId + "] : " + packet.welcomeMsg);
                 loginSuccess = true;
             }
                 break;
