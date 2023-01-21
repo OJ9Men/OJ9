@@ -19,4 +19,14 @@
       </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="MySql.Data" Version="8.0.32" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="..\Common\App.config">
+        <Link>App.config</Link>
+      </None>
+    </ItemGroup>
+
 </Project>

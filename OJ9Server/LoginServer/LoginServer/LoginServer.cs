@@ -1,16 +1,24 @@
-﻿using System.Net;
+﻿using System.Configuration;
+using System.Net;
 using System.Net.Sockets;
+using MySql.Data.MySqlClient;
 
 class LoginServer
 {
     private UdpClient udpClient;
+    private MySqlConnection mysql;
 
     public void Start()
     {
-        udpClient = new UdpClient(OJ9Const.SERVER_PORT_NUM);
-
         try
         {
+            // StartDB();
+            
+            udpClient = new UdpClient(
+                Convert.ToInt32(
+                    ConfigurationManager.AppSettings.Get("loginServerPort")
+                )
+            );
             udpClient.BeginReceive(DataReceived, null);
         }
         catch (Exception e)
@@ -18,6 +26,23 @@ class LoginServer
             Console.WriteLine(e);
             throw;
         }
+    }
+
+    private void StartDB()
+    {
+        string dbServerString = string.Format(
+            "Server=localhost;" +
+            "Port={0};" +
+            "Database={1};" +
+            "Uid={2};" +
+            "Pwd={3}",
+            ConfigurationManager.AppSettings.Get("dbPort"),
+            ConfigurationManager.AppSettings.Get("Database"),
+            ConfigurationManager.AppSettings.Get("dbUserId"),
+            ConfigurationManager.AppSettings.Get("dbUserPw")
+        );
+
+        mysql = new MySqlConnection(dbServerString);
     }
 
     private void DataReceived(IAsyncResult _asyncResult)
