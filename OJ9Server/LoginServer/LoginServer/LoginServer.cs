@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 using MySql.Data.MySqlClient;
 
 class LoginServer
@@ -12,7 +13,7 @@ class LoginServer
     {
         try
         {
-            // StartDB();
+            StartDB();
             
             udpClient = new UdpClient(
                 Convert.ToInt32(
@@ -43,6 +44,7 @@ class LoginServer
         );
 
         mysql = new MySqlConnection(dbServerString);
+        mysql.Open();
     }
 
     private void DataReceived(IAsyncResult _asyncResult)
@@ -65,12 +67,61 @@ class LoginServer
         udpClient.BeginReceive(DataReceived, null);
     }
 
-    private void StartLogin(C2LLogin packet, IPEndPoint ipEndPoint)
+    private void StartLogin(C2LLogin _packet, IPEndPoint _ipEndPoint)
     {
-        // TODO : Check id / pw
-        Console.WriteLine("Id : " + packet.id + " pw : " + packet.pw);
+        var id = TryLogin(_packet.id, _packet.pw); 
+        if (id == Guid.Empty)
+        {
+            Console.WriteLine("Login Failed");
+            return;
+        }
 
         byte[] sendBuff = OJ9Function.ObjectToByteArray(new L2CLogin("1923759127378", "Hello World"));
-        udpClient.Send(sendBuff, ipEndPoint);
+        udpClient.Send(sendBuff, _ipEndPoint);
+    }
+
+    private Guid TryLogin(string _id, string _pw)
+    {
+        var id = Guid.Empty;
+        
+        MySqlCommand sqlCommand = new MySqlCommand(
+            string.Format("SELECT id, pw FROM user_temp WHERE idString = '{0}';", _id), 
+            mysql);
+        sqlCommand.ExecuteNonQuery();
+        var reader = sqlCommand.ExecuteReader();
+
+        bool hasAccount = false;
+        while (reader.Read())
+        {
+            var pw = reader["pw"];
+
+            if (pw.ToString() == _pw)
+            {
+                id = Guid.Parse(reader["id"].ToString()!);
+            }
+            hasAccount = true;
+        }
+        reader.Close();
+        if (!hasAccount)
+        {
+            id = AddAccount(_id, _pw);
+        }
+
+        return id;
+    }
+
+    private Guid AddAccount(string _id, string _pw)
+    {
+        Guid guid = Guid.NewGuid();
+        MySqlCommand sqlCommand = new MySqlCommand(
+            string.Format("INSERT INTO user_temp (id, idString, pw) VALUES ('{0}', '{1}', '{2}')", guid, _id, _pw),
+            mysql);
+
+        if (sqlCommand.ExecuteNonQuery() != 1)
+        {
+            throw new FormatException("insert data failed");
+        }
+
+        return guid;
     }
 }
