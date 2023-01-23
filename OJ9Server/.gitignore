@@ -5,5 +5,5 @@
 
 # .Net core
 # Release should be included
-*/bin/Debug/
+*/bin/
 */obj/

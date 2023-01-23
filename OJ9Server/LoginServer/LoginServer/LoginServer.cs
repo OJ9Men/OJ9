@@ -38,7 +38,7 @@ class LoginServer
             "Uid={2};" +
             "Pwd={3}",
             ConfigurationManager.AppSettings.Get("dbPort"),
-            ConfigurationManager.AppSettings.Get("Database"),
+            ConfigurationManager.AppSettings.Get("loginDatabase"),
             ConfigurationManager.AppSettings.Get("dbUserId"),
             ConfigurationManager.AppSettings.Get("dbUserPw")
         );
