@@ -7,4 +7,27 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="MySql.Data" Version="8.0.32" />
+      <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="..\..\OJ9\Assets\Network\Consts.cs">
+        <Link>Consts.cs</Link>
+      </Compile>
+      <Compile Include="..\..\OJ9\Assets\Network\OJ9Functions.cs">
+        <Link>OJ9Functions.cs</Link>
+      </Compile>
+      <Compile Include="..\..\OJ9\Assets\Network\Packets.cs">
+        <Link>Packets.cs</Link>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="..\Common\App.config">
+        <Link>App.config</Link>
+      </None>
+    </ItemGroup>
+
 </Project>

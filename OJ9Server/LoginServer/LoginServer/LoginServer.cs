@@ -61,7 +61,7 @@ class LoginServer
             }
                 break;
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new FormatException("Invalid packet type in LoginServer");
         }
 
         udpClient.BeginReceive(DataReceived, null);
@@ -115,6 +115,14 @@ class LoginServer
         {
             throw new FormatException("insert data failed");
         }
+        
+        byte[] sendBuff =
+            OJ9Function.ObjectToByteArray(new L2BAddAccount(guid));
+        IPEndPoint endPoint = OJ9Function.CreateIPEndPoint(
+            "127.0.0.1" + ":" +
+            ConfigurationManager.AppSettings.Get("lobbyServerPort")
+        );
+        udpClient.Send(sendBuff, sendBuff.Length, endPoint);
 
         return guid;
     }

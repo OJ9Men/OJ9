@@ -4,15 +4,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public enum GameType
-{
-    Soccer,
-    Dummy1,
-    Dummy2,
-    Dummy3,
-    Max,
-}
-
 public class LobbyManager : MonoBehaviour
 {
     [SerializeField] private GameObject gameHolder;
