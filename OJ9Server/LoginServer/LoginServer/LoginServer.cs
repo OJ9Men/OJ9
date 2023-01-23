@@ -70,13 +70,7 @@ class LoginServer
     private void StartLogin(C2LLogin _packet, IPEndPoint _ipEndPoint)
     {
         var id = TryLogin(_packet.id, _packet.pw); 
-        if (id == Guid.Empty)
-        {
-            Console.WriteLine("Login Failed");
-            return;
-        }
-
-        byte[] sendBuff = OJ9Function.ObjectToByteArray(new L2CLogin("1923759127378", "Hello World"));
+        byte[] sendBuff = OJ9Function.ObjectToByteArray(new L2CLogin(id));
         udpClient.Send(sendBuff, _ipEndPoint);
     }
 

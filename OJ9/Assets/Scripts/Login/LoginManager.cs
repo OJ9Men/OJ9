@@ -55,8 +55,16 @@ public class LoginManager : MonoBehaviour
             case PacketType.Login:
             {
                 L2CLogin packet = OJ9Function.ByteArrayToObject<L2CLogin>(buffer);
-                Debug.Log("[" + packet.dbId + "] : " + packet.welcomeMsg);
-                loginSuccess = true;
+                if (packet.guid == Guid.Empty)
+                {
+                    // TODO : pw is wrong, show failed message
+                    Debug.LogError("Login Failed : pw is wrong");
+                }
+                else
+                {
+                    Debug.Log("[" + packet.guid + "]");
+                    loginSuccess = true;
+                }
             }
                 break;
             default:

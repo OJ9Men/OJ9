@@ -1,3 +1,5 @@
+using System;
+
 public enum PacketType
 {
     Login
@@ -27,17 +29,15 @@ public class C2LLogin : IPacketBase
 
 public class L2CLogin : IPacketBase
 {
-    public string dbId { get; set; }
-    public string welcomeMsg { get; set; }
+    public Guid guid { get; set; }
 
     public L2CLogin()
     {
     }
 
-    public L2CLogin(string _dbId, string _welcomeMsg)
+    public L2CLogin(Guid _guid)
     {
         packetType = PacketType.Login;
-        dbId = _dbId;
-        welcomeMsg = _welcomeMsg;
+        guid = _guid;
     }
 }
