@@ -18,13 +18,13 @@ public class SoccerManager : MonoBehaviour
         }
     }
 
-    [Header("ÇÃ·¹ÀÌ¾î")]
+    [Header("í”Œë ˆì´ì–´")]
     [SerializeField]
     private Transform[] playerInitPos;
     [SerializeField]
     private Transform player;
 
-    [Header("°ñ ¶óÀÎ/ÆÜ")]
+    [Header("ê³¨ ë¼ì¸")]
     [SerializeField]
     private Transform goalLineHolder;
     [SerializeField]

@@ -25,7 +25,7 @@ public class LobbyManager : MonoBehaviour
     {
         if (gameIndex >= (int)GameType.Max)
         {
-            throw new System.SystemException("올바르지 않은 GameType");
+            throw new System.SystemException("Invalid game type");
         }
 
         selectedGameType = (GameType)gameIndex;
@@ -45,19 +45,14 @@ public class LobbyManager : MonoBehaviour
             case GameType.Dummy2:
             case GameType.Dummy3:
             {
-                Debug.Log("더미 게임 실행");
+                Debug.Log("dummy game selectedS");
             }
                 break;
             default:
             {
-                throw new System.SystemException("올바르지 않은 GameType");
+                throw new System.SystemException("Invalid GameType");
             }
         }
-    }
-
-    public void DebugButton()
-    {
-        Debug.Log("디버그");
     }
 
     // Start is called before the first frame update
