@@ -21,7 +21,7 @@ public class LoginManager : MonoBehaviour
 
     private void ReqLogin()
     {
-        udpClient = new UdpClient(OJ9Const.CLIENT_PORT_NUM);
+        udpClient = new UdpClient();
 
         byte[] sendBuff =
             OJ9Function.ObjectToByteArray(new C2LLogin(idText.text, pwText.text));

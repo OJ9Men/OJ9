@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a26dc399-fef2-49e2-aaa0-a67b1f0c1555" name="Changes" comment="" />
+    <list default="true" id="a26dc399-fef2-49e2-aaa0-a67b1f0c1555" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Login/LoginManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Login/LoginManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../OJ9Server/Common/App.config" beforeDir="false" afterPath="$PROJECT_DIR$/../OJ9Server/Common/App.config" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -85,7 +88,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1674450309898</updated>
-      <workItem from="1674450311345" duration="3410000" />
+      <workItem from="1674450311345" duration="3587000" />
     </task>
     <servers />
   </component>
