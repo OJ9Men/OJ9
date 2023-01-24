@@ -27,7 +27,7 @@ public class LoginManager : MonoBehaviour
             OJ9Function.ObjectToByteArray(new C2LLogin(idText.text, pwText.text));
         IPEndPoint endPoint = OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.SERVER_PORT_NUM);
         udpClient.Send(sendBuff, sendBuff.Length, endPoint);
-
+        
         StartListen();
     }
 
@@ -55,15 +55,17 @@ public class LoginManager : MonoBehaviour
             case PacketType.EnterLobby:
             {
                 B2CEnterLobby packet = OJ9Function.ByteArrayToObject<B2CEnterLobby>(buffer);
-                if (packet.guid == Guid.Empty)
+                if (packet.userInfo.guid == Guid.Empty)
                 {
                     // TODO : pw is wrong, show failed message
                     Debug.LogError("Login Failed : pw is wrong");
                 }
                 else
                 {
-                    Debug.Log("[" + packet.guid + "]");
+                    Debug.Log("[" + packet.userInfo.nickname + "] : Login Success");
                     loginSuccess = true;
+
+                    GameManager.instance.userInfo = packet.userInfo;
                 }
             }
                 break;

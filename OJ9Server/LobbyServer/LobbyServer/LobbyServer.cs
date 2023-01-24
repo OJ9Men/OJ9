@@ -57,12 +57,18 @@ public class LobbyServer
                 L2BCheckAccount packet = OJ9Function.ByteArrayToObject<L2BCheckAccount>(buffer);
                 try
                 {
-                    if (!HasAccount(packet.guid))
+                    UserInfo userInfo = GetAccount(packet.guid);
+                    if (!userInfo.IsValid())
                     {
-                        AddAccountDB(packet.guid);
+                        userInfo = AddAccountDb(packet.guid);
                     }
 
-                    EnterLobby(packet.guid, OJ9Function.CreateIPEndPoint(packet.clientEndPoint));
+                    if (!userInfo.IsValid())
+                    {
+                        throw new FormatException("Userinfo does not exist and cannot create");
+                    }
+                    
+                    EnterLobby(userInfo, OJ9Function.CreateIPEndPoint(packet.clientEndPoint));
                 }
                 catch (Exception e)
                 {
@@ -84,7 +90,7 @@ public class LobbyServer
         udpClient.BeginReceive(DataReceived, null);
     }
 
-    private bool HasAccount(Guid _guid)
+    private UserInfo GetAccount(Guid _guid)
     {
         MySqlCommand sqlCommand = new MySqlCommand(
             string.Format("SELECT * FROM user WHERE guid = '{0}';", _guid),
@@ -93,17 +99,20 @@ public class LobbyServer
         sqlCommand.ExecuteNonQuery();
         var reader = sqlCommand.ExecuteReader();
 
-        bool hasAccount = false;
+        UserInfo userInfo = new UserInfo();
         while (reader.Read())
         {
-            hasAccount = true;
+            userInfo.guid = _guid;
+            userInfo.nickname = reader["nickname"].ToString()!;
+            userInfo.rating = Convert.ToInt32(reader["rating"].ToString()!);
+            break;  // it's unique
         }
         reader.Close();
 
-        return hasAccount;
+        return userInfo;
     }
 
-    private void AddAccountDB(Guid _guid)
+    private UserInfo AddAccountDb(Guid _guid)
     {
         var rand = new Random();
         string dummyUserName = "플레이어" + rand.Next();
@@ -115,12 +124,14 @@ public class LobbyServer
         {
             throw new FormatException("insert data failed");
         }
+
+        return new UserInfo(_guid, dummyUserName, 0);
     }
 
-    private void EnterLobby(Guid _guid, IPEndPoint _ipEndPoint)
+    private void EnterLobby(UserInfo _userInfo, IPEndPoint _ipEndPoint)
     {
         byte[] sendBuff =
-            OJ9Function.ObjectToByteArray(new B2CEnterLobby(_guid));
+            OJ9Function.ObjectToByteArray(new B2CEnterLobby(_userInfo));
         udpClient.Send(sendBuff, sendBuff.Length, _ipEndPoint);
     }
 }

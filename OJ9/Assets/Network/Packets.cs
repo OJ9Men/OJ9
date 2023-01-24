@@ -101,16 +101,15 @@ public class L2CLogin : IPacketBase
 
 public class B2CEnterLobby : IPacketBase
 {
-    public Guid guid { get; set; }
-
+    public UserInfo userInfo { get; set; }
     public B2CEnterLobby()
     {
         
     }
 
-    public B2CEnterLobby(Guid _guid)
+    public B2CEnterLobby(UserInfo _userInfo)
     {
         packetType = PacketType.EnterLobby;
-        guid = _guid;
+        userInfo = _userInfo;
     }
 }

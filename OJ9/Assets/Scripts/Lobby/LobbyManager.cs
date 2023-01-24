@@ -29,7 +29,11 @@ public class LobbyManager : MonoBehaviour
         {
             case GameType.Soccer:
             {
-                SceneManager.LoadScene("SoccerScene");
+                C2BEnterGame packet = new C2BEnterGame(
+                    GameManager.instance.userInfo.guid,
+                    GameType.Soccer
+                );
+                // TODO : Send packet by GameManager
             }
                 break;
             case GameType.Dummy1:
