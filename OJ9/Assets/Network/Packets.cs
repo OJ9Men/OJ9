@@ -7,6 +7,17 @@ public enum PacketType
     CheckLobbyAccount,
     EnterLobby,
     EnterGame,
+    
+    // Error
+    L2BError,
+    B2CError,
+}
+
+public enum ErrorType
+{
+    None,
+    WrongPassword,
+    Unknown,
 }
 
 public class IPacketBase
@@ -34,9 +45,10 @@ public class C2LLogin : IPacketBase
 public class L2BCheckAccount : IPacketBase
 {
     public Guid guid { get; set; }
+
     public string clientEndPoint { get; set; }
 
-    public L2BCheckAccount()
+public L2BCheckAccount()
     {
         
     }
@@ -46,6 +58,11 @@ public class L2BCheckAccount : IPacketBase
         packetType = PacketType.CheckLobbyAccount;
         guid = _guid;
         clientEndPoint = _ipEndPoint;
+    }
+
+    public bool IsLoginSuccess()
+    {
+        return guid != Guid.Empty;
     }
 }
 
@@ -111,5 +128,39 @@ public class B2CEnterLobby : IPacketBase
     {
         packetType = PacketType.EnterLobby;
         userInfo = _userInfo;
+    }
+}
+
+public class L2BError : IPacketBase
+{
+    public ErrorType errorType { get; set; }
+    public string clientEndPoint { get; set; }
+
+    public L2BError()
+    {
+        
+    }
+
+    public L2BError(ErrorType _errorType, string _clientEndPoint)
+    {
+        packetType = PacketType.L2BError;
+        errorType = _errorType;
+        clientEndPoint = _clientEndPoint;
+    }
+}
+
+public class B2CError : IPacketBase
+{
+    public ErrorType errorType { get; set; }
+
+    public B2CError()
+    {
+        
+    }
+
+    public B2CError(ErrorType _errorType)
+    {
+        packetType = PacketType.B2CError;
+        errorType = _errorType;
     }
 }

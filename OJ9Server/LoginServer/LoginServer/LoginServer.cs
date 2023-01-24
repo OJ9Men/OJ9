@@ -69,10 +69,10 @@ class LoginServer
 
     private void EnterLobby(C2LLogin _packet, string _clientEndPoint)
     {
-        var guid = CheckAccount(_packet.id, _packet.pw); 
-        
-        byte[] sendBuff =
-            OJ9Function.ObjectToByteArray(new L2BCheckAccount(guid, _clientEndPoint));
+        var guid = CheckAccount(_packet.id, _packet.pw);
+        byte[] sendBuff = OJ9Function.ObjectToByteArray(
+            guid == Guid.Empty ? new L2BError(ErrorType.WrongPassword, _clientEndPoint) : new L2BCheckAccount(guid, _clientEndPoint)
+        );
         IPEndPoint endPoint = OJ9Function.CreateIPEndPoint(
             "127.0.0.1" + ":" +
             ConfigurationManager.AppSettings.Get("lobbyServerPort")

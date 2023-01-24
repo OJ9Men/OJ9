@@ -52,9 +52,24 @@ public class LobbyServer
         var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
         switch (packBase.packetType)
         {
+            case PacketType.L2BError:
+            {
+                L2BError packet = OJ9Function.ByteArrayToObject<L2BError>(buffer);
+
+                byte[] clientBuff =
+                    OJ9Function.ObjectToByteArray(new B2CError(packet.errorType));
+                udpClient.Send(clientBuff, clientBuff.Length, OJ9Function.CreateIPEndPoint(packet.clientEndPoint));
+            }
+                break;
             case PacketType.CheckLobbyAccount:
             {
                 L2BCheckAccount packet = OJ9Function.ByteArrayToObject<L2BCheckAccount>(buffer);
+                if (!packet.IsLoginSuccess())
+                {
+                    byte[] sendBuff =
+                        OJ9Function.ObjectToByteArray(new B2CError(ErrorType.Unknown));
+                    udpClient.Send(sendBuff, sendBuff.Length, OJ9Function.CreateIPEndPoint(packet.clientEndPoint));
+                }
                 try
                 {
                     UserInfo userInfo = GetAccount(packet.guid);
@@ -104,7 +119,9 @@ public class LobbyServer
         {
             userInfo.guid = _guid;
             userInfo.nickname = reader["nickname"].ToString()!;
-            userInfo.rating = Convert.ToInt32(reader["rating"].ToString()!);
+
+            var rating = reader["rating"].ToString();
+            userInfo.rating = string.IsNullOrEmpty(rating) ? 0 : Convert.ToInt32(rating);
             break;  // it's unique
         }
         reader.Close();

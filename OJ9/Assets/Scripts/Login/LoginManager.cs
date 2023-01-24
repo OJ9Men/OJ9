@@ -55,17 +55,16 @@ public class LoginManager : MonoBehaviour
             case PacketType.EnterLobby:
             {
                 B2CEnterLobby packet = OJ9Function.ByteArrayToObject<B2CEnterLobby>(buffer);
-                if (packet.userInfo.guid == Guid.Empty)
+                Debug.Log("[" + packet.userInfo.nickname + "] : Login Success");
+                loginSuccess = true;
+            }
+                break;
+            case PacketType.B2CError:
+            {
+                B2CError packet = OJ9Function.ByteArrayToObject<B2CError>(buffer);
+                if (packet.errorType == ErrorType.WrongPassword)
                 {
-                    // TODO : pw is wrong, show failed message
-                    Debug.LogError("Login Failed : pw is wrong");
-                }
-                else
-                {
-                    Debug.Log("[" + packet.userInfo.nickname + "] : Login Success");
-                    loginSuccess = true;
-
-                    GameManager.instance.userInfo = packet.userInfo;
+                    Debug.LogError("Login failed : wrong password");
                 }
             }
                 break;
