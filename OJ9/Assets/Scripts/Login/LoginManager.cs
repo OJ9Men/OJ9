@@ -52,9 +52,9 @@ public class LoginManager : MonoBehaviour
         var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
         switch (packBase.packetType)
         {
-            case PacketType.Login:
+            case PacketType.EnterLobby:
             {
-                L2CLogin packet = OJ9Function.ByteArrayToObject<L2CLogin>(buffer);
+                B2CEnterLobby packet = OJ9Function.ByteArrayToObject<B2CEnterLobby>(buffer);
                 if (packet.guid == Guid.Empty)
                 {
                     // TODO : pw is wrong, show failed message

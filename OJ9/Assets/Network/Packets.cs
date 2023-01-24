@@ -1,9 +1,11 @@
 using System;
+using System.Net;
 
 public enum PacketType
 {
     Login,
-    AddLobbyAccount,
+    CheckLobbyAccount,
+    EnterLobby,
     EnterGame,
 }
 
@@ -29,19 +31,21 @@ public class C2LLogin : IPacketBase
     }
 }
 
-public class L2BAddAccount : IPacketBase
+public class L2BCheckAccount : IPacketBase
 {
     public Guid guid { get; set; }
+    public string clientEndPoint { get; set; }
 
-    public L2BAddAccount()
+    public L2BCheckAccount()
     {
         
     }
 
-    public L2BAddAccount(Guid _guid)
+    public L2BCheckAccount(Guid _guid, string _ipEndPoint)
     {
-        packetType = PacketType.AddLobbyAccount;
+        packetType = PacketType.CheckLobbyAccount;
         guid = _guid;
+        clientEndPoint = _ipEndPoint;
     }
 }
 
@@ -91,6 +95,22 @@ public class L2CLogin : IPacketBase
     public L2CLogin(Guid _guid)
     {
         packetType = PacketType.Login;
+        guid = _guid;
+    }
+}
+
+public class B2CEnterLobby : IPacketBase
+{
+    public Guid guid { get; set; }
+
+    public B2CEnterLobby()
+    {
+        
+    }
+
+    public B2CEnterLobby(Guid _guid)
+    {
+        packetType = PacketType.EnterLobby;
         guid = _guid;
     }
 }

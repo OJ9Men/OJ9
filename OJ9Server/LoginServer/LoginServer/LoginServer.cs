@@ -57,7 +57,7 @@ class LoginServer
             case PacketType.Login:
             {
                 C2LLogin packet = OJ9Function.ByteArrayToObject<C2LLogin>(buffer);
-                StartLogin(packet, ipEndPoint);
+                EnterLobby(packet, ipEndPoint.ToString());
             }
                 break;
             default:
@@ -67,14 +67,20 @@ class LoginServer
         udpClient.BeginReceive(DataReceived, null);
     }
 
-    private void StartLogin(C2LLogin _packet, IPEndPoint _ipEndPoint)
+    private void EnterLobby(C2LLogin _packet, string _clientEndPoint)
     {
-        var id = TryLogin(_packet.id, _packet.pw); 
-        byte[] sendBuff = OJ9Function.ObjectToByteArray(new L2CLogin(id));
-        udpClient.Send(sendBuff, _ipEndPoint);
+        var guid = CheckAccount(_packet.id, _packet.pw); 
+        
+        byte[] sendBuff =
+            OJ9Function.ObjectToByteArray(new L2BCheckAccount(guid, _clientEndPoint));
+        IPEndPoint endPoint = OJ9Function.CreateIPEndPoint(
+            "127.0.0.1" + ":" +
+            ConfigurationManager.AppSettings.Get("lobbyServerPort")
+        );
+        udpClient.Send(sendBuff, sendBuff.Length, endPoint);
     }
 
-    private Guid TryLogin(string _id, string _pw)
+    private Guid CheckAccount(string _id, string _pw)
     {
         var id = Guid.Empty;
         
@@ -116,14 +122,6 @@ class LoginServer
             throw new FormatException("insert data failed");
         }
         
-        byte[] sendBuff =
-            OJ9Function.ObjectToByteArray(new L2BAddAccount(guid));
-        IPEndPoint endPoint = OJ9Function.CreateIPEndPoint(
-            "127.0.0.1" + ":" +
-            ConfigurationManager.AppSettings.Get("lobbyServerPort")
-        );
-        udpClient.Send(sendBuff, sendBuff.Length, endPoint);
-
         return guid;
     }
 }

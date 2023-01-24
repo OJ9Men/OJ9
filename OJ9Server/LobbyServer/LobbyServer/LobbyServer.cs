@@ -52,12 +52,17 @@ public class LobbyServer
         var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
         switch (packBase.packetType)
         {
-            case PacketType.AddLobbyAccount:
+            case PacketType.CheckLobbyAccount:
             {
-                L2BAddAccount packet = OJ9Function.ByteArrayToObject<L2BAddAccount>(buffer);
+                L2BCheckAccount packet = OJ9Function.ByteArrayToObject<L2BCheckAccount>(buffer);
                 try
                 {
-                    AddAccountDB(packet.guid);
+                    if (!HasAccount(packet.guid))
+                    {
+                        AddAccountDB(packet.guid);
+                    }
+
+                    EnterLobby(packet.guid, OJ9Function.CreateIPEndPoint(packet.clientEndPoint));
                 }
                 catch (Exception e)
                 {
@@ -79,18 +84,43 @@ public class LobbyServer
         udpClient.BeginReceive(DataReceived, null);
     }
 
+    private bool HasAccount(Guid _guid)
+    {
+        MySqlCommand sqlCommand = new MySqlCommand(
+            string.Format("SELECT * FROM user WHERE guid = '{0}';", _guid),
+            mysql
+        );
+        sqlCommand.ExecuteNonQuery();
+        var reader = sqlCommand.ExecuteReader();
+
+        bool hasAccount = false;
+        while (reader.Read())
+        {
+            hasAccount = true;
+        }
+        reader.Close();
+
+        return hasAccount;
+    }
+
     private void AddAccountDB(Guid _guid)
     {
         var rand = new Random();
-        string dummnyUserName = "플레이어" + rand.Next();
+        string dummyUserName = "플레이어" + rand.Next();
         MySqlCommand sqlCommand = new MySqlCommand(
-            string.Format("INSERT INTO user (guid, nickname) VALUES ('{0}', '{1}')", _guid, dummnyUserName),
+            string.Format("INSERT INTO user (guid, nickname) VALUES ('{0}', '{1}')", _guid, dummyUserName),
             mysql);
         
         if (sqlCommand.ExecuteNonQuery() != 1)
         {
             throw new FormatException("insert data failed");
         }
-        
+    }
+
+    private void EnterLobby(Guid _guid, IPEndPoint _ipEndPoint)
+    {
+        byte[] sendBuff =
+            OJ9Function.ObjectToByteArray(new B2CEnterLobby(_guid));
+        udpClient.Send(sendBuff, sendBuff.Length, _ipEndPoint);
     }
 }
