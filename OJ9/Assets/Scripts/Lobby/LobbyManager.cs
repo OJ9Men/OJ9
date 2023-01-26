@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -29,7 +30,7 @@ public class LobbyManager : MonoBehaviour
         {
             case GameType.Soccer:
             {
-                C2BEnterGame packet = new C2BEnterGame(
+                C2BQueueGame packet = new C2BQueueGame(
                     GameManager.instance.userInfo.guid,
                     GameType.Soccer
                 );
@@ -38,6 +39,8 @@ public class LobbyManager : MonoBehaviour
                     OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.LOBBY_SERVER_PORT_NUM)
                 );
                 
+                // TODO : Show waiting ui
+                Debug.Log("Now in queue");
             }
                 break;
             case GameType.Dummy1:
@@ -55,9 +58,30 @@ public class LobbyManager : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         OnGameSelected((int)GameType.Soccer);
+        GameManager.instance.udpClient.BeginReceive(DataReceived, null);
+    }
+
+    private void DataReceived(IAsyncResult asyncResult)
+    {
+        IPEndPoint ipEndPoint = null;
+        var buffer = GameManager.instance.udpClient.EndReceive(asyncResult, ref ipEndPoint);
+        var packetBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
+        switch (packetBase.packetType)
+        {
+            case PacketType.Matched:
+            {
+                B2CGameMatched packet = OJ9Function.ByteArrayToObject<B2CGameMatched>(buffer);
+                // TODO : Connect to game server
+            }
+                break;
+            default:
+            {
+                throw new FormatException("cannot receive other packet in LobbyManager");
+            }
+        }
     }
 
     // Update is called once per frame

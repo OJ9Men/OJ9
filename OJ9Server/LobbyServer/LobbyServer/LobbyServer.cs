@@ -1,17 +1,27 @@
-﻿using System.Configuration;
+﻿using System.Collections.Concurrent;
+using System.Configuration;
 using System.Net;
 using System.Net.Sockets;
 using MySql.Data.MySqlClient;
 
 public class LobbyServer
 {
+    private static int INVALID_INDEX = -1;
     private UdpClient udpClient;
     private MySqlConnection mysql;
+    private readonly ConcurrentQueue<IPEndPoint>[] clientQueues = new ConcurrentQueue<IPEndPoint>[(int)GameType.Max];
+    private int roomNumber;
 
     public void Start()
     {
         try
         {
+            roomNumber = 0;
+            for (var i = 0; i < clientQueues.Length; i++)
+            {
+                clientQueues[i] = new ConcurrentQueue<IPEndPoint>();
+            }
+
             StartDB();
             udpClient = new UdpClient(
                 Convert.ToInt32(
@@ -47,7 +57,7 @@ public class LobbyServer
 
     private void DataReceived(IAsyncResult _asyncResult)
     {
-        IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.None, 0);
+        IPEndPoint ipEndPoint = null;
         var buffer = udpClient.EndReceive(_asyncResult, ref ipEndPoint);
         var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
         switch (packBase.packetType)
@@ -92,10 +102,14 @@ public class LobbyServer
                 }
             }
                 break;
-            case PacketType.EnterGame:
+            case PacketType.QueueGame:
             {
-                C2BEnterGame packet = OJ9Function.ByteArrayToObject<C2BEnterGame>(buffer);
-                // TODO : process entering game
+                C2BQueueGame packet = OJ9Function.ByteArrayToObject<C2BQueueGame>(buffer);
+                if (ipEndPoint == null)
+                {
+                    throw new FormatException("ipEndPoint is not valid");
+                }
+                clientQueues[(int)packet.gameType].Enqueue(ipEndPoint);
             }
                 break;
             default:
@@ -150,5 +164,43 @@ public class LobbyServer
         byte[] sendBuff =
             OJ9Function.ObjectToByteArray(new B2CEnterLobby(_userInfo));
         udpClient.Send(sendBuff, sendBuff.Length, _ipEndPoint);
+    }
+
+    public void Update()
+    {
+        SpinQueue();
+    }
+
+    private void SpinQueue()
+    {
+        var gameIndex = INVALID_INDEX;
+        for (var index = 0; index < clientQueues.Length; index++)
+        {
+            if (clientQueues[index].Count < 2)
+            {
+                continue;
+            }
+            
+            gameIndex = index;
+            break;
+        }
+
+        if (gameIndex == INVALID_INDEX) // No game which is ready to go
+        {
+            return;
+        }
+
+        if (!clientQueues[gameIndex].TryDequeue(out var first) || !clientQueues[gameIndex].TryDequeue(out var second))
+        {
+            throw new FormatException("dequeue failed");
+        }
+
+        byte[] clientBuff =
+            OJ9Function.ObjectToByteArray(new B2CGameMatched((GameType)gameIndex, roomNumber));
+        udpClient.Send(clientBuff, clientBuff.Length, first);
+        udpClient.Send(clientBuff, clientBuff.Length, second);
+
+        // TODO : Caution! It can be overflown
+        roomNumber++;
     }
 }

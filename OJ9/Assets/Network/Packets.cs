@@ -6,7 +6,10 @@ public enum PacketType
     Login,
     CheckLobbyAccount,
     EnterLobby,
-    EnterGame,
+    
+    // Lobby
+    QueueGame,
+    Matched,
     
     // Error
     L2BError,
@@ -66,38 +69,38 @@ public L2BCheckAccount()
     }
 }
 
-public class C2BEnterGame : IPacketBase
+public class C2BQueueGame : IPacketBase
 {
     public Guid guid { get; set; }
     public GameType gameType { get; set; }
 
-    public C2BEnterGame()
+    public C2BQueueGame()
     {
     }
 
-    public C2BEnterGame(Guid _guid, GameType _gameType)
+    public C2BQueueGame(Guid _guid, GameType _gameType)
     {
-        packetType = PacketType.EnterGame;
+        packetType = PacketType.QueueGame;
         guid = _guid;
         gameType = _gameType;
     }
 }
 
-public class B2CEnterGame : IPacketBase
+public class B2CGameMatched : IPacketBase
 {
-    public UserInfo enemyInfo { get; set; }
     public GameType gameType { get; set; }
+    public int roomNumber { get; set; }
 
-    public B2CEnterGame()
+    public B2CGameMatched()
     {
         
     }
 
-    public B2CEnterGame(UserInfo _enemyInfo, GameType _gameType)
+    public B2CGameMatched(GameType _gameType, int _roomNumber)
     {
-        packetType = PacketType.EnterGame;
-        enemyInfo = _enemyInfo;
+        packetType = PacketType.Matched;
         gameType = _gameType;
+        roomNumber = _roomNumber;
     }
 }
 
