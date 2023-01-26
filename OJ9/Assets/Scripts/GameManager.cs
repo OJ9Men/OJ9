@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     // Singleton
     public static GameManager instance;
     
+    public UdpClient udpClient;
     public UserInfo userInfo;
         
     // Start is called before the first frame update
@@ -23,5 +24,12 @@ public class GameManager : MonoBehaviour
 
         instance = this;
         DontDestroyOnLoad(instance);
+
+        udpClient = new UdpClient();
+    }
+
+    public void SetUserInfo(UserInfo _userInfo)
+    {
+        userInfo = _userInfo;
     }
 }

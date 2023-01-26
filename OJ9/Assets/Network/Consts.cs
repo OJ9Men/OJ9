@@ -5,7 +5,8 @@ using System;
 
 public static class OJ9Const
 {
-    public static int SERVER_PORT_NUM = 5000;
+    public static int LOGIN_SERVER_PORT_NUM = 5000;
+    public static int LOBBY_SERVER_PORT_NUM = 5001;
 }
 
 public enum GameType

@@ -11,7 +11,6 @@ public class LoginManager : MonoBehaviour
 
     [SerializeField] private TMP_InputField pwText;
 
-    private UdpClient udpClient;
     private bool loginSuccess = false;
 
     private void OnLoginButtonClicked()
@@ -21,22 +20,19 @@ public class LoginManager : MonoBehaviour
 
     private void ReqLogin()
     {
-        udpClient = new UdpClient();
-
         byte[] sendBuff =
             OJ9Function.ObjectToByteArray(new C2LLogin(idText.text, pwText.text));
-        IPEndPoint endPoint = OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.SERVER_PORT_NUM);
-        udpClient.Send(sendBuff, sendBuff.Length, endPoint);
+        IPEndPoint endPoint = OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.LOGIN_SERVER_PORT_NUM);
+        GameManager.instance.udpClient.Send(sendBuff, sendBuff.Length, endPoint);
         
         StartListen();
     }
 
     private void StartListen()
     {
-
         try
         {
-            udpClient.BeginReceive(DataReceived, null);
+            GameManager.instance.udpClient.BeginReceive(DataReceived, null);
         }
         catch (Exception e)
         {
@@ -48,7 +44,7 @@ public class LoginManager : MonoBehaviour
     private void DataReceived(IAsyncResult asyncResult)
     {
         IPEndPoint groupEndPoint = null;
-        var buffer = udpClient.EndReceive(asyncResult, ref groupEndPoint);
+        var buffer = GameManager.instance.udpClient.EndReceive(asyncResult, ref groupEndPoint);
         var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
         switch (packBase.packetType)
         {
@@ -56,6 +52,8 @@ public class LoginManager : MonoBehaviour
             {
                 B2CEnterLobby packet = OJ9Function.ByteArrayToObject<B2CEnterLobby>(buffer);
                 Debug.Log("[" + packet.userInfo.nickname + "] : Login Success");
+                GameManager.instance.SetUserInfo(packet.userInfo);
+                
                 loginSuccess = true;
             }
                 break;

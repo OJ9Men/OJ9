@@ -33,7 +33,11 @@ public class LobbyManager : MonoBehaviour
                     GameManager.instance.userInfo.guid,
                     GameType.Soccer
                 );
-                // TODO : Send packet by GameManager
+                byte[] buffer = OJ9Function.ObjectToByteArray(packet);
+                GameManager.instance.udpClient.Send(buffer, buffer.Length,
+                    OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.LOBBY_SERVER_PORT_NUM)
+                );
+                
             }
                 break;
             case GameType.Dummy1:
