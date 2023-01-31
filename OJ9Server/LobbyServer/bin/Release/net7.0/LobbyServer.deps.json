@@ -6,12 +6,13 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v7.0": {
-      "LoginServer/1.0.0": {
+      "LobbyServer/1.0.0": {
         "dependencies": {
-          "MySql.Data": "8.0.32"
+          "MySql.Data": "8.0.32",
+          "System.Configuration.ConfigurationManager": "4.4.1"
         },
         "runtime": {
-          "LoginServer.dll": {}
+          "LobbyServer.dll": {}
         }
       },
       "Google.Protobuf/3.21.9": {
@@ -277,7 +278,7 @@
     }
   },
   "libraries": {
-    "LoginServer/1.0.0": {
+    "LobbyServer/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
