@@ -6,4 +6,5 @@
 # .Net core
 # Release should be included
 */bin/Debug/
+*/bin/Release/net7.0/publish/
 */obj/
