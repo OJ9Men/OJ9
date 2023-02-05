@@ -161,7 +161,7 @@ public class LobbyServer
 
     private void EnterLobby(UserInfo _userInfo, IPEndPoint _ipEndPoint)
     {
-        byte[] sendBuff =
+        var sendBuff =
             OJ9Function.ObjectToByteArray(new B2CEnterLobby(_userInfo));
         udpClient.Send(sendBuff, sendBuff.Length, _ipEndPoint);
     }
@@ -194,13 +194,19 @@ public class LobbyServer
         {
             throw new FormatException("dequeue failed");
         }
+        
+        // Get 2 players
 
         byte[] clientBuff =
             OJ9Function.ObjectToByteArray(new B2CGameMatched((GameType)gameIndex, roomNumber));
         udpClient.Send(clientBuff, clientBuff.Length, first);
         udpClient.Send(clientBuff, clientBuff.Length, second);
 
-        // TODO : Caution! It can be overflown
         roomNumber++;
+        
+        if (roomNumber == int.MaxValue)
+        {
+            roomNumber = 0;
+        }
     }
 }
