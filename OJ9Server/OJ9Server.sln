@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginServer", "LoginServer\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LobbyServer", "LobbyServer\LobbyServer.csproj", "{F1C52688-4C9C-4CED-8B7B-F49A129E1CBE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameServer", "GameServer\GameServer.csproj", "{5F779F21-3112-4B47-888B-0278ECF47B64}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{F1C52688-4C9C-4CED-8B7B-F49A129E1CBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1C52688-4C9C-4CED-8B7B-F49A129E1CBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1C52688-4C9C-4CED-8B7B-F49A129E1CBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F779F21-3112-4B47-888B-0278ECF47B64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F779F21-3112-4B47-888B-0278ECF47B64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F779F21-3112-4B47-888B-0278ECF47B64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F779F21-3112-4B47-888B-0278ECF47B64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
