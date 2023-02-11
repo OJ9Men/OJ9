@@ -7,6 +7,10 @@ public static class OJ9Const
 {
     public static int LOGIN_SERVER_PORT_NUM = 5000;
     public static int LOBBY_SERVER_PORT_NUM = 5001;
+    public static int GAME_SERVER_PORT_NUM = 5002;
+    
+    // GameServerConst
+    public static int MAX_GAME_ROOM_NUM = 1024;
 }
 
 public enum GameType

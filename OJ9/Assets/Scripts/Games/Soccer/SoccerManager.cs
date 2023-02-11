@@ -40,6 +40,11 @@ public class SoccerManager : MonoBehaviour
             goalLineHolder.GetChild(0).position.y,
             goalLineHolder.GetChild(1).position.y
         );
+        
+        GameInfo gameInfo = GameManager.instance.GetGameInfo();
+        C2GGameStart packet = new C2GGameStart(gameInfo.GetGameType(), gameInfo.GetRoomNumber());
+        byte[] buffer = OJ9Function.ObjectToByteArray(packet);
+        // TODO : Connect TCP!
     }
 
     void Update()

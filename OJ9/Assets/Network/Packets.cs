@@ -11,6 +11,9 @@ public enum PacketType
     QueueGame,
     Matched,
     
+    // Game
+    Start,
+
     // Error
     L2BError,
     B2CError,
@@ -99,6 +102,26 @@ public class B2CGameMatched : IPacketBase
     public B2CGameMatched(GameType _gameType, int _roomNumber)
     {
         packetType = PacketType.Matched;
+        gameType = _gameType;
+        roomNumber = _roomNumber;
+    }
+}
+
+public class C2GGameStart : IPacketBase
+{
+    // TCP Packet
+    
+    public GameType gameType { get; set; }
+    public int roomNumber { get; set; }
+
+    public C2GGameStart()
+    {
+        
+    }
+
+    public C2GGameStart(GameType _gameType, int _roomNumber)
+    {
+        packetType = PacketType.Start;
         gameType = _gameType;
         roomNumber = _roomNumber;
     }

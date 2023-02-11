@@ -1,5 +1,8 @@
-﻿public class Soccer : GameServer
+﻿using System.Net.Sockets;
+
+public class Soccer : GameServer
 {
+    private Socket[] clients = new Socket[OJ9Const.MAX_GAME_ROOM_NUM];
     public Soccer()
     {
         gameType = GameType.Soccer;

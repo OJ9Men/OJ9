@@ -67,14 +67,16 @@ public class LobbyManager : MonoBehaviour
     private void DataReceived(IAsyncResult asyncResult)
     {
         IPEndPoint ipEndPoint = null;
-        var buffer = GameManager.instance.udpClient.EndReceive(asyncResult, ref ipEndPoint);
-        var packetBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
+        var recvBuffer = GameManager.instance.udpClient.EndReceive(asyncResult, ref ipEndPoint);
+        var packetBase = OJ9Function.ByteArrayToObject<IPacketBase>(recvBuffer);
         switch (packetBase.packetType)
         {
             case PacketType.Matched:
             {
-                B2CGameMatched packet = OJ9Function.ByteArrayToObject<B2CGameMatched>(buffer);
-                // TODO : Connect to game server
+                B2CGameMatched recvPacket = OJ9Function.ByteArrayToObject<B2CGameMatched>(recvBuffer);
+                GameManager.instance.SetGameInfo(new GameInfo(recvPacket.gameType, recvPacket.roomNumber));
+
+                SceneManager.LoadScene("SoccerScene");
             }
                 break;
             default:
@@ -82,10 +84,5 @@ public class LobbyManager : MonoBehaviour
                 throw new FormatException("cannot receive other packet in LobbyManager");
             }
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
     }
 }

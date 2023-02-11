@@ -12,6 +12,8 @@ public class LobbyServer
     private readonly ConcurrentQueue<IPEndPoint>[] clientQueues = new ConcurrentQueue<IPEndPoint>[(int)GameType.Max];
     private int roomNumber;
 
+    private readonly object lockObject = new object();
+
     public void Start()
     {
         try
@@ -197,16 +199,19 @@ public class LobbyServer
         
         // Get 2 players
 
-        byte[] clientBuff =
-            OJ9Function.ObjectToByteArray(new B2CGameMatched((GameType)gameIndex, roomNumber));
-        udpClient.Send(clientBuff, clientBuff.Length, first);
-        udpClient.Send(clientBuff, clientBuff.Length, second);
-
-        roomNumber++;
-        
-        if (roomNumber == int.MaxValue)
+        lock (lockObject)
         {
-            roomNumber = 0;
+            byte[] clientBuff =
+                OJ9Function.ObjectToByteArray(new B2CGameMatched((GameType)gameIndex, roomNumber));
+            udpClient.Send(clientBuff, clientBuff.Length, first);
+            udpClient.Send(clientBuff, clientBuff.Length, second);
+
+            roomNumber++;
+
+            if (roomNumber == int.MaxValue)
+            {
+                roomNumber = 0;
+            }
         }
     }
 }
