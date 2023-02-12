@@ -10,6 +10,8 @@ public static class OJ9Const
     public static int GAME_SERVER_PORT_NUM = 5002;
     
     // GameServerConst
+    public static int BUFFER_SIZE = 1024;
+    public static int SOCCER_LISTEN_PORT_NUM = 5003;
     public static int MAX_GAME_ROOM_NUM = 1024;
 }
 
