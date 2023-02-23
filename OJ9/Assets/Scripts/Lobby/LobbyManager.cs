@@ -36,7 +36,7 @@ public class LobbyManager : MonoBehaviour
                 );
                 byte[] buffer = OJ9Function.ObjectToByteArray(packet);
                 GameManager.instance.udpClient.Send(buffer, buffer.Length,
-                    OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.LOBBY_SERVER_PORT_NUM)
+                    OJ9Function.CreateIPEndPoint(OJ9Const.SERVER_IP + ":" + OJ9Const.LOBBY_SERVER_PORT_NUM)
                 );
                 
                 // TODO : Show waiting ui

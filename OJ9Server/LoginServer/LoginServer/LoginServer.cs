@@ -20,6 +20,8 @@ class LoginServer
                     ConfigurationManager.AppSettings.Get("loginServerPort")
                 )
             );
+            
+            Console.WriteLine("Listening started");
             udpClient.BeginReceive(DataReceived, null);
         }
         catch (Exception e)
@@ -45,12 +47,17 @@ class LoginServer
 
         mysql = new MySqlConnection(dbServerString);
         mysql.Open();
+        
+        Console.WriteLine("DB started");
     }
 
     private void DataReceived(IAsyncResult _asyncResult)
     {
+        Console.WriteLine("Received!");
         IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.None, 0);
         var buffer = udpClient.EndReceive(_asyncResult, ref ipEndPoint);
+        Console.WriteLine("Get from : " + ipEndPoint);
+
         var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
         switch (packBase.packetType)
         {

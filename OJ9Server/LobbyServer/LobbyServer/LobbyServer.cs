@@ -30,6 +30,8 @@ public class LobbyServer
                     ConfigurationManager.AppSettings.Get("lobbyServerPort")
                 )
             );
+            
+            Console.WriteLine("Listening started");
             udpClient.BeginReceive(DataReceived, null);
         }
         catch (Exception e)
@@ -55,12 +57,16 @@ public class LobbyServer
 
         mysql = new MySqlConnection(dbServerString);
         mysql.Open();
+        
+        Console.WriteLine("DB started");
     }
 
     private void DataReceived(IAsyncResult _asyncResult)
     {
+        Console.WriteLine("Received!");
         IPEndPoint ipEndPoint = null;
         var buffer = udpClient.EndReceive(_asyncResult, ref ipEndPoint);
+        Console.WriteLine("Get from[login server] : " + ipEndPoint);
         var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
         switch (packBase.packetType)
         {
@@ -95,6 +101,7 @@ public class LobbyServer
                         throw new FormatException("Userinfo does not exist and cannot create");
                     }
                     
+                    Console.WriteLine("New account was added : " + userInfo.guid + ", Client ip : " + packet.clientEndPoint);
                     EnterLobby(userInfo, OJ9Function.CreateIPEndPoint(packet.clientEndPoint));
                 }
                 catch (Exception e)

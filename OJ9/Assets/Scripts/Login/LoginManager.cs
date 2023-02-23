@@ -22,7 +22,7 @@ public class LoginManager : MonoBehaviour
     {
         byte[] sendBuff =
             OJ9Function.ObjectToByteArray(new C2LLogin(idText.text, pwText.text));
-        IPEndPoint endPoint = OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.LOGIN_SERVER_PORT_NUM);
+        IPEndPoint endPoint = OJ9Function.CreateIPEndPoint(OJ9Const.SERVER_IP + ":" + OJ9Const.LOGIN_SERVER_PORT_NUM);
         GameManager.instance.udpClient.Send(sendBuff, sendBuff.Length, endPoint);
         
         StartListen();
