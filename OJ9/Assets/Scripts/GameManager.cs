@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(instance);
 
-        udpClient = new UdpClient();
+        udpClient = new UdpClient(OJ9Const.CLIENT_PORT);
     }
 
     public void SetUserInfo(UserInfo _userInfo)

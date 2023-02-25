@@ -54,7 +54,7 @@ class LoginServer
     private void DataReceived(IAsyncResult _asyncResult)
     {
         Console.WriteLine("Received!");
-        IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.None, 0);
+        IPEndPoint ipEndPoint = null;
         var buffer = udpClient.EndReceive(_asyncResult, ref ipEndPoint);
         Console.WriteLine("Get from : " + ipEndPoint);
 
