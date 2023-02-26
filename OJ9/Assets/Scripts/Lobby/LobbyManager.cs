@@ -73,10 +73,8 @@ public class LobbyManager : MonoBehaviour
         {
             case PacketType.Matched:
             {
-                B2CGameMatched recvPacket = OJ9Function.ByteArrayToObject<B2CGameMatched>(recvBuffer);
-                GameManager.instance.SetGameInfo(new GameInfo(recvPacket.gameType, recvPacket.roomNumber));
-
-                SceneManager.LoadScene("SoccerScene");
+                var recvPacket = OJ9Function.ByteArrayToObject<B2CGameMatched>(recvBuffer);
+                InitGame(recvPacket.gameType, recvPacket.roomNumber);
             }
                 break;
             default:
@@ -84,5 +82,11 @@ public class LobbyManager : MonoBehaviour
                 throw new FormatException("cannot receive other packet in LobbyManager");
             }
         }
+    }
+
+    private void InitGame(GameType _gameType, int _roomNumber)
+    {
+        GameManager.instance.SetGameInfo(new GameInfo(_gameType, _roomNumber));
+        SceneManager.LoadScene("SoccerScene");
     }
 }

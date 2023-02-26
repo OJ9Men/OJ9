@@ -11,9 +11,9 @@ public static class OJ9Function
         return System.Text.Encoding.UTF8.GetBytes(objToString);
     }
 
-    public static T ByteArrayToObject<T>(byte[] bytes)
+    public static T ByteArrayToObject<T>(byte[] bytes, int _count = 0)
     {
-        string stringObj = System.Text.Encoding.UTF8.GetString(bytes);
+        string stringObj = _count == 0 ? System.Text.Encoding.UTF8.GetString(bytes) : System.Text.Encoding.UTF8.GetString(bytes, 0, _count);
         return System.Text.Json.JsonSerializer.Deserialize<T>(stringObj);
     }
 

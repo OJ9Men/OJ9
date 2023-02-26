@@ -1,3 +1,7 @@
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using UnityEngine;
 
 static class Constants
@@ -18,6 +22,9 @@ public class SoccerManager : MonoBehaviour
         }
     }
 
+    [Header("No server 모드")] [SerializeField]
+    private bool clientOnly;
+    
     [Header("플레이어")]
     [SerializeField]
     private Transform[] playerInitPos;
@@ -33,6 +40,10 @@ public class SoccerManager : MonoBehaviour
     private Transform puck;
 
     private GoalLineBoundary goalLineBoundary;
+    
+    // Network
+    private Socket socket;
+    private byte[] buffer;
 
     void Start()
     {
@@ -40,11 +51,12 @@ public class SoccerManager : MonoBehaviour
             goalLineHolder.GetChild(0).position.y,
             goalLineHolder.GetChild(1).position.y
         );
-        
-        GameInfo gameInfo = GameManager.instance.GetGameInfo();
-        C2GGameStart packet = new C2GGameStart(gameInfo.GetGameType(), gameInfo.GetRoomNumber());
-        byte[] buffer = OJ9Function.ObjectToByteArray(packet);
-        // TODO : Connect TCP!
+
+        buffer = new byte[OJ9Const.BUFFER_SIZE];
+        if (!clientOnly)
+        {
+            ConnectGameServer();
+        }
     }
 
     void Update()
@@ -80,5 +92,79 @@ public class SoccerManager : MonoBehaviour
         playerRb.velocity = Vector2.zero;
         playerRb.angularVelocity = 0.0f;
         player.transform.position = playerInitPos[0].position;
+    }
+
+    private void ConnectGameServer()
+    {
+        if (socket != null)
+        {
+            socket.Close();
+            socket = null;
+        }
+        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        
+        var endPoint = OJ9Function.CreateIPEndPoint(
+            OJ9Const.SERVER_IP + ":" + Convert.ToString(OJ9Const.GAME_SERVER_PORT_NUM)
+        );
+        socket.BeginConnect(endPoint, OnConnectResponse, null);
+    }
+
+    private void OnConnectResponse(IAsyncResult _asyncResult)
+    {
+        try
+        {
+            socket.EndConnect(_asyncResult);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        Debug.Log("Server connected");
+        
+        var gameInfo = GameManager.instance.GetGameInfo();
+        var packet = new C2GReady(
+            gameInfo.GetGameType(),
+            gameInfo.GetRoomNumber(),
+            GameManager.instance.userInfo
+        );
+        socket.Send(OJ9Function.ObjectToByteArray(packet));
+        socket.BeginReceive(buffer, 0, OJ9Const.BUFFER_SIZE, SocketFlags.None, OnDataReceived, null);
+        
+        // TODO : Show wait ui
+    }
+
+    private void OnDataReceived(IAsyncResult _asyncResult)
+    {
+        var packetSize = socket.EndReceive(_asyncResult);
+        var packetBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer, packetSize);
+        switch (packetBase.packetType)
+        {
+            case PacketType.Start:
+            {
+                var packet = OJ9Function.ByteArrayToObject<G2CStart>(buffer, packetSize);
+                if (packet.isMyTurn)
+                {
+                    SetJoystickEnabled(true);
+                    // Show arrow
+                }
+                else
+                {
+                    SetJoystickEnabled(false);
+                    // Show wait ui
+                    // block input
+                }
+            }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        
+    }
+
+    private void SetJoystickEnabled(bool _enabled)
+    {
+        var movement = player.GetComponent<PlayerMovement>();
+        movement.SetEnableJoystick(_enabled);
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Numerics;
 
 public enum PacketType
 {
@@ -12,6 +13,9 @@ public enum PacketType
     Matched,
     
     // Game
+    Ready,
+    
+    // Soccer
     Start,
 
     // Error
@@ -107,23 +111,41 @@ public class B2CGameMatched : IPacketBase
     }
 }
 
-public class C2GGameStart : IPacketBase
+public class C2GReady : IPacketBase
 {
     // TCP Packet
     
     public GameType gameType { get; set; }
     public int roomNumber { get; set; }
+    public UserInfo userInfo { get; set; }
 
-    public C2GGameStart()
+    public C2GReady()
     {
         
     }
 
-    public C2GGameStart(GameType _gameType, int _roomNumber)
+    public C2GReady(GameType _gameType, int _roomNumber, UserInfo _userInfo)
     {
-        packetType = PacketType.Start;
+        packetType = PacketType.Ready;
         gameType = _gameType;
         roomNumber = _roomNumber;
+        userInfo = _userInfo;
+    }
+}
+
+public class G2CStart : IPacketBase
+{
+    public bool isMyTurn { get; set; }
+    
+    public G2CStart()
+    {
+        
+    }
+    
+    public G2CStart(bool _isMyTurn)
+    {
+        packetType = PacketType.Start;
+        isMyTurn = _isMyTurn;
     }
 }
 

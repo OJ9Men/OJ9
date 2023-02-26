@@ -14,6 +14,11 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
+    public void SetEnableJoystick(bool _enabled)
+    {
+        joystickPanel.enabled = _enabled;
+    }
+
     private bool CanAim()
     {
         return rb.velocity.magnitude == 0.0f;

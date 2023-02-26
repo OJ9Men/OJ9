@@ -6,13 +6,26 @@ public struct Client
 {
     private readonly Socket socket;
     public byte[] buffer = new byte[OJ9Const.BUFFER_SIZE];
+    public int roomNumber = 0;
+
+    public UserInfo userInfo;
+
+    public bool IsValid()
+    {
+        return userInfo.guid != Guid.Empty;
+    }
     
     public Client(Socket _socket)
     {
         socket = _socket;
     }
 
-    public delegate void OnReceivedCallback(byte[] _buffer);
+    public void InitUserInfo(UserInfo _userInfo)
+    {
+        userInfo = _userInfo;
+    }
+
+    public delegate void OnReceivedCallback(byte[] _buffer, ref Client _client);
     
     public void BeginReceive(OnReceivedCallback _onReceivedCallback)
     {
@@ -26,12 +39,17 @@ public struct Client
         );
     }
 
+    public void Send(byte[] packet)
+    {
+        socket.Send(packet);
+    }
+
     private void EndReceive(IAsyncResult _asyncResult)
     {
         var callback = (OnReceivedCallback)_asyncResult.AsyncState!;
         var size = socket.EndReceive(_asyncResult);
         var stringFromBuffer = Encoding.UTF8.GetString(buffer, 0, size);
-        callback(Encoding.UTF8.GetBytes(stringFromBuffer));
+        callback(Encoding.UTF8.GetBytes(stringFromBuffer), ref this);
         
         socket.BeginReceive(
             buffer,
