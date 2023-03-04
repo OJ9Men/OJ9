@@ -119,9 +119,9 @@ public class Soccer : GameServer
                 }
             }
                 break;
-            case PacketType.Start:
+            case PacketType.Shoot:
             {
-                
+                // TODO : Process both clients
             }
                 break;
             default:

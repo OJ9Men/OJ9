@@ -12,9 +12,11 @@ static class Constants
 
 public class SoccerManager : MonoBehaviour
 {
+
     struct GoalLineBoundary
     {
         public float Up, Down;
+
         public GoalLineBoundary(float up, float down)
         {
             Up = up;
@@ -24,39 +26,56 @@ public class SoccerManager : MonoBehaviour
 
     [Header("No server 모드")] [SerializeField]
     private bool clientOnly;
-    
-    [Header("플레이어")]
-    [SerializeField]
-    private Transform[] playerInitPos;
-    [SerializeField]
-    private Transform player;
 
-    [Header("골 라인")]
-    [SerializeField]
-    private Transform goalLineHolder;
-    [SerializeField]
-    private Transform puckInitPos;
-    [SerializeField]
-    private Transform puck;
+    [Header("플레이어")] [SerializeField] private Transform[] playerInitPos;
+    [SerializeField] private Transform player;
+    [SerializeField] private Transform enemy;
+    private PlayerMovement playerMovement;
+
+    [Header("골 라인")] [SerializeField] private Transform goalLineHolder;
+    [SerializeField] private Transform puckInitPos;
+    [SerializeField] private Transform puck;
 
     private GoalLineBoundary goalLineBoundary;
-    
+
     // Network
     private Socket socket;
     private byte[] buffer;
+    private bool isMyTurn;
 
     void Start()
     {
+        playerMovement = player.GetComponent<PlayerMovement>();
+        playerMovement.aimDoneDelegate = OnAimDone; 
         goalLineBoundary = new GoalLineBoundary(
             goalLineHolder.GetChild(0).position.y,
             goalLineHolder.GetChild(1).position.y
         );
 
         buffer = new byte[OJ9Const.BUFFER_SIZE];
+
         if (!clientOnly)
         {
             ConnectGameServer();
         }
+        else
+        {
+            isMyTurn = true;
+        }
+    }
+
+    private void OnAimDone(Vector2 _vector2)
+    {
+        if (!isMyTurn)
+        {
+            throw new FormatException("Not in turn, Aim must not be available");
+        }
+        Debug.Log(("Aim done : " + _vector2));
+        
+        var packet = new C2GShoot(
+            new System.Numerics.Vector2(_vector2.x,  _vector2.y)
+        );
+        socket.Send(OJ9Function.ObjectToByteArray(packet));
     }
 
     void Update()
@@ -101,8 +120,9 @@ public class SoccerManager : MonoBehaviour
             socket.Close();
             socket = null;
         }
+
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        
+
         var endPoint = OJ9Function.CreateIPEndPoint(
             OJ9Const.SERVER_IP + ":" + Convert.ToString(OJ9Const.GAME_SERVER_PORT_NUM)
         );
@@ -120,8 +140,9 @@ public class SoccerManager : MonoBehaviour
             Console.WriteLine(e);
             throw;
         }
+
         Debug.Log("Server connected");
-        
+
         var gameInfo = GameManager.instance.GetGameInfo();
         var packet = new C2GReady(
             gameInfo.GetGameType(),
@@ -130,7 +151,7 @@ public class SoccerManager : MonoBehaviour
         );
         socket.Send(OJ9Function.ObjectToByteArray(packet));
         socket.BeginReceive(buffer, 0, OJ9Const.BUFFER_SIZE, SocketFlags.None, OnDataReceived, null);
-        
+
         // TODO : Show wait ui
     }
 
@@ -143,6 +164,7 @@ public class SoccerManager : MonoBehaviour
             case PacketType.Start:
             {
                 var packet = OJ9Function.ByteArrayToObject<G2CStart>(buffer, packetSize);
+                isMyTurn = packet.isMyTurn;
                 if (packet.isMyTurn)
                 {
                     SetJoystickEnabled(true);
@@ -156,15 +178,18 @@ public class SoccerManager : MonoBehaviour
                 }
             }
                 break;
+            case PacketType.Shoot:
+            {
+                
+            }
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
-        
     }
 
     private void SetJoystickEnabled(bool _enabled)
     {
-        var movement = player.GetComponent<PlayerMovement>();
-        movement.SetEnableJoystick(_enabled);
+        playerMovement.SetEnableJoystick(_enabled);
     }
 }

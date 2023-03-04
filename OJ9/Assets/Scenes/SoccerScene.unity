@@ -443,6 +443,7 @@ MonoBehaviour:
   playerInitPos:
   - {fileID: 1859055680}
   player: {fileID: 1708360938}
+  enemy: {fileID: 1411719038}
   goalLineHolder: {fileID: 1394473690}
   puckInitPos: {fileID: 330619817}
   puck: {fileID: 1768666737}

@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public delegate void AimDoneDelegate(Vector2 _vector2);
+    public AimDoneDelegate aimDoneDelegate;
+
     bool onGoingAim;
     private Rigidbody2D rb;
 
@@ -49,5 +52,6 @@ public class PlayerMovement : MonoBehaviour
         rb.AddForce(Constants.FORCE_MAGNITUDE * oppositeDir);
 
         onGoingAim = false;
+        aimDoneDelegate(oppositeDir);
     }
 }

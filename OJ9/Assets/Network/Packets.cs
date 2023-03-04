@@ -17,6 +17,7 @@ public enum PacketType
     
     // Soccer
     Start,
+    Shoot,
 
     // Error
     L2BError,
@@ -210,5 +211,16 @@ public class B2CError : IPacketBase
     {
         packetType = PacketType.B2CError;
         errorType = _errorType;
+    }
+}
+
+public class C2GShoot : IPacketBase
+{
+    public Vector2 dir;
+
+    public C2GShoot(Vector2 _dir)
+    {
+        dir = _dir;
+        packetType = PacketType.Shoot;
     }
 }
