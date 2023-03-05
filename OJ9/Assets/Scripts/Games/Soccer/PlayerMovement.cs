@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public delegate void AimDoneDelegate(Vector2 _vector2);
+    public delegate void AimDoneDelegate(Vector2 _vector2, int _playerId);
     public AimDoneDelegate aimDoneDelegate;
 
     bool onGoingAim;
     private Rigidbody2D rb;
 
-    [SerializeField]
-    private JoystickPanel joystickPanel;
-
+    [SerializeField] private JoystickPanel joystickPanel;
+    [SerializeField] public int playerId;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -52,6 +52,6 @@ public class PlayerMovement : MonoBehaviour
         rb.AddForce(Constants.FORCE_MAGNITUDE * oppositeDir);
 
         onGoingAim = false;
-        aimDoneDelegate(oppositeDir);
+        aimDoneDelegate(oppositeDir, playerId);
     }
 }

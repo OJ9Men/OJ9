@@ -217,10 +217,12 @@ public class B2CError : IPacketBase
 public class C2GShoot : IPacketBase
 {
     public Vector2 dir;
+    public int playerId;
 
-    public C2GShoot(Vector2 _dir)
+    public C2GShoot(Vector2 _dir, int _playerId)
     {
         dir = _dir;
+        playerId = _playerId;
         packetType = PacketType.Shoot;
     }
 }

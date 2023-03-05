@@ -7,12 +7,11 @@ using UnityEngine;
 static class Constants
 {
     public const float FORCE_MAGNITUDE = 1000.0f;
-    public const int RACKET_NUM = 5;
+    public const int PLAYER_NUM = 5;
 }
 
 public class SoccerManager : MonoBehaviour
 {
-
     struct GoalLineBoundary
     {
         public float Up, Down;
@@ -24,13 +23,21 @@ public class SoccerManager : MonoBehaviour
         }
     }
 
-    [Header("No server 모드")] [SerializeField]
-    private bool clientOnly;
+    [Header("No server 모드")]
+    [SerializeField] private bool clientOnly;
 
-    [Header("플레이어")] [SerializeField] private Transform[] playerInitPos;
-    [SerializeField] private Transform player;
-    [SerializeField] private Transform enemy;
-    private PlayerMovement playerMovement;
+    [Header("플레이어 포지션")]
+    [SerializeField] private Transform playerPosHolder;
+    [SerializeField] private Transform enemyPosHolder;
+    
+    [Header("플레이어")]
+    [SerializeField] private Transform playerHolder;
+    [SerializeField] private Transform enemyHolder;
+
+    private Transform[] playerInitPos;
+    private Transform[] enemyInitPos;
+    private PlayerMovement[] playerMovements;
+    private PlayerMovement[] enemyMovements;
 
     [Header("골 라인")] [SerializeField] private Transform goalLineHolder;
     [SerializeField] private Transform puckInitPos;
@@ -45,8 +52,35 @@ public class SoccerManager : MonoBehaviour
 
     void Start()
     {
-        playerMovement = player.GetComponent<PlayerMovement>();
-        playerMovement.aimDoneDelegate = OnAimDone; 
+        playerInitPos = new Transform[Constants.PLAYER_NUM];
+        enemyInitPos = new Transform[Constants.PLAYER_NUM];
+        if (playerPosHolder.childCount != enemyPosHolder.childCount || playerPosHolder.childCount != Constants.PLAYER_NUM)
+        {
+            throw new FormatException("pos holder is not enough");
+        }
+        
+        for (var i = 0; i < Constants.PLAYER_NUM; ++i)
+        {
+            playerInitPos[i] = playerPosHolder.GetChild(i);
+            enemyInitPos[i] = enemyPosHolder.GetChild(i);
+        }
+        
+        playerMovements = new PlayerMovement[Constants.PLAYER_NUM];
+        enemyMovements = new PlayerMovement[Constants.PLAYER_NUM];
+        for (var i = 0; i < playerHolder.childCount; ++i)
+        {
+            var iter = playerHolder.GetChild(i);
+            playerMovements[i] = iter.GetComponent<PlayerMovement>();
+            playerMovements[i].aimDoneDelegate = OnAimDone;
+        }
+
+        for (var i = 0; i < enemyHolder.childCount; ++i)
+        {
+            var iter = enemyHolder.GetChild(i);
+            enemyMovements[i] = iter.GetComponent<PlayerMovement>();
+            enemyMovements[i].SetEnableJoystick(false);
+        }
+
         goalLineBoundary = new GoalLineBoundary(
             goalLineHolder.GetChild(0).position.y,
             goalLineHolder.GetChild(1).position.y
@@ -64,16 +98,17 @@ public class SoccerManager : MonoBehaviour
         }
     }
 
-    private void OnAimDone(Vector2 _vector2)
+    private void OnAimDone(Vector2 _vector2, int _playerId)
     {
         if (!isMyTurn)
         {
             throw new FormatException("Not in turn, Aim must not be available");
         }
+
         Debug.Log(("Aim done : " + _vector2));
-        
+
         var packet = new C2GShoot(
-            new System.Numerics.Vector2(_vector2.x,  _vector2.y)
+            new System.Numerics.Vector2(_vector2.x, _vector2.y), _playerId
         );
         socket.Send(OJ9Function.ObjectToByteArray(packet));
     }
@@ -106,11 +141,23 @@ public class SoccerManager : MonoBehaviour
         puckRb.angularVelocity = 0.0f;
         puck.transform.position = puckInitPos.position;
 
-        // Reset Player
-        Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
-        playerRb.velocity = Vector2.zero;
-        playerRb.angularVelocity = 0.0f;
-        player.transform.position = playerInitPos[0].position;
+        // Reset Player/Ememy
+        for (var i = 0; i < playerHolder.childCount; ++i)
+        {
+            var iter = playerHolder.GetChild(i);
+            var playerRb = iter.GetComponent<Rigidbody2D>();
+            playerRb.velocity = Vector2.zero;
+            playerRb.angularVelocity = 0.0f;
+            iter.position = playerInitPos[i].position;
+        }
+        for (var i = 0; i < enemyHolder.childCount; ++i)
+        {
+            var iter = enemyHolder.GetChild(i);
+            var enemyRb = iter.GetComponent<Rigidbody2D>();
+            enemyRb.velocity = Vector2.zero;
+            enemyRb.angularVelocity = 0.0f;
+            iter.position = enemyInitPos[i].position;
+        }
     }
 
     private void ConnectGameServer()
@@ -165,22 +212,12 @@ public class SoccerManager : MonoBehaviour
             {
                 var packet = OJ9Function.ByteArrayToObject<G2CStart>(buffer, packetSize);
                 isMyTurn = packet.isMyTurn;
-                if (packet.isMyTurn)
-                {
-                    SetJoystickEnabled(true);
-                    // Show arrow
-                }
-                else
-                {
-                    SetJoystickEnabled(false);
-                    // Show wait ui
-                    // block input
-                }
+                SetPlayerJoystickEnabled(packet.isMyTurn);
+                // TODO : show arrow, wait ui
             }
                 break;
             case PacketType.Shoot:
             {
-                
             }
                 break;
             default:
@@ -188,8 +225,11 @@ public class SoccerManager : MonoBehaviour
         }
     }
 
-    private void SetJoystickEnabled(bool _enabled)
+    private void SetPlayerJoystickEnabled(bool _enabled)
     {
-        playerMovement.SetEnableJoystick(_enabled);
+        foreach (var iter in playerMovements)
+        {
+            iter.SetEnableJoystick(_enabled);
+        }
     }
 }
