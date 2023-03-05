@@ -78,7 +78,6 @@ public class SoccerManager : MonoBehaviour
         {
             var iter = enemyHolder.GetChild(i);
             enemyMovements[i] = iter.GetComponent<PlayerMovement>();
-            enemyMovements[i].SetEnableJoystick(false);
         }
 
         goalLineBoundary = new GoalLineBoundary(
@@ -107,6 +106,11 @@ public class SoccerManager : MonoBehaviour
 
         Debug.Log(("Aim done : " + _vector2));
 
+        if (socket == null) // When client only mode
+        {
+            return;
+        }
+        
         var packet = new C2GShoot(
             new System.Numerics.Vector2(_vector2.x, _vector2.y), _playerId
         );
