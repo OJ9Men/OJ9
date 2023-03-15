@@ -20,7 +20,6 @@ class LoginServer
                     ConfigurationManager.AppSettings.Get("loginServerPort")
                 )
             );
-            
             Console.WriteLine("Listening started");
             udpClient.BeginReceive(DataReceived, null);
         }

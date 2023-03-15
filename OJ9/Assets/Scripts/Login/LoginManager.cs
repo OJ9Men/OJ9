@@ -1,31 +1,59 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Timers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LoginManager : MonoBehaviour
 {
+    private enum LoginState
+    {
+        None,
+        Try,
+        Success,
+        Fail
+    }
+    
     [SerializeField] private TMP_InputField idText;
 
     [SerializeField] private TMP_InputField pwText;
 
-    private bool loginSuccess = false;
+    private Timer loginTryTimer;
+    private LoginState loginState = LoginState.None;
+    private int loginTryCount = 0;
 
     private void OnLoginButtonClicked()
     {
-        ReqLogin();
+        if (loginState != LoginState.None)
+        {
+            return;
+        }
+
+        StartListen();
+        loginState = LoginState.Try;
+        loginTryTimer = new Timer();
+        loginTryTimer.Interval = 2000;  // 2 Sec
+        loginTryTimer.Elapsed += new ElapsedEventHandler(TryLogin);
+        loginTryTimer.Start();
     }
 
-    private void ReqLogin()
+    private void TryLogin(object sender, ElapsedEventArgs e)
     {
+        if (loginTryCount >= OJ9Const.LOGIN_TRY_COUNT)
+        {
+            loginTryTimer.Stop();
+            loginState = LoginState.Fail;
+            return;
+        }
+        
         byte[] sendBuff =
             OJ9Function.ObjectToByteArray(new C2LLogin(idText.text, pwText.text));
         IPEndPoint endPoint = OJ9Function.CreateIPEndPoint(OJ9Const.SERVER_IP + ":" + OJ9Const.LOGIN_SERVER_PORT_NUM);
         GameManager.instance.udpClient.Send(sendBuff, sendBuff.Length, endPoint);
         
-        StartListen();
+        ++loginTryCount;
     }
 
     private void StartListen()
@@ -54,7 +82,8 @@ public class LoginManager : MonoBehaviour
                 Debug.Log("[" + packet.userInfo.nickname + "] : Login Success");
                 GameManager.instance.SetUserInfo(packet.userInfo);
                 
-                loginSuccess = true;
+                loginState = LoginState.Success;
+                loginTryTimer.Stop();
             }
                 break;
             case PacketType.B2CError:
@@ -64,6 +93,8 @@ public class LoginManager : MonoBehaviour
                 {
                     Debug.LogError("Login failed : wrong password");
                 }
+
+                loginState = LoginState.Fail;
             }
                 break;
             default:
@@ -73,8 +104,12 @@ public class LoginManager : MonoBehaviour
 
     private void Update()
     {
-        if (!loginSuccess)
+        if (loginState != LoginState.Success)
         {
+            if (loginState == LoginState.Fail)
+            {
+                Debug.LogError("Login failed");
+            }
             return;
         }
 
