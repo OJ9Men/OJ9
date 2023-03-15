@@ -24,14 +24,13 @@ public class PlayerMovement : MonoBehaviour
 
     private bool CanAim()
     {
-        return rb.velocity.magnitude == 0.0f;
+        return rb.velocity.magnitude == 0.0f && joystickPanel != null;
     }
 
     private void OnMouseDown()
     {
         if (!CanAim())
         {
-            Debug.LogWarning("Should be stopped");
             return;
         }
 
