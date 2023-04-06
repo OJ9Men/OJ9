@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 static class Constants
 {
@@ -40,8 +41,8 @@ public class SoccerManager : MonoBehaviour
     private PlayerMovement[] enemyMovements;
 
     [Header("골 라인")] [SerializeField] private Transform goalLineHolder;
-    [SerializeField] private Transform puckInitPos;
-    [SerializeField] private Transform puck;
+    [SerializeField] private Transform ballInitPos;
+    [SerializeField] private Transform ball;
 
     private GoalLineBoundary goalLineBoundary;
 
@@ -119,7 +120,7 @@ public class SoccerManager : MonoBehaviour
 
     void Update()
     {
-        float puckY = puck.transform.position.y;
+        float puckY = ball.transform.position.y;
         if (goalLineBoundary.Down < puckY && puckY < goalLineBoundary.Up)
         {
             return;
@@ -140,10 +141,10 @@ public class SoccerManager : MonoBehaviour
     private void ResetPositions()
     {
         // Reset Puck
-        Rigidbody2D puckRb = puck.GetComponent<Rigidbody2D>();
+        Rigidbody2D puckRb = ball.GetComponent<Rigidbody2D>();
         puckRb.velocity = Vector2.zero;
         puckRb.angularVelocity = 0.0f;
-        puck.transform.position = puckInitPos.position;
+        ball.transform.position = ballInitPos.position;
 
         // Reset Player/Ememy
         for (var i = 0; i < playerHolder.childCount; ++i)
