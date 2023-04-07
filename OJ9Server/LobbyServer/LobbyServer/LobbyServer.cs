@@ -4,6 +4,12 @@ using System.Net;
 using System.Net.Sockets;
 using MySql.Data.MySqlClient;
 
+// TODO : When you entered from login server, then caching user info for preventing db access
+public class LobbyUserInfo
+{
+    
+}
+
 public class LobbyServer
 {
     private static int INVALID_INDEX = -1;
@@ -119,6 +125,7 @@ public class LobbyServer
                     throw new FormatException("ipEndPoint is not valid");
                 }
                 clientQueues[(int)packet.gameType].Enqueue(ipEndPoint);
+                Console.WriteLine(packet.guid + " is now in queue.");
             }
                 break;
             default:

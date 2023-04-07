@@ -50,7 +50,7 @@ public class Soccer : GameServer
     {
         Console.WriteLine("Listening Starts");
 
-        listenEndPoint = OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.SOCCER_LISTEN_PORT_NUM);
+        listenEndPoint = OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.SOCCER_SERVER_PORT_NUM);
         listener = new Socket(
             listenEndPoint.AddressFamily,
             SocketType.Stream,
@@ -122,6 +122,9 @@ public class Soccer : GameServer
             case PacketType.Shoot:
             {
                 // TODO : Process both clients
+                var packet = OJ9Function.ByteArrayToObject<C2GShoot>(_buffer);
+                
+                
             }
                 break;
             default:

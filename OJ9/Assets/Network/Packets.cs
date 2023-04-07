@@ -226,3 +226,8 @@ public class C2GShoot : IPacketBase
         packetType = PacketType.Shoot;
     }
 }
+
+public class G2CShoot : IPacketBase
+{
+    // TODO : Ony direction? or a position of players
+}

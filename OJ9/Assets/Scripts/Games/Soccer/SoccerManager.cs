@@ -24,8 +24,15 @@ public class SoccerManager : MonoBehaviour
         }
     }
 
+    enum GameMode
+    {
+        Dev,
+        Release,
+        ClientOnly,
+    }
+
     [Header("No server 모드")]
-    [SerializeField] private bool clientOnly;
+    [SerializeField] private GameMode gameMode;
 
     [Header("플레이어 포지션")]
     [SerializeField] private Transform playerPosHolder;
@@ -88,13 +95,21 @@ public class SoccerManager : MonoBehaviour
 
         buffer = new byte[OJ9Const.BUFFER_SIZE];
 
-        if (!clientOnly)
+        switch (gameMode)
         {
-            ConnectGameServer();
-        }
-        else
-        {
-            isMyTurn = true;
+            case GameMode.Dev:
+            case GameMode.Release:
+            {
+                ConnectGameServer();
+            }
+                break;
+            case GameMode.ClientOnly:
+            {
+                isMyTurn = true;
+            }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
@@ -176,7 +191,7 @@ public class SoccerManager : MonoBehaviour
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
         var endPoint = OJ9Function.CreateIPEndPoint(
-            OJ9Const.SERVER_IP + ":" + Convert.ToString(OJ9Const.GAME_SERVER_PORT_NUM)
+            OJ9Const.SERVER_IP + ":" + Convert.ToString(OJ9Const.SOCCER_SERVER_PORT_NUM)
         );
         socket.BeginConnect(endPoint, OnConnectResponse, null);
     }
@@ -195,16 +210,29 @@ public class SoccerManager : MonoBehaviour
 
         Debug.Log("Server connected");
 
-        var gameInfo = GameManager.instance.GetGameInfo();
-        var packet = new C2GReady(
-            gameInfo.GetGameType(),
-            gameInfo.GetRoomNumber(),
-            GameManager.instance.userInfo
-        );
-        socket.Send(OJ9Function.ObjectToByteArray(packet));
+        switch (gameMode)
+        {
+            case GameMode.Dev:
+            {
+                // Nothing to do
+            }
+                break;
+            case GameMode.Release:
+            {
+                var gameInfo = GameManager.instance.GetGameInfo();
+                var packet = new C2GReady(
+                    gameInfo.GetGameType(),
+                    gameInfo.GetRoomNumber(),
+                    GameManager.instance.userInfo
+                );
+                socket.Send(OJ9Function.ObjectToByteArray(packet));
+            }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        
         socket.BeginReceive(buffer, 0, OJ9Const.BUFFER_SIZE, SocketFlags.None, OnDataReceived, null);
-
-        // TODO : Show wait ui
     }
 
     private void OnDataReceived(IAsyncResult _asyncResult)
