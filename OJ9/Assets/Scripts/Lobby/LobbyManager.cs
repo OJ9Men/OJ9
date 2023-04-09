@@ -68,7 +68,7 @@ public class LobbyManager : MonoBehaviour
     {
         IPEndPoint ipEndPoint = null;
         var recvBuffer = GameManager.instance.udpClient.EndReceive(asyncResult, ref ipEndPoint);
-        var packetBase = OJ9Function.ByteArrayToObject<IPacketBase>(recvBuffer);
+        var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(recvBuffer);
         switch (packetBase.packetType)
         {
             case PacketType.Matched:

@@ -5,8 +5,8 @@
         Console.WriteLine("Starting Game Server");
         Console.Title = "GameServer";
         
-        Soccer soccer = new Soccer(OJ9Const.MAX_GAME_ROOM_NUM);
-        soccer.Start();
+        SoccerServer soccerServer = new SoccerServer();
+        soccerServer.Start();
 
         while (true)
         {

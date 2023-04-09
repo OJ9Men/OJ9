@@ -113,7 +113,7 @@ public class SoccerManager : MonoBehaviour
         }
     }
 
-    private void OnAimDone(Vector2 _vector2, int _playerId)
+    private void OnAimDone(Vector2 _vector2, int _paddleId)
     {
         if (!isMyTurn)
         {
@@ -128,7 +128,7 @@ public class SoccerManager : MonoBehaviour
         }
         
         var packet = new C2GShoot(
-            new System.Numerics.Vector2(_vector2.x, _vector2.y), _playerId
+            new System.Numerics.Vector2(_vector2.x, _vector2.y), _paddleId
         );
         socket.Send(OJ9Function.ObjectToByteArray(packet));
     }
@@ -238,7 +238,7 @@ public class SoccerManager : MonoBehaviour
     private void OnDataReceived(IAsyncResult _asyncResult)
     {
         var packetSize = socket.EndReceive(_asyncResult);
-        var packetBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer, packetSize);
+        var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer, packetSize);
         switch (packetBase.packetType)
         {
             case PacketType.Start:

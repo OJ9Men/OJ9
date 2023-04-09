@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb;
 
     [SerializeField] private JoystickPanel joystickPanel;
-    [SerializeField] public int playerId;
+    [SerializeField] public int paddleId;
     
     // Start is called before the first frame update
     void Start()
@@ -51,6 +52,6 @@ public class PlayerMovement : MonoBehaviour
         rb.AddForce(Constants.FORCE_MAGNITUDE * oppositeDir);
 
         onGoingAim = false;
-        aimDoneDelegate(oppositeDir, playerId);
+        aimDoneDelegate(oppositeDir, paddleId);
     }
 }

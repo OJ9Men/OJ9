@@ -208,7 +208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickPanel: {fileID: 125863557}
-  playerId: 3
+  paddleId: 3
 --- !u!212 &2555031
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -762,7 +762,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickPanel: {fileID: 125863557}
-  playerId: 4
+  paddleId: 4
 --- !u!212 &401924450
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1339,7 +1339,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickPanel: {fileID: 0}
-  playerId: 1
+  paddleId: 1
 --- !u!212 &749374674
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1678,7 +1678,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickPanel: {fileID: 125863557}
-  playerId: 1
+  paddleId: 1
 --- !u!212 &1173882438
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1816,7 +1816,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickPanel: {fileID: 0}
-  playerId: 2
+  paddleId: 2
 --- !u!212 &1186632399
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2053,7 +2053,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickPanel: {fileID: 0}
-  playerId: 4
+  paddleId: 4
 --- !u!212 &1382329878
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2209,7 +2209,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickPanel: {fileID: 0}
-  playerId: 0
+  paddleId: 0
 --- !u!212 &1411719037
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2695,7 +2695,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickPanel: {fileID: 125863557}
-  playerId: 0
+  paddleId: 0
 --- !u!58 &1708360940
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2941,7 +2941,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickPanel: {fileID: 0}
-  playerId: 3
+  paddleId: 3
 --- !u!212 &1778251006
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3175,7 +3175,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickPanel: {fileID: 125863557}
-  playerId: 2
+  paddleId: 2
 --- !u!212 &2017494366
 SpriteRenderer:
   m_ObjectHideFlags: 0

@@ -4,18 +4,6 @@ using System.Net;
 using System.Net.Sockets;
 using MySql.Data.MySqlClient;
 
-public class WaitingClient
-{
-    public UserInfo userInfo;
-    public IPEndPoint ipEndPoint;
-    
-    public WaitingClient(UserInfo _userInfo, IPEndPoint _ipEndPoint)
-    {
-        userInfo = _userInfo;
-        ipEndPoint = _ipEndPoint;
-    }
-}
-
 public class LobbyServer
 {
     private static int INVALID_INDEX = -1;
@@ -78,11 +66,10 @@ public class LobbyServer
 
     private void DataReceived(IAsyncResult _asyncResult)
     {
-        Console.WriteLine("Received!");
         IPEndPoint ipEndPoint = null;
         var buffer = udpClient.EndReceive(_asyncResult, ref ipEndPoint);
         Console.WriteLine("Get from[login server] : " + ipEndPoint);
-        var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
+        var packBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
         switch (packBase.packetType)
         {
             case PacketType.L2BError:
@@ -231,19 +218,20 @@ public class LobbyServer
 
         lock (lockObject)
         {
-            byte[] firstBuffer =
+            // Refactoring
+            // - Using room (thread)
+            byte[] buffer =
                 OJ9Function.ObjectToByteArray(
-                    new B2CGameMatched((GameType)gameIndex, roomNumber, second.userInfo)
+                    new B2GGameMatched(first, second, roomNumber)
                 );
-            
-            byte[] secondBuffer =
-                OJ9Function.ObjectToByteArray(
-                    new B2CGameMatched((GameType)gameIndex, roomNumber, first.userInfo)
-                );
-            udpClient.Send(firstBuffer, firstBuffer.Length, first.ipEndPoint);
-            udpClient.Send(secondBuffer, firstBuffer.Length, second.ipEndPoint);
 
-            roomNumber++;
+            udpClient.Send(
+                buffer,
+                buffer.Length,
+                OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.SOCCER_SERVER_PORT_NUM)
+            );
+            
+            ++roomNumber;
 
             if (roomNumber == int.MaxValue)
             {

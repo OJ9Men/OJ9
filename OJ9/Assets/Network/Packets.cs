@@ -31,12 +31,12 @@ public enum ErrorType
     Unknown,
 }
 
-public class IPacketBase
+public class PacketBase
 {
     public PacketType packetType { get; set; }
 }
 
-public class C2LLogin : IPacketBase
+public class C2LLogin : PacketBase
 {
     public string id { get; set; }
     public string pw { get; set; }
@@ -53,7 +53,7 @@ public class C2LLogin : IPacketBase
     }
 }
 
-public class L2BCheckAccount : IPacketBase
+public class L2BCheckAccount : PacketBase
 {
     public Guid guid { get; set; }
 
@@ -77,7 +77,7 @@ public L2BCheckAccount()
     }
 }
 
-public class C2BQueueGame : IPacketBase
+public class C2BQueueGame : PacketBase
 {
     public UserInfo userInfo { get; set; }
     public GameType gameType { get; set; }
@@ -94,7 +94,24 @@ public class C2BQueueGame : IPacketBase
     }
 }
 
-public class B2CGameMatched : IPacketBase
+public class B2GGameMatched : PacketBase
+{
+    public WaitingClient firstPlayer, secondPlayer;
+    public int roomNumber;
+    public B2GGameMatched()
+    {
+    }
+
+    public B2GGameMatched(WaitingClient _first, WaitingClient _second, int _roomNumber)
+    {
+        packetType = PacketType.Matched;
+        firstPlayer = _first;
+        secondPlayer = _second;
+        roomNumber = _roomNumber;
+    }
+}
+
+public class B2CGameMatched : PacketBase
 {
     public GameType gameType { get; set; }
     public int roomNumber { get; set; }
@@ -115,7 +132,7 @@ public class B2CGameMatched : IPacketBase
     }
 }
 
-public class C2GReady : IPacketBase
+public class C2GReady : PacketBase
 {
     // TCP Packet
     
@@ -137,7 +154,7 @@ public class C2GReady : IPacketBase
     }
 }
 
-public class G2CStart : IPacketBase
+public class G2CStart : PacketBase
 {
     public bool isMyTurn { get; set; }
     
@@ -153,7 +170,7 @@ public class G2CStart : IPacketBase
     }
 }
 
-public class L2CLogin : IPacketBase
+public class L2CLogin : PacketBase
 {
     public Guid guid { get; set; }
 
@@ -168,7 +185,7 @@ public class L2CLogin : IPacketBase
     }
 }
 
-public class B2CEnterLobby : IPacketBase
+public class B2CEnterLobby : PacketBase
 {
     public UserInfo userInfo { get; set; }
     public B2CEnterLobby()
@@ -183,7 +200,7 @@ public class B2CEnterLobby : IPacketBase
     }
 }
 
-public class L2BError : IPacketBase
+public class L2BError : PacketBase
 {
     public ErrorType errorType { get; set; }
     public string clientEndPoint { get; set; }
@@ -201,7 +218,7 @@ public class L2BError : IPacketBase
     }
 }
 
-public class B2CError : IPacketBase
+public class B2CError : PacketBase
 {
     public ErrorType errorType { get; set; }
 
@@ -217,20 +234,20 @@ public class B2CError : IPacketBase
     }
 }
 
-public class C2GShoot : IPacketBase
+public class C2GShoot : PacketBase
 {
     public Vector2 dir;
-    public int playerId;
+    public int paddleId;
 
-    public C2GShoot(Vector2 _dir, int _playerId)
+    public C2GShoot(Vector2 _dir, int _paddleId)
     {
         dir = _dir;
-        playerId = _playerId;
+        paddleId = _paddleId;
         packetType = PacketType.Shoot;
     }
 }
 
-public class G2CShoot : IPacketBase
+public class G2CShoot : PacketBase
 {
     // TODO : Ony direction? or a position of players
 }

@@ -73,7 +73,7 @@ public class LoginManager : MonoBehaviour
     {
         IPEndPoint groupEndPoint = null;
         var buffer = GameManager.instance.udpClient.EndReceive(asyncResult, ref groupEndPoint);
-        var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
+        var packBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
         switch (packBase.packetType)
         {
             case PacketType.EnterLobby:

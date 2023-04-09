@@ -2,6 +2,7 @@
 // TODO : It should be in config file.
 
 using System;
+using System.Net;
 
 public static class OJ9Const
 {
@@ -43,5 +44,17 @@ public struct UserInfo
     public bool IsValid()
     {
         return guid != Guid.Empty;
+    }
+}
+
+public class WaitingClient
+{
+    public UserInfo userInfo;
+    public IPEndPoint ipEndPoint;
+    
+    public WaitingClient(UserInfo _userInfo, IPEndPoint _ipEndPoint)
+    {
+        userInfo = _userInfo;
+        ipEndPoint = _ipEndPoint;
     }
 }

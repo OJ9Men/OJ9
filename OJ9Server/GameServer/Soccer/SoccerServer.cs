@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Numerics;
 
-public class Soccer : GameServer
+public class SoccerServer : GameServer
 {
     private enum Turn
     {
@@ -39,9 +39,9 @@ public class Soccer : GameServer
         }
     }
 
-    private Dictionary<int /* =roomNumber */, Room> rooms;
+    private readonly Dictionary<int /* =roomNumber */, Room> rooms = new Dictionary<int, Room>();
 
-    public Soccer(int _inMaxRoomNumber) : base(_inMaxRoomNumber)
+    public SoccerServer()
     {
         gameType = GameType.Soccer;
     }
@@ -50,32 +50,21 @@ public class Soccer : GameServer
     {
         Console.WriteLine("Listening Starts");
 
-        listenEndPoint = OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.SOCCER_SERVER_PORT_NUM);
-        listener = new Socket(
-            listenEndPoint.AddressFamily,
-            SocketType.Stream,
-            ProtocolType.Tcp
-        );
-
-        listener.Bind(listenEndPoint);
-        listener.Listen(maxRoomNumber);
-        listener.BeginAccept(OnAccepted, null);
-
-        rooms = new Dictionary<int, Room>();
+        lobbyListener = new UdpClient(OJ9Const.SOCCER_SERVER_PORT_NUM);
+        lobbyListener.BeginReceive(LobbyPacketReceived, null);
     }
 
-    private void OnAccepted(IAsyncResult _asyncResult)
+    private void LobbyPacketReceived(IAsyncResult _asyncResult)
     {
-        Client client = new Client(listener.EndAccept(_asyncResult));
-        client.BeginReceive(OnReceived);
+        // TODO 
         
-        clients.Add(client);
-        listener.BeginAccept(OnAccepted, null);
+        // 1. Got packet from lobby server 
+        // 2. Create room (thread) and link two clients
     }
 
-    private void OnReceived(byte[] _buffer, ref Client _client)
+    private void OnGamePacketRecevied(byte[] _buffer, ref Client _client)
     {
-        IPacketBase packetBase = OJ9Function.ByteArrayToObject<IPacketBase>(_buffer);
+        PacketBase packetBase = OJ9Function.ByteArrayToObject<PacketBase>(_buffer);
         switch (packetBase.packetType)
         {
             case PacketType.Ready:

@@ -6,7 +6,6 @@ public struct Client
 {
     private readonly Socket socket;
     public byte[] buffer = new byte[OJ9Const.BUFFER_SIZE];
-    public int roomNumber = 0;
 
     public UserInfo userInfo;
 
@@ -64,19 +63,12 @@ public struct Client
 
 public abstract class GameServer
 {
+    protected UdpClient lobbyListener;
     // Listen
     protected Socket listener;
-    protected IPEndPoint listenEndPoint;
 
-    protected List<Client> clients;
+    protected readonly List<Client> clients = new List<Client>();
     protected GameType gameType;
-    protected int maxRoomNumber;
-
-    protected GameServer(int _inMaxRoomNumber)
-    {
-        maxRoomNumber = _inMaxRoomNumber;
-        clients = new List<Client>();
-    }
 
     public abstract void Start();
 }

@@ -57,7 +57,7 @@ class LoginServer
         var buffer = udpClient.EndReceive(_asyncResult, ref ipEndPoint);
         Console.WriteLine("Get from : " + ipEndPoint);
 
-        var packBase = OJ9Function.ByteArrayToObject<IPacketBase>(buffer);
+        var packBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
         switch (packBase.packetType)
         {
             case PacketType.Login:
