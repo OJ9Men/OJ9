@@ -28,7 +28,7 @@ public class LoginManager : MonoBehaviour
     {
         if (loginState != LoginState.None)
         {
-            return;
+            throw new FormatException("login state is not 'None'");
         }
 
         StartListen();

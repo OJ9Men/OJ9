@@ -7,7 +7,6 @@ public static class OJ9Const
 {
     public static string SERVER_IP = "127.0.0.1";
     //public static string SERVER_IP = "124.111.89.128";
-    public static int CLIENT_PORT = 7000;
     public static int LOGIN_TRY_COUNT = 5;
 
     public static int LOGIN_SERVER_PORT_NUM = 5000;
