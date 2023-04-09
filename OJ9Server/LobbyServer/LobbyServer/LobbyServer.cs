@@ -4,10 +4,16 @@ using System.Net;
 using System.Net.Sockets;
 using MySql.Data.MySqlClient;
 
-// TODO : When you entered from login server, then caching user info for preventing db access
-public class LobbyUserInfo
+public class WaitingClient
 {
+    public UserInfo userInfo;
+    public IPEndPoint ipEndPoint;
     
+    public WaitingClient(UserInfo _userInfo, IPEndPoint _ipEndPoint)
+    {
+        userInfo = _userInfo;
+        ipEndPoint = _ipEndPoint;
+    }
 }
 
 public class LobbyServer
@@ -15,8 +21,9 @@ public class LobbyServer
     private static int INVALID_INDEX = -1;
     private UdpClient udpClient;
     private MySqlConnection mysql;
-    private readonly ConcurrentQueue<IPEndPoint>[] clientQueues = new ConcurrentQueue<IPEndPoint>[(int)GameType.Max];
+    private readonly ConcurrentQueue<WaitingClient>[] clientQueues = new ConcurrentQueue<WaitingClient>[(int)GameType.Max];
     private int roomNumber;
+    private readonly ConcurrentBag<UserInfo> userInfos = new ConcurrentBag<UserInfo>();
 
     private readonly object lockObject = new object();
 
@@ -25,9 +32,11 @@ public class LobbyServer
         try
         {
             roomNumber = 0;
+            userInfos.Clear();
+            
             for (var i = 0; i < clientQueues.Length; i++)
             {
-                clientQueues[i] = new ConcurrentQueue<IPEndPoint>();
+                clientQueues[i] = new ConcurrentQueue<WaitingClient>();
             }
 
             StartDB();
@@ -100,14 +109,19 @@ public class LobbyServer
                     if (!userInfo.IsValid())
                     {
                         userInfo = AddAccountDb(packet.guid);
+                        Console.WriteLine("New account was added : " + userInfo.guid + ", Client ip : " + packet.clientEndPoint);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Already exist account. Pass creating new account.");
                     }
 
                     if (!userInfo.IsValid())
                     {
                         throw new FormatException("Userinfo does not exist and cannot create");
                     }
-                    
-                    Console.WriteLine("New account was added : " + userInfo.guid + ", Client ip : " + packet.clientEndPoint);
+
+                    userInfos.Add(userInfo);
                     EnterLobby(userInfo, OJ9Function.CreateIPEndPoint(packet.clientEndPoint));
                 }
                 catch (Exception e)
@@ -124,8 +138,10 @@ public class LobbyServer
                 {
                     throw new FormatException("ipEndPoint is not valid");
                 }
-                clientQueues[(int)packet.gameType].Enqueue(ipEndPoint);
-                Console.WriteLine(packet.guid + " is now in queue.");
+                clientQueues[(int)packet.gameType].Enqueue(
+                    new WaitingClient(packet.userInfo, ipEndPoint)
+                );
+                Console.WriteLine(packet.userInfo.nickname + " is now in queue.");
             }
                 break;
             default:
@@ -215,10 +231,17 @@ public class LobbyServer
 
         lock (lockObject)
         {
-            byte[] clientBuff =
-                OJ9Function.ObjectToByteArray(new B2CGameMatched((GameType)gameIndex, roomNumber));
-            udpClient.Send(clientBuff, clientBuff.Length, first);
-            udpClient.Send(clientBuff, clientBuff.Length, second);
+            byte[] firstBuffer =
+                OJ9Function.ObjectToByteArray(
+                    new B2CGameMatched((GameType)gameIndex, roomNumber, second.userInfo)
+                );
+            
+            byte[] secondBuffer =
+                OJ9Function.ObjectToByteArray(
+                    new B2CGameMatched((GameType)gameIndex, roomNumber, first.userInfo)
+                );
+            udpClient.Send(firstBuffer, firstBuffer.Length, first.ipEndPoint);
+            udpClient.Send(secondBuffer, firstBuffer.Length, second.ipEndPoint);
 
             roomNumber++;
 

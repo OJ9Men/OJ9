@@ -79,17 +79,17 @@ public L2BCheckAccount()
 
 public class C2BQueueGame : IPacketBase
 {
-    public Guid guid { get; set; }
+    public UserInfo userInfo { get; set; }
     public GameType gameType { get; set; }
 
     public C2BQueueGame()
     {
     }
 
-    public C2BQueueGame(Guid _guid, GameType _gameType)
+    public C2BQueueGame(UserInfo _userInfo, GameType _gameType)
     {
         packetType = PacketType.QueueGame;
-        guid = _guid;
+        userInfo = _userInfo;
         gameType = _gameType;
     }
 }
@@ -98,17 +98,20 @@ public class B2CGameMatched : IPacketBase
 {
     public GameType gameType { get; set; }
     public int roomNumber { get; set; }
+    
+    public UserInfo enemyInfo { get; set; }
 
     public B2CGameMatched()
     {
         
     }
 
-    public B2CGameMatched(GameType _gameType, int _roomNumber)
+    public B2CGameMatched(GameType _gameType, int _roomNumber, UserInfo _enemyInfo)
     {
         packetType = PacketType.Matched;
         gameType = _gameType;
         roomNumber = _roomNumber;
+        enemyInfo = _enemyInfo;
     }
 }
 

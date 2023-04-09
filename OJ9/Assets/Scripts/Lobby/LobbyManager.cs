@@ -31,7 +31,7 @@ public class LobbyManager : MonoBehaviour
             case GameType.Soccer:
             {
                 C2BQueueGame packet = new C2BQueueGame(
-                    GameManager.instance.userInfo.guid,
+                    GameManager.instance.userInfo,
                     GameType.Soccer
                 );
                 byte[] buffer = OJ9Function.ObjectToByteArray(packet);

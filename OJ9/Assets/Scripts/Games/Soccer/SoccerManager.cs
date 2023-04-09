@@ -31,7 +31,7 @@ public class SoccerManager : MonoBehaviour
         ClientOnly,
     }
 
-    [Header("No server 모드")]
+    [Header("개발/온/오프라인 게임모드")]
     [SerializeField] private GameMode gameMode;
 
     [Header("플레이어 포지션")]
