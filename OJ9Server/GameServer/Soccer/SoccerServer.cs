@@ -21,21 +21,16 @@ public class SoccerServer : GameServer
             elapsedTime = 0;
         }
 
+        public Room(Client _clientA, Client _clientB)
+        {
+            clientA = _clientA;
+            clientB = _clientB;
+        }
+
         public void AddPlayer(Client _client)
         {
-            if (!clientA.IsValid())
-            {
-                clientA = _client;
-                return;
-            }
-
-            if (!clientB.IsValid())
-            {
-                clientB = _client;
-                return;
-            }
-
-            throw new FormatException("Room is full");
+            // TODO
+            //throw new FormatException("Room is full");
         }
     }
 
@@ -56,10 +51,29 @@ public class SoccerServer : GameServer
 
     private void LobbyPacketReceived(IAsyncResult _asyncResult)
     {
-        // TODO 
-        
-        // 1. Got packet from lobby server 
+        IPEndPoint ipEndPoint = null;
+        var buffer = lobbyListener.EndReceive(_asyncResult, ref ipEndPoint);
+        var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
+        switch (packetBase.packetType)
+        {
+            case PacketType.Matched:
+            {
+                B2GGameMatched packet = OJ9Function.ByteArrayToObject<B2GGameMatched>(buffer);
+                // TODO : Connect to clients
+                //Socket firstSocket = new Socket(packet.first.ipEndPoint);
+                //Socket secondSocket = new Socket(packet.second.ipEndPoint);
+                
+                //var newRoom = new Room(
+                //    new Client(firstSocket, packet.first.userInfo),
+                //    new Client(secondSocket, packet.second.userInfo));
+                //rooms.Add(packet.roomNumber, newRoom);
+            }
+                break;
+            default:
+                throw new FormatException("Invalid packet from Lobby");
+        }
         // 2. Create room (thread) and link two clients
+
     }
 
     private void OnGamePacketRecevied(byte[] _buffer, ref Client _client)
@@ -70,7 +84,6 @@ public class SoccerServer : GameServer
             case PacketType.Ready:
             {
                 var packet = OJ9Function.ByteArrayToObject<C2GReady>(_buffer);
-                _client.InitUserInfo(packet.userInfo);
                 
                 if (!rooms.TryGetValue(packet.roomNumber, out var found))
                 {

@@ -9,7 +9,7 @@ public class LobbyServer
     private static int INVALID_INDEX = -1;
     private UdpClient udpClient;
     private MySqlConnection mysql;
-    private readonly ConcurrentQueue<WaitingClient>[] clientQueues = new ConcurrentQueue<WaitingClient>[(int)GameType.Max];
+    private readonly ConcurrentQueue<ConnectionInfo>[] waitingPlayers = new ConcurrentQueue<ConnectionInfo>[(int)GameType.Max];
     private int roomNumber;
     private readonly ConcurrentBag<UserInfo> userInfos = new ConcurrentBag<UserInfo>();
 
@@ -22,9 +22,9 @@ public class LobbyServer
             roomNumber = 0;
             userInfos.Clear();
             
-            for (var i = 0; i < clientQueues.Length; i++)
+            for (var i = 0; i < waitingPlayers.Length; i++)
             {
-                clientQueues[i] = new ConcurrentQueue<WaitingClient>();
+                waitingPlayers[i] = new ConcurrentQueue<ConnectionInfo>();
             }
 
             StartDB();
@@ -125,8 +125,8 @@ public class LobbyServer
                 {
                     throw new FormatException("ipEndPoint is not valid");
                 }
-                clientQueues[(int)packet.gameType].Enqueue(
-                    new WaitingClient(packet.userInfo, ipEndPoint)
+                waitingPlayers[(int)packet.gameType].Enqueue(
+                    new ConnectionInfo(packet.userInfo, ipEndPoint)
                 );
                 Console.WriteLine(packet.userInfo.nickname + " is now in queue.");
             }
@@ -193,9 +193,9 @@ public class LobbyServer
     private void SpinQueue()
     {
         var gameIndex = INVALID_INDEX;
-        for (var index = 0; index < clientQueues.Length; index++)
+        for (var index = 0; index < waitingPlayers.Length; index++)
         {
-            if (clientQueues[index].Count < 2)
+            if (waitingPlayers[index].Count < 2)
             {
                 continue;
             }
@@ -209,7 +209,7 @@ public class LobbyServer
             return;
         }
 
-        if (!clientQueues[gameIndex].TryDequeue(out var first) || !clientQueues[gameIndex].TryDequeue(out var second))
+        if (!waitingPlayers[gameIndex].TryDequeue(out var first) || !waitingPlayers[gameIndex].TryDequeue(out var second))
         {
             throw new FormatException("dequeue failed");
         }

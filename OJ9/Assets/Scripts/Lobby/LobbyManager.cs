@@ -74,7 +74,9 @@ public class LobbyManager : MonoBehaviour
             case PacketType.Matched:
             {
                 var recvPacket = OJ9Function.ByteArrayToObject<B2CGameMatched>(recvBuffer);
-                InitGame(recvPacket.gameType, recvPacket.roomNumber);
+                // TODO
+                
+                //InitGame(recvPacket.gameType, recvPacket.roomNumber);
             }
                 break;
             default:

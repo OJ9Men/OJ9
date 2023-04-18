@@ -3,9 +3,13 @@
 
 using System;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
 
 public static class OJ9Const
 {
+    public static int INDEX_NONE = -1;
+    
     public static string SERVER_IP = "127.0.0.1";
     //public static string SERVER_IP = "124.111.89.128";
     public static int LOGIN_TRY_COUNT = 5;
@@ -47,12 +51,12 @@ public struct UserInfo
     }
 }
 
-public class WaitingClient
+public class ConnectionInfo
 {
-    public UserInfo userInfo;
-    public IPEndPoint ipEndPoint;
+    public readonly UserInfo userInfo;
+    public readonly IPEndPoint ipEndPoint;
     
-    public WaitingClient(UserInfo _userInfo, IPEndPoint _ipEndPoint)
+    public ConnectionInfo(UserInfo _userInfo, IPEndPoint _ipEndPoint)
     {
         userInfo = _userInfo;
         ipEndPoint = _ipEndPoint;

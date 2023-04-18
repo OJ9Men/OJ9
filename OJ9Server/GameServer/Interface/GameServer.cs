@@ -4,23 +4,14 @@ using System.Text;
 
 public struct Client
 {
-    private readonly Socket socket;
-    public byte[] buffer = new byte[OJ9Const.BUFFER_SIZE];
-
+    private readonly Socket? socket;
+    private readonly byte[] buffer = new byte[OJ9Const.BUFFER_SIZE];
+    
     public UserInfo userInfo;
 
-    public bool IsValid()
-    {
-        return userInfo.guid != Guid.Empty;
-    }
-    
-    public Client(Socket _socket)
+    public Client(Socket _socket, UserInfo _userInfo)
     {
         socket = _socket;
-    }
-
-    public void InitUserInfo(UserInfo _userInfo)
-    {
         userInfo = _userInfo;
     }
 
@@ -40,6 +31,11 @@ public struct Client
 
     public void Send(byte[] packet)
     {
+        if (socket == null)
+        {
+            throw new FormatException("No socket! Send before socket is set");
+        }
+        
         socket.Send(packet);
     }
 
