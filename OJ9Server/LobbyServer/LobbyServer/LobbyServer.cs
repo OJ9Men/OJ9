@@ -22,7 +22,7 @@ public class LobbyServer
             roomNumber = 0;
             userInfos.Clear();
             
-            for (var i = 0; i < waitingPlayers.Length; i++)
+            for (var i = 0; i < (int)GameType.Max; i++)
             {
                 waitingPlayers[i] = new ConcurrentQueue<ConnectionInfo>();
             }
@@ -218,17 +218,21 @@ public class LobbyServer
 
         lock (lockObject)
         {
-            // Refactoring
-            // - Using room (thread)
             byte[] buffer =
                 OJ9Function.ObjectToByteArray(
-                    new B2GGameMatched(first, second, roomNumber)
+                    new B2CGameMatched((GameType)gameIndex, first, second, roomNumber)
                 );
 
             udpClient.Send(
                 buffer,
                 buffer.Length,
-                OJ9Function.CreateIPEndPoint("127.0.0.1:" + OJ9Const.SOCCER_SERVER_PORT_NUM)
+                first.ipEndPoint
+            );
+            
+            udpClient.Send(
+                buffer,
+                buffer.Length,
+                second.ipEndPoint
             );
             
             ++roomNumber;

@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
+using System.Text;
 
 public class SoccerServer : GameServer
 {
@@ -45,92 +46,102 @@ public class SoccerServer : GameServer
     {
         Console.WriteLine("Listening Starts");
 
-        lobbyListener = new UdpClient(OJ9Const.SOCCER_SERVER_PORT_NUM);
-        lobbyListener.BeginReceive(LobbyPacketReceived, null);
+        listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        listener.Bind(OJ9Function.CreateIPEndPoint("127.0.0.1" + ":" + OJ9Const.SOCCER_SERVER_PORT_NUM));
+        listener.Listen();
+        listener.BeginAccept(new AsyncCallback(AcceptReceiveCallback), null);
     }
 
-    private void LobbyPacketReceived(IAsyncResult _asyncResult)
+    public void AcceptReceiveCallback(IAsyncResult _asyncResult)
     {
-        IPEndPoint ipEndPoint = null;
-        var buffer = lobbyListener.EndReceive(_asyncResult, ref ipEndPoint);
-        var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
-        switch (packetBase.packetType)
+        Socket clientSocket = listener.EndAccept(out var buffer, _asyncResult);
+        StateObject stateObject = new StateObject();
+        stateObject.socket = clientSocket;
+        clientSocket.BeginReceive(stateObject.buffer, 0, OJ9Const.BUFFER_SIZE, 0, new AsyncCallback(ClientDataReceived), stateObject);
+        
+        listener.BeginAccept(new AsyncCallback(AcceptReceiveCallback), null);
+    }
+
+    public void ClientDataReceived(IAsyncResult _asyncResult)
+    {
+        String content = String.Empty;
+        StateObject stateObject = (StateObject)_asyncResult.AsyncState;
+        Socket socket = stateObject.socket;
+        var byteRead = socket.EndReceive(_asyncResult);
+        if (byteRead <= 0)
         {
-            case PacketType.Matched:
-            {
-                B2GGameMatched packet = OJ9Function.ByteArrayToObject<B2GGameMatched>(buffer);
-                // TODO : Connect to clients
-                //Socket firstSocket = new Socket(packet.first.ipEndPoint);
-                //Socket secondSocket = new Socket(packet.second.ipEndPoint);
-                
-                //var newRoom = new Room(
-                //    new Client(firstSocket, packet.first.userInfo),
-                //    new Client(secondSocket, packet.second.userInfo));
-                //rooms.Add(packet.roomNumber, newRoom);
-            }
-                break;
-            default:
-                throw new FormatException("Invalid packet from Lobby");
+            return;
         }
-        // 2. Create room (thread) and link two clients
-
-    }
-
-    private void OnGamePacketRecevied(byte[] _buffer, ref Client _client)
-    {
-        PacketBase packetBase = OJ9Function.ByteArrayToObject<PacketBase>(_buffer);
-        switch (packetBase.packetType)
+        
+        stateObject.stringBuilder.Append(Encoding.UTF8.GetString(
+            stateObject.buffer, 0, byteRead));
+        content = stateObject.stringBuilder.ToString();
+        if (content.Length != 0)
         {
-            case PacketType.Ready:
+            var buffer = Encoding.UTF8.GetBytes(content);
+            var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
+            switch (packetBase.packetType)
             {
-                var packet = OJ9Function.ByteArrayToObject<C2GReady>(_buffer);
-                
-                if (!rooms.TryGetValue(packet.roomNumber, out var found))
+                case PacketType.Ready:
                 {
-                    found = new Room();
-                    found.AddPlayer(_client);
-                    rooms.Add(packet.roomNumber, found);
+                    var packet = OJ9Function.ByteArrayToObject<C2GReady>(buffer);
+                    var clinet = new Client(socket, packet.userInfo);
+                    if (!rooms.TryGetValue(packet.roomNumber, out var found))
+                    {
+                        found = new Room();
+                        found.AddPlayer(clinet);
+                        rooms.Add(packet.roomNumber, found);
 
-                    // Waiting for left player 
-                    return;
+                        // Waiting for left player 
+                        return;
+                    }
+                    found.AddPlayer(clinet);
+                    
+                    // Start
+                    Random random = new Random();
+                    var turn = random.Next(2) == 0 ? Turn.A : Turn.B;
+                    var turnPacket = OJ9Function.ObjectToByteArray(new G2CStart(true));
+                    var waitPacket = OJ9Function.ObjectToByteArray(new G2CStart(false));
+
+                    switch (turn)
+                    {
+                        case Turn.A:
+                        {
+                            found.clientA.Send(turnPacket);
+                            found.clientB.Send(waitPacket);
+                        }
+                            break;
+                        case Turn.B:
+                        {
+                            found.clientA.Send(turnPacket);
+                            found.clientB.Send(waitPacket);
+                        }
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
-                found.AddPlayer(_client);
-                
-                // Start
-                Random random = new Random();
-                var turn = random.Next(2) == 0 ? Turn.A : Turn.B;
-                var turnPacket = OJ9Function.ObjectToByteArray(new G2CStart(true));
-                var waitPacket = OJ9Function.ObjectToByteArray(new G2CStart(false));
-
-                switch (turn)
+                    break;
+                case PacketType.Shoot:
                 {
-                    case Turn.A:
-                    {
-                        found.clientA.Send(turnPacket);
-                        found.clientB.Send(waitPacket);
-                    }
-                        break;
-                    case Turn.B:
-                    {
-                        found.clientA.Send(turnPacket);
-                        found.clientB.Send(waitPacket);
-                    }
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    // TODO : Process both clients
+                    var packet = OJ9Function.ByteArrayToObject<C2GShoot>(buffer);
                 }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-                break;
-            case PacketType.Shoot:
-            {
-                // TODO : Process both clients
-                var packet = OJ9Function.ByteArrayToObject<C2GShoot>(_buffer);
-                
-                
-            }
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+        }
+        else
+        {
+            // Read more data
+            socket.BeginReceive(
+                stateObject.buffer,
+                0,
+                OJ9Const.BUFFER_SIZE,
+                0,
+                new AsyncCallback(ClientDataReceived),
+                stateObject);
         }
     }
 }

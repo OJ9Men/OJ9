@@ -56,11 +56,15 @@ public struct Client
         );
     }
 }
+public class StateObject
+{
+    public Socket socket = null;
+    public byte[] buffer = new byte[OJ9Const.BUFFER_SIZE];
+    public StringBuilder stringBuilder = new StringBuilder();
+}
 
 public abstract class GameServer
 {
-    protected UdpClient lobbyListener;
-    // Listen
     protected Socket listener;
 
     protected readonly List<Client> clients = new List<Client>();

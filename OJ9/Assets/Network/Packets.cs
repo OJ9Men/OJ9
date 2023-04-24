@@ -94,45 +94,25 @@ public class C2BQueueGame : PacketBase
     }
 }
 
-public class B2GGameMatched : PacketBase
+public class B2CGameMatched : PacketBase
 {
     public ConnectionInfo first { get; set; }
     public ConnectionInfo second { get; set; }
     public int roomNumber { get; set; }
-    public B2GGameMatched()
+    public GameType gameType { get; set; }
+    public B2CGameMatched()
     {
     }
 
-    public B2GGameMatched(ConnectionInfo _first, ConnectionInfo _second, int _roomNumber)
+    public B2CGameMatched(GameType _gameType, ConnectionInfo _first, ConnectionInfo _second, int _roomNumber)
     {
         packetType = PacketType.Matched;
+        gameType = _gameType;
         first = _first;
         second = _second;
         roomNumber = _roomNumber;
     }
 }
-
-public class B2CGameMatched : PacketBase
-{
-    public GameType gameType { get; set; }
-    public int roomNumber { get; set; }
-    
-    public UserInfo enemyInfo { get; set; }
-
-    public B2CGameMatched()
-    {
-        
-    }
-
-    public B2CGameMatched(GameType _gameType, int _roomNumber, UserInfo _enemyInfo)
-    {
-        packetType = PacketType.Matched;
-        gameType = _gameType;
-        roomNumber = _roomNumber;
-        enemyInfo = _enemyInfo;
-    }
-}
-
 public class C2GReady : PacketBase
 {
     // TCP Packet
