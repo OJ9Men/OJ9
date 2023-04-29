@@ -61,7 +61,20 @@ public class SoccerServer : GameServer
         {
             if (clientA.userInfo.guid == _client.userInfo.guid)
             {
-                                
+                if (clientB.userInfo.guid == _client.userInfo.guid)
+                {
+                    throw new FormatException("Same player entered");
+                }
+                clientB = _client;
+            }
+            
+            if (clientB.userInfo.guid == _client.userInfo.guid)
+            {
+                if (clientA.userInfo.guid == _client.userInfo.guid)
+                {
+                    throw new FormatException("Same player entered");
+                }
+                clientA = _client;
             }
         }
     }
