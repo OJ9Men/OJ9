@@ -94,20 +94,16 @@ public class C2BQueueGame : PacketBase
 
 public class B2CGameMatched : PacketBase
 {
-    public ConnectionInfo first { get; set; }
-    public ConnectionInfo second { get; set; }
     public int roomNumber { get; set; }
     public GameType gameType { get; set; }
     public B2CGameMatched()
     {
     }
 
-    public B2CGameMatched(GameType _gameType, ConnectionInfo _first, ConnectionInfo _second, int _roomNumber)
+    public B2CGameMatched(GameType _gameType, int _roomNumber)
     {
         packetType = PacketType.Matched;
         gameType = _gameType;
-        first = _first;
-        second = _second;
         roomNumber = _roomNumber;
     }
 }

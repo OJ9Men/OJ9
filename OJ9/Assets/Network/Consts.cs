@@ -1,10 +1,4 @@
-
-// TODO : It should be in config file.
-
 using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 
 public static class OJ9Const
 {
@@ -53,10 +47,10 @@ public struct UserInfo
 
 public class ConnectionInfo
 {
-    public readonly UserInfo userInfo;
-    public readonly IPEndPoint ipEndPoint;
+    public UserInfo userInfo { get; set; }
+    public System.Net.IPEndPoint ipEndPoint { get; }
     
-    public ConnectionInfo(UserInfo _userInfo, IPEndPoint _ipEndPoint)
+    public ConnectionInfo(UserInfo _userInfo, System.Net.IPEndPoint _ipEndPoint)
     {
         userInfo = _userInfo;
         ipEndPoint = _ipEndPoint;

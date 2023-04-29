@@ -220,7 +220,7 @@ public class LobbyServer
         {
             byte[] buffer =
                 OJ9Function.ObjectToByteArray(
-                    new B2CGameMatched((GameType)gameIndex, first, second, roomNumber)
+                    new B2CGameMatched((GameType)gameIndex, roomNumber)
                 );
 
             udpClient.Send(
