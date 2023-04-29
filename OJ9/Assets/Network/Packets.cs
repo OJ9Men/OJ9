@@ -1,6 +1,4 @@
 using System;
-using System.Net;
-using System.Numerics;
 
 public enum PacketType
 {
@@ -217,11 +215,15 @@ public class B2CError : PacketBase
 
 public class C2GShoot : PacketBase
 {
-    public Vector2 dir;
+    public int roomNumber;
+    public UserInfo userInfo;
+    public System.Numerics.Vector2 dir;
     public int paddleId;
 
-    public C2GShoot(Vector2 _dir, int _paddleId)
+    public C2GShoot(int _roomNumber, UserInfo _userInfo, System.Numerics.Vector2 _dir, int _paddleId)
     {
+        roomNumber = _roomNumber;
+        userInfo = _userInfo;
         dir = _dir;
         paddleId = _paddleId;
         packetType = PacketType.Shoot;
@@ -230,5 +232,13 @@ public class C2GShoot : PacketBase
 
 public class G2CShoot : PacketBase
 {
-    // TODO : Ony direction? or a position of players
+    public System.Numerics.Vector2 dir;
+    public int paddleId;
+    
+    // this packet would be absolutely other player
+    public G2CShoot(System.Numerics.Vector2 _dir, int _paddleId)
+    {
+        dir = _dir;
+        paddleId = _paddleId;
+    }
 }

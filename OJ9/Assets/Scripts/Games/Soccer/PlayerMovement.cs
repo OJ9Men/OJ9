@@ -49,9 +49,14 @@ public class PlayerMovement : MonoBehaviour
 
         joystickPanel.SetJoystickVisible(false);
         Vector2 oppositeDir = -joystickPanel.GetInputVector();
-        rb.AddForce(Constants.FORCE_MAGNITUDE * oppositeDir);
+        Shoot(oppositeDir);
 
         onGoingAim = false;
         aimDoneDelegate(oppositeDir, paddleId);
+    }
+
+    public void Shoot(Vector2 _dir)
+    {
+        rb.AddForce(Constants.FORCE_MAGNITUDE * _dir);
     }
 }

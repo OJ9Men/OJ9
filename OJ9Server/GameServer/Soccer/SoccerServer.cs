@@ -28,10 +28,41 @@ public class SoccerServer : GameServer
             clientB = _clientB;
         }
 
+        public Client GetOtherClient(Guid _guid)
+        {
+            if (clientA.userInfo.guid != _guid)
+            {
+                if (clientB.userInfo.guid == _guid)
+                {
+                    return clientB;
+                }
+                else
+                {
+                    throw new FormatException("No User");
+                }
+            }
+
+            if (clientB.userInfo.guid != _guid)
+            {
+                if (clientA.userInfo.guid == _guid)
+                {
+                    return clientA;
+                }
+                else
+                {
+                    throw new FormatException("No User");
+                }
+            }
+
+            throw new FormatException("Cannot found client by entered _userInfo");
+        }
+        
         public void AddPlayer(Client _client)
         {
-            // TODO
-            //throw new FormatException("Room is full");
+            if (clientA.userInfo.guid == _client.userInfo.guid)
+            {
+                                
+            }
         }
     }
 
@@ -124,8 +155,15 @@ public class SoccerServer : GameServer
                     break;
                 case PacketType.Shoot:
                 {
-                    // TODO : Process both clients
                     var packet = OJ9Function.ByteArrayToObject<C2GShoot>(buffer);
+                    if (!rooms.TryGetValue(packet.roomNumber, out var found))
+                    {
+                        throw new FormatException("There is no room, How could you send this packet?");
+                    }
+
+                    var newPacket = OJ9Function.ObjectToByteArray(new G2CShoot(packet.dir, packet.paddleId));
+                    var otherUser = found.GetOtherClient(packet.userInfo.guid);
+                    otherUser.Send(newPacket);
                 }
                     break;
                 default:

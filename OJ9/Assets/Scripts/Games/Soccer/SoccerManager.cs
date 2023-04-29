@@ -128,7 +128,10 @@ public class SoccerManager : MonoBehaviour
         }
         
         var packet = new C2GShoot(
-            new System.Numerics.Vector2(_vector2.x, _vector2.y), _paddleId
+            GameManager.instance.GetGameInfo().GetRoomNumber(),
+            GameManager.instance.userInfo,
+            new System.Numerics.Vector2(_vector2.x, _vector2.y),
+            _paddleId
         );
         socket.Send(OJ9Function.ObjectToByteArray(packet));
     }
@@ -237,13 +240,13 @@ public class SoccerManager : MonoBehaviour
 
     private void OnDataReceived(IAsyncResult _asyncResult)
     {
-        var packetSize = socket.EndReceive(_asyncResult);
-        var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer, packetSize);
+        socket.EndReceive(_asyncResult);
+        var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
         switch (packetBase.packetType)
         {
             case PacketType.Start:
             {
-                var packet = OJ9Function.ByteArrayToObject<G2CStart>(buffer, packetSize);
+                var packet = OJ9Function.ByteArrayToObject<G2CStart>(buffer);
                 isMyTurn = packet.isMyTurn;
                 SetPlayerJoystickEnabled(packet.isMyTurn);
                 // TODO : show arrow, wait ui
@@ -251,6 +254,14 @@ public class SoccerManager : MonoBehaviour
                 break;
             case PacketType.Shoot:
             {
+                var packet = OJ9Function.ByteArrayToObject<G2CShoot>(buffer);
+                isMyTurn = true;
+                var paddleId = packet.paddleId;
+                if (enemyMovements.Length <= paddleId)
+                {
+                    throw new FormatException("Invalid paddle id");
+                }
+                enemyMovements[paddleId].Shoot(new Vector2(packet.dir.X, packet.dir.Y));
             }
                 break;
             default:
