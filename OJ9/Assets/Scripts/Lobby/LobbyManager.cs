@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Net;
 using TMPro;
 using UnityEngine;
@@ -12,6 +13,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private TMP_Text gameName;
 
     private GameType selectedGameType;
+    private readonly ConcurrentQueue<Action> actions = new ConcurrentQueue<Action>();
 
     public void OnGameSelected(int gameIndex)
     {
@@ -87,6 +89,21 @@ public class LobbyManager : MonoBehaviour
     private void InitGame(GameType _gameType, int _roomNumber)
     {
         GameManager.instance.SetGameInfo(new GameInfo(_gameType, _roomNumber));
-        SceneManager.LoadScene("SoccerScene");
+        
+        actions.Enqueue(() =>   // for dispatch to main thread
+        {
+            SceneManager.LoadScene("SoccerScene");
+        });
+    }
+
+    private void Update()
+    {
+        while (actions.Count > 0)
+        {
+            if (actions.TryDequeue(out var action))
+            {
+                action?.Invoke();
+            }
+        }
     }
 }
