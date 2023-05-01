@@ -20,9 +20,6 @@ public static class OJ9Const
 public enum GameType
 {
     Soccer,
-    Dummy1,
-    Dummy2,
-    Dummy3,
     Max,
 }
 

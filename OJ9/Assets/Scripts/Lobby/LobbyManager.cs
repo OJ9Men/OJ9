@@ -45,13 +45,6 @@ public class LobbyManager : MonoBehaviour
                 Debug.Log("Now in queue");
             }
                 break;
-            case GameType.Dummy1:
-            case GameType.Dummy2:
-            case GameType.Dummy3:
-            {
-                Debug.Log("dummy game selectedS");
-            }
-                break;
             default:
             {
                 throw new System.SystemException("Invalid GameType");
