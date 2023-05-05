@@ -46,7 +46,12 @@ public class LobbyManager : MonoBehaviour
     {
         waitingWidget.SetActive(false);
         
-        // TODO : Send cancel queue packet
+        C2BCancelQueue packet = new C2BCancelQueue(
+            GameManager.instance.userInfo,
+            GameType.Soccer
+        );
+        var buffer = OJ9Function.ObjectToByteArray(packet);
+        GameManager.instance.Send(ServerType.Lobby, buffer);
     }
     
     public void OnStartButtonClicked()
@@ -60,10 +65,7 @@ public class LobbyManager : MonoBehaviour
                     GameType.Soccer
                 );
                 byte[] buffer = OJ9Function.ObjectToByteArray(packet);
-                GameManager.instance.udpClient.Send(buffer, buffer.Length,
-                    OJ9Function.CreateIPEndPoint(OJ9Const.SERVER_IP + ":" + OJ9Const.LOBBY_SERVER_PORT_NUM)
-                );
-                
+                GameManager.instance.Send(ServerType.Lobby, buffer);
                 waitingWidget.SetActive(true);
             }
                 break;
@@ -78,7 +80,7 @@ public class LobbyManager : MonoBehaviour
     private void Start()
     {
         OnGameSelected((int)GameType.Soccer);
-        GameManager.instance.udpClient.BeginReceive(DataReceived, null);
+        GameManager.instance.BeginReceive(DataReceived, null);
 
         var doCharacterSelect = GameManager.instance.userInfo.charType == OJ9Const.INVALID_CHAR_TYPE;
         SetCharacterSelectVisible(doCharacterSelect);
@@ -90,10 +92,10 @@ public class LobbyManager : MonoBehaviour
         gameSelectWidget.SetActive(!_visible);
     }
     
-    private void DataReceived(IAsyncResult asyncResult)
+    private void DataReceived(IAsyncResult _asyncResult)
     {
         IPEndPoint ipEndPoint = null;
-        var recvBuffer = GameManager.instance.udpClient.EndReceive(asyncResult, ref ipEndPoint);
+        var recvBuffer = GameManager.instance.EndReceive(_asyncResult, ref ipEndPoint);
         var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(recvBuffer);
         switch (packetBase.packetType)
         {

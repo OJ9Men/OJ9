@@ -24,6 +24,13 @@ public enum GameType
     Max,
 }
 
+public enum ServerType
+{
+    Login,
+    Lobby,
+    Soccer,
+}
+
 public struct UserInfo
 {
     public Guid guid { get; set; }

@@ -131,6 +131,24 @@ public class LobbyServer
                 Console.WriteLine(packet.userInfo.nickname + " is now in queue.");
             }
                 break;
+            case PacketType.CancelQueue:
+            {
+                C2BCancelQueue packet = OJ9Function.ByteArrayToObject<C2BCancelQueue>(buffer);
+                if (ipEndPoint == null)
+                {
+                    throw new FormatException("ipEndPoint is not valid");
+                }
+
+                var players = waitingPlayers[(int)packet.gameType];
+                foreach (var iter in players)
+                {
+                    if (iter.userInfo.guid == packet.userInfo.guid)
+                    {
+                        // TODO : Remove from concurrent queue
+                    }
+                }
+            }
+                break;
             default:
                 throw new FormatException("Invalid packet type in LoginServer");
         }

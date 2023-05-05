@@ -48,11 +48,8 @@ public class LoginManager : MonoBehaviour
             return;
         }
         
-        byte[] sendBuff =
-            OJ9Function.ObjectToByteArray(new C2LLogin(idText.text, pwText.text));
-        IPEndPoint endPoint = OJ9Function.CreateIPEndPoint(OJ9Const.SERVER_IP + ":" + OJ9Const.LOGIN_SERVER_PORT_NUM);
-        GameManager.instance.udpClient.Send(sendBuff, sendBuff.Length, endPoint);
-        
+        var buffer = OJ9Function.ObjectToByteArray(new C2LLogin(idText.text, pwText.text));
+        GameManager.instance.Send(ServerType.Login, buffer);
         ++loginTryCount;
     }
 
@@ -60,7 +57,7 @@ public class LoginManager : MonoBehaviour
     {
         try
         {
-            GameManager.instance.udpClient.BeginReceive(DataReceived, null);
+            GameManager.instance.BeginReceive(DataReceived, null);
         }
         catch (Exception e)
         {
@@ -72,7 +69,7 @@ public class LoginManager : MonoBehaviour
     private void DataReceived(IAsyncResult asyncResult)
     {
         IPEndPoint groupEndPoint = null;
-        var buffer = GameManager.instance.udpClient.EndReceive(asyncResult, ref groupEndPoint);
+        var buffer = GameManager.instance.EndReceive(asyncResult, ref groupEndPoint);
         var packBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
         switch (packBase.packetType)
         {

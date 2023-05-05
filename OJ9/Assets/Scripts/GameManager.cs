@@ -31,8 +31,7 @@ public class GameManager : MonoBehaviour
 {
     // Singleton
     public static GameManager instance;
-    
-    public UdpClient udpClient;
+    private UdpClient udpClient;
     public UserInfo userInfo;
 
     private GameInfo gameInfo;
@@ -65,5 +64,44 @@ public class GameManager : MonoBehaviour
     public GameInfo GetGameInfo()
     {
         return gameInfo;
+    }
+
+    public void Send(ServerType _serverType, byte[] _buffer)
+    {
+        int portNum = 0;
+        switch (_serverType)
+        {
+            case ServerType.Login:
+            {
+                portNum = OJ9Const.LOGIN_SERVER_PORT_NUM;
+            }
+                break;
+            case ServerType.Lobby:
+            {
+                portNum = OJ9Const.LOBBY_SERVER_PORT_NUM;
+            }
+                break;
+            case ServerType.Soccer:
+            {
+                portNum = OJ9Const.SOCCER_SERVER_PORT_NUM;
+            }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(_serverType), _serverType, null);
+        }
+        
+        udpClient.Send(_buffer, _buffer.Length,
+            OJ9Function.CreateIPEndPoint(OJ9Const.SERVER_IP + ":" + portNum)
+        );
+    }
+
+    public void BeginReceive(AsyncCallback _requestCallback, object _state)
+    {
+        udpClient.BeginReceive(_requestCallback, _state);
+    }
+
+    public byte[] EndReceive(IAsyncResult _asyncResult, ref IPEndPoint _remoteEp)
+    {
+        return udpClient.EndReceive(_asyncResult, ref _remoteEp);
     }
 }

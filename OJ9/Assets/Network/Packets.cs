@@ -9,6 +9,7 @@ public enum PacketType
     // Lobby
     QueueGame,
     Matched,
+    CancelQueue,
     
     // Game
     Ready,
@@ -87,6 +88,23 @@ public class C2BQueueGame : PacketBase
     public C2BQueueGame(UserInfo _userInfo, GameType _gameType)
     {
         packetType = PacketType.QueueGame;
+        userInfo = _userInfo;
+        gameType = _gameType;
+    }
+}
+
+public class C2BCancelQueue : PacketBase
+{
+    public UserInfo userInfo { get; set; }
+    public GameType gameType { get; set; }
+
+    public C2BCancelQueue()
+    {
+    }
+    
+    public C2BCancelQueue(UserInfo _userInfo, GameType _gameType)
+    {
+        packetType = PacketType.CancelQueue;
         userInfo = _userInfo;
         gameType = _gameType;
     }
