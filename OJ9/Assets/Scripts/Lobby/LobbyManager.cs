@@ -9,8 +9,9 @@ using UnityEngine.UI;
 public class LobbyManager : MonoBehaviour
 {
     [SerializeField] private GameObject gameHolder;
-
     [SerializeField] private TMP_Text gameName;
+    [SerializeField] private GameObject gameSelectWidget;
+    [SerializeField] private GameObject characterSelectWidget;
 
     private GameType selectedGameType;
     private readonly ConcurrentQueue<Action> actions = new ConcurrentQueue<Action>();
@@ -26,6 +27,18 @@ public class LobbyManager : MonoBehaviour
         gameName.text = selectedGameType + " Game";
     }
 
+    public void OnCharacterSelectCanceled()
+    {
+        SetCharacterSelectVisible(false);
+    }
+
+    public void OnCharacterSelectDone(int _charType)
+    {
+        SetCharacterSelectVisible(false);
+        
+        // TODO : Send character select packet
+    }
+    
     public void OnStartButtonClicked()
     {
         switch (selectedGameType)
@@ -57,8 +70,17 @@ public class LobbyManager : MonoBehaviour
     {
         OnGameSelected((int)GameType.Soccer);
         GameManager.instance.udpClient.BeginReceive(DataReceived, null);
+
+        var doCharacterSelect = GameManager.instance.userInfo.charType == OJ9Const.INVALID_CHAR_TYPE;
+        SetCharacterSelectVisible(doCharacterSelect);
     }
 
+    private void SetCharacterSelectVisible(bool _visible)
+    {
+        characterSelectWidget.SetActive(_visible);
+        gameSelectWidget.SetActive(!_visible);
+    }
+    
     private void DataReceived(IAsyncResult asyncResult)
     {
         IPEndPoint ipEndPoint = null;

@@ -155,6 +155,9 @@ public class LobbyServer
 
             var rating = reader["rating"].ToString();
             userInfo.rating = string.IsNullOrEmpty(rating) ? 0 : Convert.ToInt32(rating);
+
+            var charType = reader["charType"].ToString();
+            userInfo.charType = string.IsNullOrEmpty(charType) ? 0 : Convert.ToInt32(charType);
             break;  // it's unique
         }
         reader.Close();
@@ -167,7 +170,7 @@ public class LobbyServer
         var rand = new Random();
         string dummyUserName = "플레이어" + rand.Next();
         MySqlCommand sqlCommand = new MySqlCommand(
-            string.Format("INSERT INTO user (guid, nickname) VALUES ('{0}', '{1}')", _guid, dummyUserName),
+            string.Format("INSERT INTO user (guid, nickname, charType) VALUES ('{0}', '{1}', {2})", _guid, dummyUserName, OJ9Const.INVALID_CHAR_TYPE),
             mysql);
         
         if (sqlCommand.ExecuteNonQuery() != 1)
@@ -175,7 +178,7 @@ public class LobbyServer
             throw new FormatException("insert data failed");
         }
 
-        return new UserInfo(_guid, dummyUserName, 0);
+        return new UserInfo(_guid, dummyUserName, 0, OJ9Const.INVALID_CHAR_TYPE);
     }
 
     private void EnterLobby(UserInfo _userInfo, IPEndPoint _ipEndPoint)
