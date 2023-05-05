@@ -5,4 +5,4 @@ A hockey game with NFT
 - Unity Engine : 2021.3.14f1
 
 😎 Server
-- NOT YET
+- C# (Net 7.0)
