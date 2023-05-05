@@ -10,8 +10,11 @@ public class LobbyManager : MonoBehaviour
 {
     [SerializeField] private GameObject gameHolder;
     [SerializeField] private TMP_Text gameName;
+    
+    // Widget
     [SerializeField] private GameObject gameSelectWidget;
     [SerializeField] private GameObject characterSelectWidget;
+    [SerializeField] private GameObject waitingWidget;
 
     private GameType selectedGameType;
     private readonly ConcurrentQueue<Action> actions = new ConcurrentQueue<Action>();
@@ -38,6 +41,13 @@ public class LobbyManager : MonoBehaviour
         
         // TODO : Send character select packet
     }
+
+    public void OnWaitingWidgetClicked()
+    {
+        waitingWidget.SetActive(false);
+        
+        // TODO : Send cancel queue packet
+    }
     
     public void OnStartButtonClicked()
     {
@@ -54,8 +64,7 @@ public class LobbyManager : MonoBehaviour
                     OJ9Function.CreateIPEndPoint(OJ9Const.SERVER_IP + ":" + OJ9Const.LOBBY_SERVER_PORT_NUM)
                 );
                 
-                // TODO : Show waiting ui
-                Debug.Log("Now in queue");
+                waitingWidget.SetActive(true);
             }
                 break;
             default:
