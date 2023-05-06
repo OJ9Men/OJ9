@@ -1,6 +1,5 @@
 using System;
 using System.Net;
-using System.Net.Sockets;
 using System.Timers;
 using TMPro;
 using UnityEngine;
@@ -17,8 +16,8 @@ public class LoginManager : MonoBehaviour
     }
     
     [SerializeField] private TMP_InputField idText;
-
     [SerializeField] private TMP_InputField pwText;
+    [SerializeField] private GameObject connectingWidget;
 
     private Timer loginTryTimer;
     private LoginState loginState = LoginState.None;
@@ -31,6 +30,7 @@ public class LoginManager : MonoBehaviour
             throw new FormatException("login state is not 'None'");
         }
 
+        connectingWidget.SetActive(true);
         StartListen();
         loginState = LoginState.Try;
         loginTryTimer = new Timer();
@@ -45,6 +45,7 @@ public class LoginManager : MonoBehaviour
         {
             loginTryTimer.Stop();
             loginState = LoginState.Fail;
+            connectingWidget.SetActive(false);
             return;
         }
         
