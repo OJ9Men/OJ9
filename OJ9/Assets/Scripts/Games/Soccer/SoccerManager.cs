@@ -212,6 +212,7 @@ public class SoccerManager : MonoBehaviour
         }
 
         Debug.Log("Server connected");
+        socket.BeginReceive(buffer, 0, OJ9Const.BUFFER_SIZE, SocketFlags.None, OnDataReceived, null);
 
         switch (gameMode)
         {
@@ -234,8 +235,6 @@ public class SoccerManager : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException();
         }
-        
-        socket.BeginReceive(buffer, 0, OJ9Const.BUFFER_SIZE, SocketFlags.None, OnDataReceived, null);
     }
 
     private void OnDataReceived(IAsyncResult _asyncResult)

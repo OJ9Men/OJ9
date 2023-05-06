@@ -5,11 +5,13 @@ using System.Text;
 
 public class SoccerServer : GameServer
 {
+    private static int RECEIVE_SIZE = 8000; 
     private enum Turn
     {
         A,
         B
     }
+
     private struct Room
     {
         public Client clientA, clientB;
@@ -56,7 +58,7 @@ public class SoccerServer : GameServer
 
             throw new FormatException("Cannot found client by entered _userInfo");
         }
-        
+
         public void AddPlayer(Client _client)
         {
             if (clientA.userInfo.guid == _client.userInfo.guid)
@@ -65,15 +67,17 @@ public class SoccerServer : GameServer
                 {
                     throw new FormatException("Same player entered");
                 }
+
                 clientB = _client;
             }
-            
+
             if (clientB.userInfo.guid == _client.userInfo.guid)
             {
                 if (clientA.userInfo.guid == _client.userInfo.guid)
                 {
                     throw new FormatException("Same player entered");
                 }
+
                 clientA = _client;
             }
         }
@@ -90,20 +94,23 @@ public class SoccerServer : GameServer
     {
         Console.WriteLine("Listening Starts");
 
-        listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        listener.Bind(OJ9Function.CreateIPEndPoint("127.0.0.1" + ":" + OJ9Const.SOCCER_SERVER_PORT_NUM));
+        var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        listener.Bind(new IPEndPoint(IPAddress.Any, OJ9Const.SOCCER_SERVER_PORT_NUM));
         listener.Listen();
-        listener.BeginAccept(new AsyncCallback(AcceptReceiveCallback), null);
+        listener.BeginAccept(RECEIVE_SIZE, AcceptReceiveCallback, listener);
     }
 
     public void AcceptReceiveCallback(IAsyncResult _asyncResult)
     {
-        Socket clientSocket = listener.EndAccept(out var buffer, _asyncResult);
+        var listener = (Socket)_asyncResult.AsyncState!;
+        var clientSocket = listener.EndAccept(out var _, _asyncResult);
+        
         StateObject stateObject = new StateObject();
         stateObject.socket = clientSocket;
-        clientSocket.BeginReceive(stateObject.buffer, 0, OJ9Const.BUFFER_SIZE, 0, new AsyncCallback(ClientDataReceived), stateObject);
-        
-        listener.BeginAccept(new AsyncCallback(AcceptReceiveCallback), null);
+        clientSocket.BeginReceive(stateObject.buffer, 0, OJ9Const.BUFFER_SIZE, 0, new AsyncCallback(ClientDataReceived),
+            stateObject);
+
+        listener.BeginAccept(RECEIVE_SIZE, AcceptReceiveCallback, listener);
     }
 
     public void ClientDataReceived(IAsyncResult _asyncResult)
@@ -116,7 +123,7 @@ public class SoccerServer : GameServer
         {
             return;
         }
-        
+
         stateObject.stringBuilder.Append(Encoding.UTF8.GetString(
             stateObject.buffer, 0, byteRead));
         content = stateObject.stringBuilder.ToString();
@@ -139,8 +146,9 @@ public class SoccerServer : GameServer
                         // Waiting for left player 
                         return;
                     }
+
                     found.AddPlayer(clinet);
-                    
+
                     // Start
                     Random random = new Random();
                     var turn = random.Next(2) == 0 ? Turn.A : Turn.B;

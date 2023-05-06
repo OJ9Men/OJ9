@@ -65,8 +65,6 @@ public class StateObject
 
 public abstract class GameServer
 {
-    protected Socket listener;
-
     protected readonly List<Client> clients = new List<Client>();
     protected GameType gameType;
 
