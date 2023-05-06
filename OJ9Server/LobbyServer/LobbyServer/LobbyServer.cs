@@ -140,11 +140,11 @@ public class LobbyServer
                 }
 
                 var players = waitingPlayers[(int)packet.gameType];
-                foreach (var iter in players)
+                while (players.TryDequeue(out var removeElem))
                 {
-                    if (iter.userInfo.guid == packet.userInfo.guid)
+                    if (removeElem.userInfo.guid != packet.userInfo.guid)
                     {
-                        // TODO : Remove from concurrent queue
+                        players.Enqueue(removeElem);
                     }
                 }
             }
