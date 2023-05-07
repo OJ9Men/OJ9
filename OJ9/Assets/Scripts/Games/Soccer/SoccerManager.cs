@@ -1,9 +1,6 @@
 using System;
-using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 static class Constants
 {
@@ -13,6 +10,13 @@ static class Constants
 
 public class SoccerManager : MonoBehaviour
 {
+    enum GameState
+    {
+        None,
+        WaitForReady,
+        ShowReady,
+        Start,
+    }
     struct GoalLineBoundary
     {
         public float Up, Down;
@@ -51,7 +55,11 @@ public class SoccerManager : MonoBehaviour
     [SerializeField] private Transform ballInitPos;
     [SerializeField] private Transform ball;
 
+    [Header("위젯")] 
+    [SerializeField] private GameObject readyWidget;
+
     private GoalLineBoundary goalLineBoundary;
+    private GameState gameState;
 
     // Network
     private Socket socket;
@@ -111,6 +119,8 @@ public class SoccerManager : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException();
         }
+
+        gameState = GameState.None;
     }
 
     private void OnAimDone(Vector2 _vector2, int _paddleId)
@@ -136,7 +146,32 @@ public class SoccerManager : MonoBehaviour
         socket.Send(OJ9Function.ObjectToByteArray(packet));
     }
 
-    void Update()
+    private void ProcessState()
+    {
+        switch (gameState)
+        {
+            case GameState.WaitForReady:
+            {
+                readyWidget.SetActive(true);
+                gameState = GameState.ShowReady;
+            }
+                break;
+            case GameState.ShowReady:
+            {
+                // Do nothing
+            }
+                break;
+            case GameState.Start:
+            {
+                readyWidget.SetActive(false);
+            }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private void CheckGoalLine()
     {
         float puckY = ball.transform.position.y;
         if (goalLineBoundary.Down < puckY && puckY < goalLineBoundary.Up)
@@ -154,6 +189,11 @@ public class SoccerManager : MonoBehaviour
         }
 
         ResetPositions();
+    }
+    void Update()
+    {
+        ProcessState();
+        CheckGoalLine();
     }
 
     private void ResetPositions()
@@ -214,6 +254,11 @@ public class SoccerManager : MonoBehaviour
         Debug.Log("Server connected");
         socket.BeginReceive(buffer, 0, OJ9Const.BUFFER_SIZE, SocketFlags.None, OnDataReceived, null);
 
+        gameState = GameState.WaitForReady;
+    }
+
+    public void OnReadyButtonClicked()
+    {
         switch (gameMode)
         {
             case GameMode.Dev:
@@ -245,6 +290,8 @@ public class SoccerManager : MonoBehaviour
         {
             case PacketType.Start:
             {
+                gameState = GameState.Start;
+                
                 var packet = OJ9Function.ByteArrayToObject<G2CStart>(buffer);
                 isMyTurn = packet.isMyTurn;
                 SetPlayerJoystickEnabled(packet.isMyTurn);

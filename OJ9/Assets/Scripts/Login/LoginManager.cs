@@ -106,7 +106,7 @@ public class LoginManager : MonoBehaviour
         {
             if (loginState == LoginState.Fail)
             {
-                Debug.LogError("Login failed");
+                throw new FormatException("Login Failed.");
             }
             return;
         }

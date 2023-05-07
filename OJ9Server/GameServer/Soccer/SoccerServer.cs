@@ -107,8 +107,14 @@ public class SoccerServer : GameServer
         
         StateObject stateObject = new StateObject();
         stateObject.socket = clientSocket;
-        clientSocket.BeginReceive(stateObject.buffer, 0, OJ9Const.BUFFER_SIZE, 0, new AsyncCallback(ClientDataReceived),
-            stateObject);
+        clientSocket.BeginReceive(
+            stateObject.buffer,
+            0,
+            stateObject.buffer.Length,
+            SocketFlags.None,
+            ClientDataReceived,
+            stateObject
+        );
 
         listener.BeginAccept(RECEIVE_SIZE, AcceptReceiveCallback, listener);
     }
@@ -182,7 +188,7 @@ public class SoccerServer : GameServer
                         throw new FormatException("There is no room, How could you send this packet?");
                     }
 
-                    var newPacket = OJ9Function.ObjectToByteArray(new G2CShoot(packet.dir, packet.paddleId));
+                    var newPacket = OJ9Function.ObjectToByteArray(new G2CShoot(-packet.dir, packet.paddleId));
                     var otherUser = found.GetOtherClient(packet.userInfo.guid);
                     otherUser.Send(newPacket);
                 }
