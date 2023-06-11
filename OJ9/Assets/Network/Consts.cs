@@ -14,6 +14,7 @@ public static class OJ9Const
     public static int SOCCER_SERVER_PORT_NUM = 5002;
     
     // GameServerConst
+    public static int RECEIVE_SIZE = 1024;
     public static int BUFFER_SIZE = 1024;
     public static int MAX_GAME_ROOM_NUM = 1024;
 }
@@ -35,15 +36,20 @@ public struct UserInfo
 {
     public Guid guid { get; set; }
     public string nickname { get; set; }
-    public int rating { get; set; }
-    public int charType { get; set; }
+    public int soccerRate { get; set; }
 
-    public UserInfo(Guid _guid, string _nickname, int _rating, int _charType)
+    public UserInfo()
+    {
+        guid = Guid.Empty;
+        nickname = string.Empty;
+        soccerRate = 0;
+    }
+
+    public void SetInfo(Guid _guid, string _nickname, int _soccerRate)
     {
         guid = _guid;
         nickname = _nickname;
-        rating = _rating;
-        charType = _charType;
+        soccerRate = _soccerRate;
     }
 
     public bool IsValid()

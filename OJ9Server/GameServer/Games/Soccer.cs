@@ -1,103 +1,24 @@
 ﻿using System.Net;
 using System.Net.Sockets;
-using System.Numerics;
 using System.Text;
 
-public class SoccerServer : GameServer
+public class Soccer
 {
-    private static int RECEIVE_SIZE = 8000; 
-    private enum Turn
+    private readonly Dictionary<int /* =roomNumber */, Room> rooms;
+
+    public Soccer()
     {
-        A,
-        B
+        rooms = new Dictionary<int, Room>();
     }
-
-    private struct Room
+    
+    public void Start()
     {
-        public Client clientA, clientB;
-        public int elapsedTime = 0;
-
-        public Room()
-        {
-            clientA = default;
-            clientB = default;
-            elapsedTime = 0;
-        }
-
-        public Room(Client _clientA, Client _clientB)
-        {
-            clientA = _clientA;
-            clientB = _clientB;
-        }
-
-        public Client GetOtherClient(Guid _guid)
-        {
-            if (clientA.userInfo.guid != _guid)
-            {
-                if (clientB.userInfo.guid == _guid)
-                {
-                    return clientB;
-                }
-                else
-                {
-                    throw new FormatException("No User");
-                }
-            }
-
-            if (clientB.userInfo.guid != _guid)
-            {
-                if (clientA.userInfo.guid == _guid)
-                {
-                    return clientA;
-                }
-                else
-                {
-                    throw new FormatException("No User");
-                }
-            }
-
-            throw new FormatException("Cannot found client by entered _userInfo");
-        }
-
-        public void AddPlayer(Client _client)
-        {
-            if (clientA.userInfo.guid == _client.userInfo.guid)
-            {
-                if (clientB.userInfo.guid == _client.userInfo.guid)
-                {
-                    throw new FormatException("Same player entered");
-                }
-
-                clientB = _client;
-            }
-
-            if (clientB.userInfo.guid == _client.userInfo.guid)
-            {
-                if (clientA.userInfo.guid == _client.userInfo.guid)
-                {
-                    throw new FormatException("Same player entered");
-                }
-
-                clientA = _client;
-            }
-        }
-    }
-
-    private readonly Dictionary<int /* =roomNumber */, Room> rooms = new Dictionary<int, Room>();
-
-    public SoccerServer()
-    {
-        gameType = GameType.Soccer;
-    }
-
-    public override void Start()
-    {
-        Console.WriteLine("Listening Starts");
+        Console.WriteLine("Soccer start");
 
         var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         listener.Bind(new IPEndPoint(IPAddress.Any, OJ9Const.SOCCER_SERVER_PORT_NUM));
         listener.Listen();
-        listener.BeginAccept(RECEIVE_SIZE, AcceptReceiveCallback, listener);
+        listener.BeginAccept(OJ9Const.RECEIVE_SIZE, AcceptReceiveCallback, listener);
     }
 
     public void AcceptReceiveCallback(IAsyncResult _asyncResult)
@@ -116,7 +37,7 @@ public class SoccerServer : GameServer
             stateObject
         );
 
-        listener.BeginAccept(RECEIVE_SIZE, AcceptReceiveCallback, listener);
+        listener.BeginAccept(OJ9Const.RECEIVE_SIZE, AcceptReceiveCallback, listener);
     }
 
     public void ClientDataReceived(IAsyncResult _asyncResult)
@@ -207,6 +128,83 @@ public class SoccerServer : GameServer
                 0,
                 new AsyncCallback(ClientDataReceived),
                 stateObject);
+        }
+    }
+}
+
+public enum Turn
+{
+    A,
+    B
+}
+
+public struct Room
+{
+    public Client clientA, clientB;
+    public int elapsedTime = 0;
+
+    public Room()
+    {
+        clientA = default;
+        clientB = default;
+        elapsedTime = 0;
+    }
+
+    public Room(Client _clientA, Client _clientB)
+    {
+        clientA = _clientA;
+        clientB = _clientB;
+    }
+
+    public Client GetOtherClient(Guid _guid)
+    {
+        if (clientA.userInfo.guid != _guid)
+        {
+            if (clientB.userInfo.guid == _guid)
+            {
+                return clientB;
+            }
+            else
+            {
+                throw new FormatException("No User");
+            }
+        }
+
+        if (clientB.userInfo.guid != _guid)
+        {
+            if (clientA.userInfo.guid == _guid)
+            {
+                return clientA;
+            }
+            else
+            {
+                throw new FormatException("No User");
+            }
+        }
+
+        throw new FormatException("Cannot found client by entered _userInfo");
+    }
+
+    public void AddPlayer(Client _client)
+    {
+        if (clientA.userInfo.guid == _client.userInfo.guid)
+        {
+            if (clientB.userInfo.guid == _client.userInfo.guid)
+            {
+                throw new FormatException("Same player entered");
+            }
+
+            clientB = _client;
+        }
+
+        if (clientB.userInfo.guid == _client.userInfo.guid)
+        {
+            if (clientA.userInfo.guid == _client.userInfo.guid)
+            {
+                throw new FormatException("Same player entered");
+            }
+
+            clientA = _client;
         }
     }
 }
