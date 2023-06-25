@@ -53,8 +53,13 @@ public class GameManager : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(instance);
 
-        networkManager = new NetworkManager();
+        networkManager = new NetworkManager(BlockUI);
         networkManager.BindPacketHandler(PacketType.Login, HandleLogin);
+    }
+
+    private void BlockUI(bool _isBlock)
+    {
+        // TODO : Block ui till receive packet.
     }
 
     public void ReqLogin(string _id, string _pw)

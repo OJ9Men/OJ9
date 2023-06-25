@@ -9,6 +9,7 @@ public class Server
 {
     private MySqlConnection mysql;
     private ConcurrentBag<Client> clients;
+    private Action<PacketBase>[] packetHandlers;
 
     public void Start()
     {
@@ -26,11 +27,18 @@ public class Server
         mysql = new MySqlConnection(dbServerString);
         mysql.Open();
         clients = new ConcurrentBag<Client>();
+        packetHandlers = new Action<PacketBase>[(int)PacketType.Max];
+        BindPacketHandlers();
 
         var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         listener.Bind(new IPEndPoint(IPAddress.Any, OJ9Const.SERVER_PORT_NUM));
         listener.Listen();
         listener.BeginAccept(OJ9Const.RECEIVE_SIZE, OnAccept, listener);
+    }
+
+    private void BindPacketHandlers()
+    {
+        packetHandlers[(int)PacketType.Login] = HandleLogin;
     }
 
     private void OnAccept(IAsyncResult _asyncResult)
@@ -87,15 +95,20 @@ public class Server
     private void ProcessPacket(byte[] buffer)
     {
         var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
-        switch (packetBase.packetType)
+        var packetHandler = packetHandlers[(int)packetBase.packetType];
+        if (packetHandler is null)
         {
-            case PacketType.Login:
-            {
-                var packet = OJ9Function.ByteArrayToObject<C2SLogin>(buffer);
-            }
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+            Console.WriteLine("Need to be binded. Packet type is " + packetBase.packetType);
         }
+        else
+        {
+            packetHandlers[(int)packetBase.packetType](packetBase);
+        }
+    }
+
+    private void HandleLogin(PacketBase _packet)
+    {
+        var packet = (C2SLogin)_packet;
+        
     }
 }

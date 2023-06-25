@@ -9,8 +9,9 @@ public class NetworkManager
     private byte[] buffer;
     public NetState netState;
     private Action<PacketBase>[] packetHandlers;
+    private Action<bool> blockAction;
 
-    public NetworkManager()
+    public NetworkManager(Action<bool> _blockAction)
     {
         netState = NetState.None;
 
@@ -20,6 +21,7 @@ public class NetworkManager
         );
         socket.BeginConnect(endPoint, OnConnect, null);
         buffer = new byte[OJ9Const.BUFFER_SIZE];
+        blockAction = _blockAction;
     }
 
     public void BindPacketHandler(PacketType _packetType, Action<PacketBase> _action)
@@ -49,19 +51,23 @@ public class NetworkManager
     {
         Assert.IsTrue(netState != NetState.Connected);
         socket.Send(OJ9Function.ObjectToByteArray(_packet));
+        blockAction(true);
     }
 
     private void OnReceived(IAsyncResult _asyncResult)
     {
         socket.EndReceive(_asyncResult);
         var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
-        if (packetHandlers[(int)packetBase.packetType] == null)
+        var packetHandler = packetHandlers[(int)packetBase.packetType]; 
+        
+        if (packetHandler is null)
         {
             Debug.LogError("Need to be binded. Packet type is " + packetBase.packetType);
         }
         else
         {
-            packetHandlers[(int)packetBase.packetType](packetBase);
+            packetHandler(packetBase);
+            blockAction(false);
         }
     }
 }
