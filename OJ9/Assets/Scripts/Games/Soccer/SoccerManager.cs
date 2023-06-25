@@ -137,13 +137,13 @@ public class SoccerManager : MonoBehaviour
             return;
         }
         
-        var packet = new C2GShoot(
-            GameManager.Get().GetGameInfo().GetRoomNumber(),
-            GameManager.Get().userInfo,
-            new System.Numerics.Vector2(_vector2.x, _vector2.y),
-            _paddleId
-        );
-        socket.Send(OJ9Function.ObjectToByteArray(packet));
+        //var packet = new C2GShoot(
+        //    GameManager.Get().GetGameInfo().GetRoomNumber(),
+        //    GameManager.Get().userInfo,
+        //    new System.Numerics.Vector2(_vector2.x, _vector2.y),
+        //    _paddleId
+        //);
+        //socket.Send(OJ9Function.ObjectToByteArray(packet));
     }
 
     private void ProcessState()
@@ -268,13 +268,13 @@ public class SoccerManager : MonoBehaviour
                 break;
             case GameMode.Release:
             {
-                var gameInfo = GameManager.Get().GetGameInfo();
-                var packet = new C2GReady(
-                    gameInfo.GetGameType(),
-                    gameInfo.GetRoomNumber(),
-                    GameManager.Get().userInfo
-                );
-                socket.Send(OJ9Function.ObjectToByteArray(packet));
+                //var gameInfo = GameManager.Get().GetGameInfo();
+                //var packet = new C2GReady(
+                //    gameInfo.GetGameType(),
+                //    gameInfo.GetRoomNumber(),
+                //    GameManager.Get().userInfo
+                //);
+                //socket.Send(OJ9Function.ObjectToByteArray(packet));
             }
                 break;
             default:

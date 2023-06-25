@@ -46,12 +46,12 @@ public class LobbyManager : MonoBehaviour
     {
         waitingWidget.SetActive(false);
         
-        C2BCancelQueue packet = new C2BCancelQueue(
-            GameManager.instance.userInfo,
-            GameType.Soccer
-        );
-        var buffer = OJ9Function.ObjectToByteArray(packet);
-        GameManager.instance.Send(ServerType.Lobby, buffer);
+        //C2BCancelQueue packet = new C2BCancelQueue(
+        //    GameManager.instance.userInfo,
+        //    GameType.Soccer
+        //);
+        //var buffer = OJ9Function.ObjectToByteArray(packet);
+        //GameManager.instance.Send(ServerType.Lobby, buffer);
     }
     
     public void OnStartButtonClicked()
@@ -60,13 +60,13 @@ public class LobbyManager : MonoBehaviour
         {
             case GameType.Soccer:
             {
-                C2BQueueGame packet = new C2BQueueGame(
-                    GameManager.instance.userInfo,
-                    GameType.Soccer
-                );
-                byte[] buffer = OJ9Function.ObjectToByteArray(packet);
-                GameManager.instance.Send(ServerType.Lobby, buffer);
-                waitingWidget.SetActive(true);
+                //C2BQueueGame packet = new C2BQueueGame(
+                //    GameManager.instance.userInfo,
+                //    GameType.Soccer
+                //);
+                //byte[] buffer = OJ9Function.ObjectToByteArray(packet);
+                //GameManager.instance.Send(ServerType.Lobby, buffer);
+                //waitingWidget.SetActive(true);
             }
                 break;
             default:
@@ -80,10 +80,10 @@ public class LobbyManager : MonoBehaviour
     private void Start()
     {
         OnGameSelected((int)GameType.Soccer);
-        GameManager.instance.BeginReceive(DataReceived, null);
-
-        var doCharacterSelect = GameManager.instance.userInfo.charType == OJ9Const.INVALID_CHAR_TYPE;
-        SetCharacterSelectVisible(doCharacterSelect);
+        // GameManager.instance.BeginReceive(DataReceived, null);
+        //
+        // var doCharacterSelect = GameManager.instance.userInfo.charType == OJ9Const.INVALID_CHAR_TYPE;
+        // SetCharacterSelectVisible(doCharacterSelect);
     }
 
     private void SetCharacterSelectVisible(bool _visible)
@@ -94,32 +94,32 @@ public class LobbyManager : MonoBehaviour
     
     private void DataReceived(IAsyncResult _asyncResult)
     {
-        IPEndPoint ipEndPoint = null;
-        var recvBuffer = GameManager.instance.EndReceive(_asyncResult, ref ipEndPoint);
-        var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(recvBuffer);
-        switch (packetBase.packetType)
-        {
-            case PacketType.Matched:
-            {
-                var recvPacket = OJ9Function.ByteArrayToObject<B2CGameMatched>(recvBuffer);
-                InitGame(recvPacket.gameType, recvPacket.roomNumber);
-            }
-                break;
-            default:
-            {
-                throw new FormatException("cannot receive other packet in LobbyManager");
-            }
-        }
+        //IPEndPoint ipEndPoint = null;
+        //var recvBuffer = GameManager.instance.EndReceive(_asyncResult, ref ipEndPoint);
+        //var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(recvBuffer);
+        //switch (packetBase.packetType)
+        //{
+        //    case PacketType.Matched:
+        //    {
+        //        var recvPacket = OJ9Function.ByteArrayToObject<B2CGameMatched>(recvBuffer);
+        //        InitGame(recvPacket.gameType, recvPacket.roomNumber);
+        //    }
+        //        break;
+        //    default:
+        //    {
+        //        throw new FormatException("cannot receive other packet in LobbyManager");
+        //    }
+        //}
     }
 
     private void InitGame(GameType _gameType, int _roomNumber)
     {
-        GameManager.instance.SetGameInfo(new GameInfo(_gameType, _roomNumber));
-        
-        actions.Enqueue(() =>   // for dispatch to main thread
-        {
-            SceneManager.LoadScene("SoccerScene");
-        });
+        //GameManager.instance.SetGameInfo(new GameInfo(_gameType, _roomNumber));
+        //
+        //actions.Enqueue(() =>   // for dispatch to main thread
+        //{
+        //    SceneManager.LoadScene("SoccerScene");
+        //});
     }
 
     private void Update()

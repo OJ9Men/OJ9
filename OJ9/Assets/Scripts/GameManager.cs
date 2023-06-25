@@ -32,7 +32,12 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Get()
     {
-        Assert.IsNull(instance);
+        if (instance is null)
+        {
+            Debug.LogAssertion("No instance");
+            return null;
+        }
+        
         return instance;
     }
     
@@ -54,7 +59,6 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(instance);
 
         networkManager = new NetworkManager(BlockUI);
-        networkManager.BindPacketHandler(PacketType.Login, HandleLogin);
     }
 
     private void BlockUI(bool _isBlock)
@@ -62,10 +66,10 @@ public class GameManager : MonoBehaviour
         // TODO : Block ui till receive packet.
     }
 
-    public void ReqLogin(string _id, string _pw)
+    public void ReqLogin(string _id, string _pw, Action<PacketBase> _action)
     {
         var packet = new C2SLogin(_id, _pw);
-        networkManager.Send(packet);
+        networkManager.SendAndBindHandler(packet, _action);
     }
 
     private void HandleLogin(PacketBase _packet)

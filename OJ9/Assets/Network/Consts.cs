@@ -45,13 +45,6 @@ public struct UserInfo
     public string nickname { get; set; }
     public int soccerRate { get; set; }
 
-    public UserInfo()
-    {
-        guid = Guid.Empty;
-        nickname = string.Empty;
-        soccerRate = 0;
-    }
-
     public void SetInfo(Guid _guid, string _nickname, int _soccerRate)
     {
         guid = _guid;

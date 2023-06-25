@@ -9,7 +9,7 @@ public class Server
 {
     private MySqlConnection mysql;
     private ConcurrentBag<Client> clients;
-    private Action<PacketBase>[] packetHandlers;
+    private Action<byte[], StateObject>[] packetHandlers;
 
     public void Start()
     {
@@ -27,13 +27,15 @@ public class Server
         mysql = new MySqlConnection(dbServerString);
         mysql.Open();
         clients = new ConcurrentBag<Client>();
-        packetHandlers = new Action<PacketBase>[(int)PacketType.Max];
+        packetHandlers = new Action<byte[], StateObject>[(int)PacketType.Max];
         BindPacketHandlers();
 
         var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         listener.Bind(new IPEndPoint(IPAddress.Any, OJ9Const.SERVER_PORT_NUM));
-        listener.Listen();
-        listener.BeginAccept(OJ9Const.RECEIVE_SIZE, OnAccept, listener);
+        listener.Listen(10);
+        listener.BeginAccept(OnAccept, listener);
+        
+        Console.WriteLine("Server is ready!");
     }
 
     private void BindPacketHandlers()
@@ -44,7 +46,7 @@ public class Server
     private void OnAccept(IAsyncResult _asyncResult)
     {
         var listener = (Socket)_asyncResult.AsyncState!;
-        var clientSocket = listener.EndAccept(out var _, _asyncResult);
+        var clientSocket = listener.EndAccept(_asyncResult);
 
         StateObject stateObject = new StateObject();
         stateObject.socket = clientSocket;
@@ -57,42 +59,25 @@ public class Server
             stateObject
         );
 
-        listener.BeginAccept(OJ9Const.RECEIVE_SIZE, OnAccept, listener);
+        listener.BeginAccept(OnAccept, listener);
     }
 
     private void OnDataReceived(IAsyncResult _asyncResult)
     {
-        String content = String.Empty;
         StateObject stateObject = (StateObject)_asyncResult.AsyncState;
         Socket socket = stateObject.socket;
-        var byteRead = socket.EndReceive(_asyncResult);
-        if (byteRead <= 0)
+        var received = socket.EndReceive(_asyncResult);
+        if (received <= 0)
         {
             return;
         }
 
-        stateObject.stringBuilder.Append(Encoding.UTF8.GetString(
-            stateObject.buffer, 0, byteRead));
-        content = stateObject.stringBuilder.ToString();
-
-        if (content.Length != 0)
-        {
-            ProcessPacket(Encoding.UTF8.GetBytes(content));
-        }
-        else
-        {
-            // Read more data
-            socket.BeginReceive(
-                stateObject.buffer,
-                0,
-                OJ9Const.BUFFER_SIZE,
-                0,
-                new AsyncCallback(OnDataReceived),
-                stateObject);
-        }
+        byte[] buffer = new byte[received];
+        Array.Copy(stateObject.buffer, 0, buffer, 0 ,received);
+        ProcessPacket(buffer, stateObject);
     }
 
-    private void ProcessPacket(byte[] buffer)
+    private void ProcessPacket(byte[] buffer, StateObject _stateObject)
     {
         var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
         var packetHandler = packetHandlers[(int)packetBase.packetType];
@@ -102,13 +87,12 @@ public class Server
         }
         else
         {
-            packetHandlers[(int)packetBase.packetType](packetBase);
+            packetHandlers[(int)packetBase.packetType](buffer, _stateObject);
         }
     }
 
-    private void HandleLogin(PacketBase _packet)
+    private void HandleLogin(byte[] _buffer, StateObject _stateObject)
     {
-        var packet = (C2SLogin)_packet;
-        
+        var packet = OJ9Function.ByteArrayToObject<C2SLogin>(_buffer);
     }
 }

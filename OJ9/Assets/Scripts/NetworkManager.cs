@@ -21,10 +21,11 @@ public class NetworkManager
         );
         socket.BeginConnect(endPoint, OnConnect, null);
         buffer = new byte[OJ9Const.BUFFER_SIZE];
+        packetHandlers = new Action<PacketBase>[(int)PacketType.Max];
         blockAction = _blockAction;
     }
 
-    public void BindPacketHandler(PacketType _packetType, Action<PacketBase> _action)
+    private void BindPacketHandler(PacketType _packetType, Action<PacketBase> _action)
     {
         packetHandlers[(int)_packetType] = _action;
     }
@@ -47,10 +48,15 @@ public class NetworkManager
         Debug.Log("Server connected");
     }
 
-    public void Send(PacketBase _packet)
+    public void SendAndBindHandler(PacketBase _packet, Action<PacketBase> _action)
     {
-        Assert.IsTrue(netState != NetState.Connected);
+        if (netState is not NetState.Connected)
+        {
+            throw new FormatException("Server is not connected");
+        }
+        
         socket.Send(OJ9Function.ObjectToByteArray(_packet));
+        BindPacketHandler(_packet.packetType, _action);
         blockAction(true);
     }
 
