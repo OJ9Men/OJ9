@@ -2,11 +2,11 @@
 {
     static void Main(string[] _args)
     {
-        Console.WriteLine("Starting Game Server");
-        Console.Title = "GameServer";
+        Console.WriteLine("Starting server...");
+        Console.Title = "Server";
         
-        SoccerServer soccerServer = new SoccerServer();
-        soccerServer.Start();
+        Server server = new Server();
+        server.Start();
 
         while (true)
         {

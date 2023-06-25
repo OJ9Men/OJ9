@@ -63,10 +63,7 @@ public class StateObject
     public StringBuilder stringBuilder = new StringBuilder();
 }
 
-public abstract class GameServer
+public abstract class Manager
 {
-    protected readonly List<Client> clients = new List<Client>();
-    protected GameType gameType;
-
-    public abstract void Start();
+    
 }

@@ -9,13 +9,21 @@ public static class OJ9Const
     //public static string SERVER_IP = "124.111.89.128";
     public static int LOGIN_TRY_COUNT = 5;
 
+    public static int SERVER_PORT_NUM = 5000;
     public static int LOGIN_SERVER_PORT_NUM = 5000;
     public static int LOBBY_SERVER_PORT_NUM = 5001;
     public static int SOCCER_SERVER_PORT_NUM = 5002;
     
     // GameServerConst
+    public static int RECEIVE_SIZE = 1024;
     public static int BUFFER_SIZE = 1024;
     public static int MAX_GAME_ROOM_NUM = 1024;
+}
+
+public enum NetState
+{
+    None,
+    Connected,
 }
 
 public enum GameType
@@ -35,15 +43,13 @@ public struct UserInfo
 {
     public Guid guid { get; set; }
     public string nickname { get; set; }
-    public int rating { get; set; }
-    public int charType { get; set; }
+    public int soccerRate { get; set; }
 
-    public UserInfo(Guid _guid, string _nickname, int _rating, int _charType)
+    public void SetInfo(Guid _guid, string _nickname, int _soccerRate)
     {
         guid = _guid;
         nickname = _nickname;
-        rating = _rating;
-        charType = _charType;
+        soccerRate = _soccerRate;
     }
 
     public bool IsValid()

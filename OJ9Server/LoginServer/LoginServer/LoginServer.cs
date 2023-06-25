@@ -62,7 +62,7 @@ class LoginServer
         {
             case PacketType.Login:
             {
-                C2LLogin packet = OJ9Function.ByteArrayToObject<C2LLogin>(buffer);
+                C2SLogin packet = OJ9Function.ByteArrayToObject<C2SLogin>(buffer);
                 EnterLobby(packet, ipEndPoint.ToString());
             }
                 break;
@@ -73,7 +73,7 @@ class LoginServer
         udpClient.BeginReceive(DataReceived, null);
     }
 
-    private void EnterLobby(C2LLogin _packet, string _clientEndPoint)
+    private void EnterLobby(C2SLogin _packet, string _clientEndPoint)
     {
         var guid = CheckAccount(_packet.id, _packet.pw);
         byte[] sendBuff = OJ9Function.ObjectToByteArray(
