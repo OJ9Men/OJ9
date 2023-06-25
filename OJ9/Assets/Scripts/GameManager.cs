@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public readonly struct GameInfo
 {
@@ -29,14 +30,18 @@ public readonly struct GameInfo
 
 public class GameManager : MonoBehaviour
 {
-    // Singleton
-    public static GameManager instance;
-    private UdpClient udpClient;
+    public static GameManager Get()
+    {
+        Assert.IsNull(instance);
+        return instance;
+    }
+    
+    private static GameManager instance;
+    private NetworkManager networkManager;
+    
     public UserInfo userInfo;
-
     private GameInfo gameInfo;
-        
-    // Start is called before the first frame update
+
     void Start()
     {
         if (instance != null)
@@ -48,60 +53,18 @@ public class GameManager : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(instance);
 
-        udpClient = new UdpClient();
+        networkManager = new NetworkManager();
+        networkManager.BindPacketHandler(PacketType.Login, HandleLogin);
     }
 
-    public void SetUserInfo(UserInfo _userInfo)
+    public void ReqLogin(string _id, string _pw)
     {
-        userInfo = _userInfo;
+        var packet = new C2SLogin(_id, _pw);
+        networkManager.Send(packet);
     }
 
-    public void SetGameInfo(GameInfo _gameInfo)
+    private void HandleLogin(PacketBase _packet)
     {
-        gameInfo = _gameInfo;
-    }
-
-    public GameInfo GetGameInfo()
-    {
-        return gameInfo;
-    }
-
-    public void Send(ServerType _serverType, byte[] _buffer)
-    {
-        int portNum = 0;
-        switch (_serverType)
-        {
-            case ServerType.Login:
-            {
-                portNum = OJ9Const.LOGIN_SERVER_PORT_NUM;
-            }
-                break;
-            case ServerType.Lobby:
-            {
-                portNum = OJ9Const.LOBBY_SERVER_PORT_NUM;
-            }
-                break;
-            case ServerType.Soccer:
-            {
-                portNum = OJ9Const.SOCCER_SERVER_PORT_NUM;
-            }
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(_serverType), _serverType, null);
-        }
-        
-        udpClient.Send(_buffer, _buffer.Length,
-            OJ9Function.CreateIPEndPoint(OJ9Const.SERVER_IP + ":" + portNum)
-        );
-    }
-
-    public void BeginReceive(AsyncCallback _requestCallback, object _state)
-    {
-        udpClient.BeginReceive(_requestCallback, _state);
-    }
-
-    public byte[] EndReceive(IAsyncResult _asyncResult, ref IPEndPoint _remoteEp)
-    {
-        return udpClient.EndReceive(_asyncResult, ref _remoteEp);
+        var Packet = (S2CLogin)_packet;
     }
 }

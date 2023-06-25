@@ -138,8 +138,8 @@ public class SoccerManager : MonoBehaviour
         }
         
         var packet = new C2GShoot(
-            GameManager.instance.GetGameInfo().GetRoomNumber(),
-            GameManager.instance.userInfo,
+            GameManager.Get().GetGameInfo().GetRoomNumber(),
+            GameManager.Get().userInfo,
             new System.Numerics.Vector2(_vector2.x, _vector2.y),
             _paddleId
         );
@@ -268,11 +268,11 @@ public class SoccerManager : MonoBehaviour
                 break;
             case GameMode.Release:
             {
-                var gameInfo = GameManager.instance.GetGameInfo();
+                var gameInfo = GameManager.Get().GetGameInfo();
                 var packet = new C2GReady(
                     gameInfo.GetGameType(),
                     gameInfo.GetRoomNumber(),
-                    GameManager.instance.userInfo
+                    GameManager.Get().userInfo
                 );
                 socket.Send(OJ9Function.ObjectToByteArray(packet));
             }

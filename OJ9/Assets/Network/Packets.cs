@@ -21,6 +21,8 @@ public enum PacketType
     // Error
     L2BError,
     B2CError,
+    
+    Max,
 }
 
 public enum ErrorType
@@ -49,6 +51,13 @@ public class C2SLogin : PacketBase
         packetType = PacketType.Login;
         id = _id;
         pw = _pw;
+    }
+}
+
+public class S2CLogin : PacketBase
+{
+    public S2CLogin()
+    {
     }
 }
 
