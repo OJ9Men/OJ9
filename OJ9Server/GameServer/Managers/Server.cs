@@ -20,7 +20,7 @@ public class Server
             "Uid={2};" +
             "Pwd={3}",
             ConfigurationManager.AppSettings.Get("dbPort"),
-            ConfigurationManager.AppSettings.Get("loginDatabase"),
+            ConfigurationManager.AppSettings.Get("fluffy_war_db"),
             ConfigurationManager.AppSettings.Get("dbUserId"),
             ConfigurationManager.AppSettings.Get("dbUserPw")
         );
@@ -94,5 +94,76 @@ public class Server
     private void HandleLogin(byte[] _buffer, StateObject _stateObject)
     {
         var packet = OJ9Function.ByteArrayToObject<C2SLogin>(_buffer);
+        var userInfo = CheckAccount(packet.id, packet.pw);
+
+        var newClient = new Client(_stateObject.socket, userInfo);
+        clients.Add(newClient);
+
+        var sendPacket = new S2CLogin(userInfo);
+        _stateObject.socket.Send(OJ9Function.ObjectToByteArray(sendPacket));
+    }
+
+    private UserInfo CheckAccount(string _id, string _pw)
+    {
+        var userInfo = new UserInfo();
+
+        MySqlCommand sqlCommand = new MySqlCommand(
+            string.Format("SELECT guid, pw, nick_name, last_login_utc, soccer_rate FROM info WHERE id = '{0}';", _id), 
+            mysql);
+        sqlCommand.ExecuteNonQuery();
+        var reader = sqlCommand.ExecuteReader();
+
+        bool hasAccount = false;
+        while (reader.Read())
+        {
+            var pw = reader["pw"];
+
+            if (pw.ToString() == _pw)
+            {
+                var guid = reader["guid"].ToString();
+                var nickName = reader["nick_name"].ToString();
+                var loginUtc = reader["last_login_utc"].ToString();
+                var soccerRate = reader["soccer_rate"].ToString();
+                
+                userInfo.SetInfo(
+                    Guid.Parse(guid),
+                    nickName,
+                    Convert.ToInt32(loginUtc),
+                    Convert.ToInt32(soccerRate));
+                
+                hasAccount = true;
+            }
+            
+        }
+        reader.Close();
+        
+        if (!hasAccount)
+        {
+            userInfo = AddAccount(_id, _pw);
+        }
+        
+        return userInfo;
+    }
+    
+    private UserInfo AddAccount(string _id, string _pw)
+    {
+        var userInfo = new UserInfo();
+        
+        var rand = new Random((int)System.DateTime.Now.Ticks);
+        string dummyUserName = "플레이어" + rand.Next();
+        
+        Guid guid = Guid.NewGuid();
+        var loginUtc = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+        MySqlCommand sqlCommand = new MySqlCommand(
+            string.Format("INSERT INTO info (guid, id, pw, nick_name, last_login_utc, soccer_rate) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')", guid, _id, _pw, dummyUserName, loginUtc, 0),
+            mysql);
+
+        if (sqlCommand.ExecuteNonQuery() != 1)
+        {
+            throw new FormatException("insert data failed");
+        }
+        
+        userInfo.SetInfo(guid, dummyUserName, loginUtc, 0);
+        return userInfo;
     }
 }

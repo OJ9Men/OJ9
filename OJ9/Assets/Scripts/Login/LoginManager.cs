@@ -47,8 +47,10 @@ public class LoginManager : MonoBehaviour
         SceneManager.LoadScene("LobbyScene");
     }
 
-    private void OnLogin(PacketBase _packet)
+    private void OnLogin(byte[] _packet)
     {
-        var packet = (S2CLogin)_packet;
+        var packet = OJ9Function.ByteArrayToObject<S2CLogin>(_packet);
+        GameManager.Get().userInfo = packet.userInfo;
+        loginState = LoginState.Success;
     }
 }

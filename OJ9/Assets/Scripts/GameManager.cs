@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
         // TODO : Block ui till receive packet.
     }
 
-    public void ReqLogin(string _id, string _pw, Action<PacketBase> _action)
+    public void ReqLogin(string _id, string _pw, Action<byte[]> _action)
     {
         var packet = new C2SLogin(_id, _pw);
         networkManager.SendAndBindHandler(packet, _action);

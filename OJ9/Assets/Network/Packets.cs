@@ -56,8 +56,15 @@ public class C2SLogin : PacketBase
 
 public class S2CLogin : PacketBase
 {
+    public UserInfo userInfo { get; set; }
     public S2CLogin()
     {
+    }
+
+    public S2CLogin(UserInfo _userInfo)
+    {
+        packetType = PacketType.Login;
+        userInfo = _userInfo;
     }
 }
 

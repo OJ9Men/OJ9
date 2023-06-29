@@ -44,11 +44,13 @@ public struct UserInfo
     public Guid guid { get; set; }
     public string nickname { get; set; }
     public int soccerRate { get; set; }
+    public long lastLoginUtc { get; set; }
 
-    public void SetInfo(Guid _guid, string _nickname, int _soccerRate)
+    public void SetInfo(Guid _guid, string _nickname, long _lastLoginUtc, int _soccerRate)
     {
         guid = _guid;
         nickname = _nickname;
+        lastLoginUtc = _lastLoginUtc;
         soccerRate = _soccerRate;
     }
 

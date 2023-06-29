@@ -78,10 +78,14 @@ public class LoginManager : Manager
             {
                 var guid = reader["guid"].ToString();
                 var nickName = reader["nick_name"].ToString();
-                //var loginUtc = reader["last_login_utc"].ToString();   // TODO : save login timestamp
+                var loginUtc = reader["last_login_utc"].ToString();   // TODO : save login timestamp
                 var soccerRate = reader["soccer_rate"].ToString();
 
-                userInfo.SetInfo(Guid.Parse(guid), nickName, Convert.ToInt32(soccerRate));
+                userInfo.SetInfo(
+                    Guid.Parse(guid),
+                    nickName,
+                    Convert.ToInt32(loginUtc),
+                    Convert.ToInt32(soccerRate));
             }
 
             reader.Close();
@@ -103,7 +107,7 @@ public class LoginManager : Manager
                 throw new FormatException("insert data failed");
             }
         
-            userInfo.SetInfo(guid, dummyUserName, 0);
+            userInfo.SetInfo(guid, dummyUserName, loginUtc, 0);
         }
 
         return userInfo;

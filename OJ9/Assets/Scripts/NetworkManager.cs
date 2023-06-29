@@ -8,7 +8,7 @@ public class NetworkManager
     private Socket socket;
     private byte[] buffer;
     public NetState netState;
-    private Action<PacketBase>[] packetHandlers;
+    private Action<byte[]>[] packetHandlers;
     private Action<bool> blockAction;
 
     public NetworkManager(Action<bool> _blockAction)
@@ -21,11 +21,11 @@ public class NetworkManager
         );
         socket.BeginConnect(endPoint, OnConnect, null);
         buffer = new byte[OJ9Const.BUFFER_SIZE];
-        packetHandlers = new Action<PacketBase>[(int)PacketType.Max];
+        packetHandlers = new Action<byte[]>[(int)PacketType.Max];
         blockAction = _blockAction;
     }
 
-    private void BindPacketHandler(PacketType _packetType, Action<PacketBase> _action)
+    private void BindPacketHandler(PacketType _packetType, Action<byte[]> _action)
     {
         packetHandlers[(int)_packetType] = _action;
     }
@@ -42,13 +42,20 @@ public class NetworkManager
             throw;
         }
         
-        socket.BeginReceive(buffer, 0, OJ9Const.BUFFER_SIZE, SocketFlags.None, OnReceived, null);
+        socket.BeginReceive(
+            buffer,
+            0,
+            buffer.Length,
+            SocketFlags.None,
+            OnReceived,
+            null
+        );
 
         netState = NetState.Connected;
         Debug.Log("Server connected");
     }
 
-    public void SendAndBindHandler(PacketBase _packet, Action<PacketBase> _action)
+    public void SendAndBindHandler(PacketBase _packet, Action<byte[]> _action)
     {
         if (netState is not NetState.Connected)
         {
@@ -62,8 +69,15 @@ public class NetworkManager
 
     private void OnReceived(IAsyncResult _asyncResult)
     {
-        socket.EndReceive(_asyncResult);
-        var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
+        var received = socket.EndReceive(_asyncResult);
+        if (received <= 0)
+        {
+            return;
+        }
+
+        var newBuffer = new byte[received];
+        Array.Copy(buffer, 0, newBuffer, 0, received);
+        var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(newBuffer);
         var packetHandler = packetHandlers[(int)packetBase.packetType]; 
         
         if (packetHandler is null)
@@ -72,7 +86,7 @@ public class NetworkManager
         }
         else
         {
-            packetHandler(packetBase);
+            packetHandler(newBuffer);
             blockAction(false);
         }
     }
