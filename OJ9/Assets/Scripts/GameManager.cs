@@ -71,9 +71,4 @@ public class GameManager : MonoBehaviour
         var packet = new C2SLogin(_id, _pw);
         networkManager.SendAndBindHandler(packet, _action);
     }
-
-    private void HandleLogin(PacketBase _packet)
-    {
-        var Packet = (S2CLogin)_packet;
-    }
 }
