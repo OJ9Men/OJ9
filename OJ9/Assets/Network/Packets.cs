@@ -57,6 +57,7 @@ public class C2SLogin : PacketBase
 public class S2CLogin : PacketBase
 {
     public UserInfo userInfo { get; set; }
+    public bool isSuccess { get; set; }
     public S2CLogin()
     {
     }
@@ -65,6 +66,7 @@ public class S2CLogin : PacketBase
     {
         packetType = PacketType.Login;
         userInfo = _userInfo;
+        isSuccess = userInfo.IsValid();
     }
 }
 

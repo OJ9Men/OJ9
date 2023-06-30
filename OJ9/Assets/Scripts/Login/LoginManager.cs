@@ -50,6 +50,12 @@ public class LoginManager : MonoBehaviour
     private void OnLogin(byte[] _packet)
     {
         var packet = OJ9Function.ByteArrayToObject<S2CLogin>(_packet);
+        if (!packet.isSuccess)
+        {
+            loginState = LoginState.Fail;
+            return;
+        }
+        
         GameManager.Get().userInfo = packet.userInfo;
         loginState = LoginState.Success;
     }
