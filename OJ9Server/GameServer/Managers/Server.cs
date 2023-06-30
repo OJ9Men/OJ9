@@ -96,8 +96,11 @@ public class Server
         var packet = OJ9Function.ByteArrayToObject<C2SLogin>(_buffer);
         var userInfo = CheckAccount(packet.id, packet.pw);
 
-        var newClient = new Client(_stateObject.socket, userInfo);
-        clients.Add(newClient);
+        if (userInfo.IsValid())
+        {
+            var newClient = new Client(_stateObject.socket, userInfo);
+            clients.Add(newClient);    
+        }
 
         var sendPacket = new S2CLogin(userInfo);
         _stateObject.socket.Send(OJ9Function.ObjectToByteArray(sendPacket));
@@ -131,9 +134,9 @@ public class Server
                     Convert.ToInt32(loginUtc),
                     Convert.ToInt32(soccerRate));
                 
-                hasAccount = true;
             }
             
+            hasAccount = true;
         }
         reader.Close();
         
