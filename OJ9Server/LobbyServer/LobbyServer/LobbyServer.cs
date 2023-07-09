@@ -9,7 +9,7 @@ public class LobbyServer
     private static int INVALID_INDEX = -1;
     private UdpClient udpClient;
     private MySqlConnection mysql;
-    private readonly ConcurrentQueue<ConnectionInfo>[] waitingPlayers = new ConcurrentQueue<ConnectionInfo>[(int)GameType.Max];
+    private readonly ConcurrentQueue<ConnectionInfo>[] waitingPlayers = new ConcurrentQueue<ConnectionInfo>[1];
     private int roomNumber;
     private readonly ConcurrentBag<UserInfo> userInfos = new ConcurrentBag<UserInfo>();
 
@@ -22,7 +22,7 @@ public class LobbyServer
             roomNumber = 0;
             userInfos.Clear();
             
-            for (var i = 0; i < (int)GameType.Max; i++)
+            for (var i = 0; i < 1; i++)
             {
                 waitingPlayers[i] = new ConcurrentQueue<ConnectionInfo>();
             }
@@ -198,8 +198,7 @@ public class LobbyServer
         {
             byte[] buffer =
                 OJ9Function.ObjectToByteArray(
-                    new B2CGameMatched((GameType)gameIndex, roomNumber)
-                );
+                    new B2CGameMatched((roomNumber)));
 
             udpClient.Send(
                 buffer,

@@ -72,17 +72,14 @@ public class S2CLogin : PacketBase
 
 public class C2SStartGame : PacketBase
 {
-    public GameType gameType { get; set; }
     public Guid guid { get; set; }
     public C2SStartGame()
     {
     }
 
-    public C2SStartGame(GameType _gameType, Guid _guid)
+    public C2SStartGame(Guid _guid)
     {
         packetType = PacketType.Start;
-        
-        gameType = _gameType;
         guid = _guid;
     }
 }
@@ -114,49 +111,43 @@ public L2BCheckAccount()
 public class C2BQueueGame : PacketBase
 {
     public UserInfo userInfo { get; set; }
-    public GameType gameType { get; set; }
 
     public C2BQueueGame()
     {
     }
 
-    public C2BQueueGame(UserInfo _userInfo, GameType _gameType)
+    public C2BQueueGame(UserInfo _userInfo)
     {
         packetType = PacketType.QueueGame;
         userInfo = _userInfo;
-        gameType = _gameType;
     }
 }
 
 public class C2BCancelQueue : PacketBase
 {
     public UserInfo userInfo { get; set; }
-    public GameType gameType { get; set; }
 
     public C2BCancelQueue()
     {
     }
     
-    public C2BCancelQueue(UserInfo _userInfo, GameType _gameType)
+    public C2BCancelQueue(UserInfo _userInfo)
     {
         packetType = PacketType.CancelQueue;
         userInfo = _userInfo;
-        gameType = _gameType;
     }
 }
 
 public class B2CGameMatched : PacketBase
 {
     public int roomNumber { get; set; }
-    public GameType gameType { get; set; }
     public B2CGameMatched()
     {
     }
 
-    public B2CGameMatched(GameType _gameType, int _roomNumber)
+    public B2CGameMatched(int _roomNumber)
     {
         packetType = PacketType.Matched;
-        gameType = _gameType;
         roomNumber = _roomNumber;
     }
 }
@@ -164,7 +155,6 @@ public class C2GReady : PacketBase
 {
     // TCP Packet
     
-    public GameType gameType { get; set; }
     public int roomNumber { get; set; }
     public UserInfo userInfo { get; set; }
 
@@ -173,10 +163,9 @@ public class C2GReady : PacketBase
         
     }
 
-    public C2GReady(GameType _gameType, int _roomNumber, UserInfo _userInfo)
+    public C2GReady(int _roomNumber, UserInfo _userInfo)
     {
         packetType = PacketType.Ready;
-        gameType = _gameType;
         roomNumber = _roomNumber;
         userInfo = _userInfo;
     }

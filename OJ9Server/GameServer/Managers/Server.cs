@@ -11,7 +11,7 @@ public class Server
     private ConcurrentDictionary<Guid, Client> clients;
     private Action<byte[], StateObject>[] packetHandlers;
 
-    private ConcurrentQueue<Client>[] queueClients;
+    private ConcurrentQueue<Client> clientQueue;
 
     public void Start()
     {
@@ -30,7 +30,7 @@ public class Server
         mysql.Open();
         clients = new ConcurrentDictionary<Guid, Client>();
         packetHandlers = new Action<byte[], StateObject>[(int)PacketType.Max];
-        queueClients = new ConcurrentQueue<Client>[(int)GameType.Max];
+        clientQueue = new ConcurrentQueue<Client>();
         BindPacketHandlers();
 
         var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -51,7 +51,7 @@ public class Server
     {
         var listener = (Socket)_asyncResult.AsyncState!;
         var clientSocket = listener.EndAccept(_asyncResult);
-        Console.WriteLine(string.Format("[%s] Connected", clientSocket));
+        Console.WriteLine("[{0}] Connected", clientSocket.RemoteEndPoint.ToString());
 
         StateObject stateObject = new StateObject();
         stateObject.socket = clientSocket;
@@ -69,7 +69,8 @@ public class Server
 
     private void OnDisconnected(Socket _socket)
     {
-        Console.WriteLine(string.Format("[%s] Disconnected", _socket));
+        Console.WriteLine("[{0}] Disconnected", _socket.RemoteEndPoint.ToString());
+
         foreach (var iter in clients)
         {
             if (iter.Value.socket == _socket)
@@ -86,16 +87,22 @@ public class Server
         var received = socket.EndReceive(_asyncResult);
         if (received <= 0)
         {
-            if (!socket.Connected)  // It does not work well
-            {
-                 OnDisconnected(socket);
-            }
+            OnDisconnected(socket);
             return;
         }
 
         byte[] buffer = new byte[received];
         Array.Copy(stateObject.buffer, 0, buffer, 0, received);
         ProcessPacket(buffer, stateObject);
+        
+        socket.BeginReceive(
+            stateObject.buffer,
+            0,
+            stateObject.buffer.Length,
+            SocketFlags.None,
+            OnDataReceived,
+            stateObject
+        );
     }
 
     private void ProcessPacket(byte[] buffer, StateObject _stateObject)
@@ -141,33 +148,25 @@ public class Server
     {
         var packet = OJ9Function.ByteArrayToObject<C2SStartGame>(_buffer);
 
-        if (packet.gameType >= GameType.Max)
-        {
-            Console.WriteLine(string.Format("[%s] : Invalid gametype (%s)", _stateObject.socket, packet.gameType));
-            return;
-        }
-
         var client = GetConnectedClient(packet.guid);
         if (client.HasValue)
         {
-            queueClients[(int)packet.gameType].Enqueue(client.Value);
+            clientQueue.Enqueue(client.Value);
             TryMatch();
         }
     }
 
     private void TryMatch()
     {
-        foreach (var clientQueue in queueClients)
+        if (clientQueue.Count < 2)
         {
-            var waitingUserNum = clientQueue.Count;
-            if (waitingUserNum >= 2)
-            {
-                Client first, second;
-                clientQueue.TryDequeue(out first);
-                clientQueue.TryDequeue(out second);
-                StartGame(first, second);
-            }
+            return;
         }
+        
+        Client first, second;
+        clientQueue.TryDequeue(out first);
+        clientQueue.TryDequeue(out second);
+        StartGame(first, second);
     }
 
     private void StartGame(Client _first, Client _second)

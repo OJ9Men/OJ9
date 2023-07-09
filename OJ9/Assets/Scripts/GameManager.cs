@@ -8,18 +8,11 @@ using UnityEngine.Assertions;
 
 public readonly struct GameInfo
 {
-    private readonly GameType gameType;
     private readonly int roomNumber;
 
-    public GameInfo(GameType _gameType, int _roomNumber)
+    public GameInfo(int _roomNumber)
     {
-        gameType = _gameType;
         roomNumber = _roomNumber;
-    }
-
-    public GameType GetGameType()
-    {
-        return gameType;
     }
 
     public int GetRoomNumber()
@@ -77,9 +70,9 @@ public class GameManager : MonoBehaviour
         networkManager.SendAndBindHandler(packet, _action);
     }
 
-    public void ReqStart(GameType _gameType, Action<byte[]> _action)
+    public void ReqStart(Action<byte[]> _action)
     {
-        var packet = new C2SStartGame(_gameType, userInfo.guid);
+        var packet = new C2SStartGame(userInfo.guid);
         networkManager.SendAndBindHandler(packet, _action);
     }
 }
