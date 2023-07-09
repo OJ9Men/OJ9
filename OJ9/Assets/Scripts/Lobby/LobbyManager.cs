@@ -16,18 +16,11 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private GameObject characterSelectWidget;
     [SerializeField] private GameObject waitingWidget;
 
-    private GameType selectedGameType;
     private readonly ConcurrentQueue<Action> actions = new ConcurrentQueue<Action>();
 
-    public void OnGameSelected(int gameIndex)
+    public void OnGameSelected(int gameIndex /* Not using now */)
     {
-        if (gameIndex >= (int)GameType.Max)
-        {
-            throw new System.SystemException("Invalid game type");
-        }
-
-        selectedGameType = (GameType)gameIndex;
-        gameName.text = selectedGameType + " Game";
+        // TODO : Not implemented
     }
     
     public void OnWaitingWidgetClicked()
@@ -37,25 +30,12 @@ public class LobbyManager : MonoBehaviour
     
     public void OnStartButtonClicked()
     {
-        switch (selectedGameType)
-        {
-            case GameType.Soccer:
-            {
-                GameManager.Get().ReqStart(GameType.Soccer, OnSoccerGameStart);
-                
-                // TODO : Show waiting widget ( Queue ~)
-            }
-                break;
-            default:
-            {
-                throw new System.SystemException("Invalid GameType");
-            }
-        }
+        GameManager.Get().ReqStart(OnSoccerGameStart);
     }
 
     private void Start()
     {
-        OnGameSelected((int)GameType.Soccer);
+        OnGameSelected(0);
     }
 
     private void Update()

@@ -26,12 +26,6 @@ public enum NetState
     Connected,
 }
 
-public enum GameType
-{
-    Soccer,
-    Max,
-}
-
 public enum ServerType
 {
     Login,
