@@ -8,8 +8,10 @@ using MySql.Data.MySqlClient;
 public class Server
 {
     private MySqlConnection mysql;
-    private ConcurrentBag<Client> clients;
+    private ConcurrentDictionary<Guid, Client> clients;
     private Action<byte[], StateObject>[] packetHandlers;
+
+    private ConcurrentQueue<Client>[] queueClients;
 
     public void Start()
     {
@@ -26,27 +28,30 @@ public class Server
         );
         mysql = new MySqlConnection(dbServerString);
         mysql.Open();
-        clients = new ConcurrentBag<Client>();
+        clients = new ConcurrentDictionary<Guid, Client>();
         packetHandlers = new Action<byte[], StateObject>[(int)PacketType.Max];
+        queueClients = new ConcurrentQueue<Client>[(int)GameType.Max];
         BindPacketHandlers();
 
         var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         listener.Bind(new IPEndPoint(IPAddress.Any, OJ9Const.SERVER_PORT_NUM));
         listener.Listen(10);
         listener.BeginAccept(OnAccept, listener);
-        
+
         Console.WriteLine("Server is ready!");
     }
 
     private void BindPacketHandlers()
     {
         packetHandlers[(int)PacketType.Login] = HandleLogin;
+        packetHandlers[(int)PacketType.Start] = HandleStart;
     }
 
     private void OnAccept(IAsyncResult _asyncResult)
     {
         var listener = (Socket)_asyncResult.AsyncState!;
         var clientSocket = listener.EndAccept(_asyncResult);
+        Console.WriteLine(string.Format("[%s] Connected", clientSocket));
 
         StateObject stateObject = new StateObject();
         stateObject.socket = clientSocket;
@@ -62,6 +67,18 @@ public class Server
         listener.BeginAccept(OnAccept, listener);
     }
 
+    private void OnDisconnected(Socket _socket)
+    {
+        Console.WriteLine(string.Format("[%s] Disconnected", _socket));
+        foreach (var iter in clients)
+        {
+            if (iter.Value.socket == _socket)
+            {
+                clients.TryRemove(iter.Value.userInfo.guid, out _);
+            }
+        }
+    }
+
     private void OnDataReceived(IAsyncResult _asyncResult)
     {
         StateObject stateObject = (StateObject)_asyncResult.AsyncState;
@@ -69,11 +86,15 @@ public class Server
         var received = socket.EndReceive(_asyncResult);
         if (received <= 0)
         {
+            if (!socket.Connected)  // It does not work well
+            {
+                 OnDisconnected(socket);
+            }
             return;
         }
 
         byte[] buffer = new byte[received];
-        Array.Copy(stateObject.buffer, 0, buffer, 0 ,received);
+        Array.Copy(stateObject.buffer, 0, buffer, 0, received);
         ProcessPacket(buffer, stateObject);
     }
 
@@ -91,6 +112,16 @@ public class Server
         }
     }
 
+    private Client? GetConnectedClient(Guid _guid)
+    {
+        if (clients.TryGetValue(_guid, out Client client))
+        {
+            return client;
+        }
+
+        return null;
+    }
+
     private void HandleLogin(byte[] _buffer, StateObject _stateObject)
     {
         var packet = OJ9Function.ByteArrayToObject<C2SLogin>(_buffer);
@@ -99,11 +130,49 @@ public class Server
         if (userInfo.IsValid())
         {
             var newClient = new Client(_stateObject.socket, userInfo);
-            clients.Add(newClient);    
+            clients.TryAdd(userInfo.guid, newClient);
         }
 
         var sendPacket = new S2CLogin(userInfo);
         _stateObject.socket.Send(OJ9Function.ObjectToByteArray(sendPacket));
+    }
+
+    private void HandleStart(byte[] _buffer, StateObject _stateObject)
+    {
+        var packet = OJ9Function.ByteArrayToObject<C2SStartGame>(_buffer);
+
+        if (packet.gameType >= GameType.Max)
+        {
+            Console.WriteLine(string.Format("[%s] : Invalid gametype (%s)", _stateObject.socket, packet.gameType));
+            return;
+        }
+
+        var client = GetConnectedClient(packet.guid);
+        if (client.HasValue)
+        {
+            queueClients[(int)packet.gameType].Enqueue(client.Value);
+            TryMatch();
+        }
+    }
+
+    private void TryMatch()
+    {
+        foreach (var clientQueue in queueClients)
+        {
+            var waitingUserNum = clientQueue.Count;
+            if (waitingUserNum >= 2)
+            {
+                Client first, second;
+                clientQueue.TryDequeue(out first);
+                clientQueue.TryDequeue(out second);
+                StartGame(first, second);
+            }
+        }
+    }
+
+    private void StartGame(Client _first, Client _second)
+    {
+        // TODO
     }
 
     private UserInfo CheckAccount(string _id, string _pw)

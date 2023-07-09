@@ -37,10 +37,6 @@ public class LoginManager : MonoBehaviour
     {
         if (loginState != LoginState.Success)
         {
-            if (loginState == LoginState.Fail)
-            {
-                throw new FormatException("Login Failed.");
-            }
             return;
         }
 
@@ -53,6 +49,7 @@ public class LoginManager : MonoBehaviour
         if (!packet.isSuccess)
         {
             loginState = LoginState.Fail;
+            Debug.LogError("Login Failed");
             return;
         }
         
