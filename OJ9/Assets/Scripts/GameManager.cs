@@ -61,6 +61,11 @@ public class GameManager : MonoBehaviour
         networkManager = new NetworkManager(BlockUI);
     }
 
+    private void OnDestroy()
+    {
+        networkManager.Disconnect();
+    }
+
     private void BlockUI(bool _isBlock)
     {
         // TODO : Block ui till receive packet.
@@ -69,6 +74,12 @@ public class GameManager : MonoBehaviour
     public void ReqLogin(string _id, string _pw, Action<byte[]> _action)
     {
         var packet = new C2SLogin(_id, _pw);
+        networkManager.SendAndBindHandler(packet, _action);
+    }
+
+    public void ReqStart(GameType _gameType, Action<byte[]> _action)
+    {
+        var packet = new C2SStartGame(_gameType, userInfo.guid);
         networkManager.SendAndBindHandler(packet, _action);
     }
 }

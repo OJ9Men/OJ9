@@ -29,29 +29,10 @@ public class LobbyManager : MonoBehaviour
         selectedGameType = (GameType)gameIndex;
         gameName.text = selectedGameType + " Game";
     }
-
-    public void OnCharacterSelectCanceled()
-    {
-        SetCharacterSelectVisible(false);
-    }
-
-    public void OnCharacterSelectDone(int _charType)
-    {
-        SetCharacterSelectVisible(false);
-        
-        // TODO : Send character select packet
-    }
-
+    
     public void OnWaitingWidgetClicked()
     {
         waitingWidget.SetActive(false);
-        
-        //C2BCancelQueue packet = new C2BCancelQueue(
-        //    GameManager.instance.userInfo,
-        //    GameType.Soccer
-        //);
-        //var buffer = OJ9Function.ObjectToByteArray(packet);
-        //GameManager.instance.Send(ServerType.Lobby, buffer);
     }
     
     public void OnStartButtonClicked()
@@ -60,13 +41,9 @@ public class LobbyManager : MonoBehaviour
         {
             case GameType.Soccer:
             {
-                //C2BQueueGame packet = new C2BQueueGame(
-                //    GameManager.instance.userInfo,
-                //    GameType.Soccer
-                //);
-                //byte[] buffer = OJ9Function.ObjectToByteArray(packet);
-                //GameManager.instance.Send(ServerType.Lobby, buffer);
-                //waitingWidget.SetActive(true);
+                GameManager.Get().ReqStart(GameType.Soccer, OnSoccerGameStart);
+                
+                // TODO : Show waiting widget ( Queue ~)
             }
                 break;
             default:
@@ -76,50 +53,9 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
     private void Start()
     {
         OnGameSelected((int)GameType.Soccer);
-        // GameManager.instance.BeginReceive(DataReceived, null);
-        //
-        // var doCharacterSelect = GameManager.instance.userInfo.charType == OJ9Const.INVALID_CHAR_TYPE;
-        // SetCharacterSelectVisible(doCharacterSelect);
-    }
-
-    private void SetCharacterSelectVisible(bool _visible)
-    {
-        characterSelectWidget.SetActive(_visible);
-        gameSelectWidget.SetActive(!_visible);
-    }
-    
-    private void DataReceived(IAsyncResult _asyncResult)
-    {
-        //IPEndPoint ipEndPoint = null;
-        //var recvBuffer = GameManager.instance.EndReceive(_asyncResult, ref ipEndPoint);
-        //var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(recvBuffer);
-        //switch (packetBase.packetType)
-        //{
-        //    case PacketType.Matched:
-        //    {
-        //        var recvPacket = OJ9Function.ByteArrayToObject<B2CGameMatched>(recvBuffer);
-        //        InitGame(recvPacket.gameType, recvPacket.roomNumber);
-        //    }
-        //        break;
-        //    default:
-        //    {
-        //        throw new FormatException("cannot receive other packet in LobbyManager");
-        //    }
-        //}
-    }
-
-    private void InitGame(GameType _gameType, int _roomNumber)
-    {
-        //GameManager.instance.SetGameInfo(new GameInfo(_gameType, _roomNumber));
-        //
-        //actions.Enqueue(() =>   // for dispatch to main thread
-        //{
-        //    SceneManager.LoadScene("SoccerScene");
-        //});
     }
 
     private void Update()
@@ -131,5 +67,10 @@ public class LobbyManager : MonoBehaviour
                 action?.Invoke();
             }
         }
+    }
+
+    private void OnSoccerGameStart(byte[] _buffer)
+    {
+        SceneManager.LoadScene("SoccerScene");
     }
 }

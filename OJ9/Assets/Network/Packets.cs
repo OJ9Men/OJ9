@@ -70,6 +70,23 @@ public class S2CLogin : PacketBase
     }
 }
 
+public class C2SStartGame : PacketBase
+{
+    public GameType gameType { get; set; }
+    public Guid guid { get; set; }
+    public C2SStartGame()
+    {
+    }
+
+    public C2SStartGame(GameType _gameType, Guid _guid)
+    {
+        packetType = PacketType.Start;
+        
+        gameType = _gameType;
+        guid = _guid;
+    }
+}
+
 public class L2BCheckAccount : PacketBase
 {
     public Guid guid { get; set; }

@@ -25,6 +25,11 @@ public class NetworkManager
         blockAction = _blockAction;
     }
 
+    public void Disconnect()
+    {
+        socket.Disconnect(false);
+    }
+
     private void BindPacketHandler(PacketType _packetType, Action<byte[]> _action)
     {
         packetHandlers[(int)_packetType] = _action;

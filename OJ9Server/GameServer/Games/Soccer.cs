@@ -86,14 +86,14 @@ public class Soccer
                     {
                         case Turn.A:
                         {
-                            found.clientA.Send(turnPacket);
-                            found.clientB.Send(waitPacket);
+                            //found.clientA.Send(turnPacket);
+                            //found.clientB.Send(waitPacket);
                         }
                             break;
                         case Turn.B:
                         {
-                            found.clientA.Send(turnPacket);
-                            found.clientB.Send(waitPacket);
+                            //found.clientA.Send(turnPacket);
+                            //found.clientB.Send(waitPacket);
                         }
                             break;
                         default:
@@ -111,7 +111,7 @@ public class Soccer
 
                     var newPacket = OJ9Function.ObjectToByteArray(new G2CShoot(-packet.dir, packet.paddleId));
                     var otherUser = found.GetOtherClient(packet.userInfo.guid);
-                    otherUser.Send(newPacket);
+                    //otherUser.Send(newPacket);
                 }
                     break;
                 default:
