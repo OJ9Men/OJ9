@@ -9,7 +9,7 @@ public class Server
 {
     private MySqlConnection mysql;
     private ConcurrentDictionary<Guid, Client> clients;
-    private Action<byte[], StateObject>[] packetHandlers;
+    private Action<byte[], Socket>[] packetHandlers;
 
     private ConcurrentQueue<Client> clientQueue;
 
@@ -29,7 +29,7 @@ public class Server
         mysql = new MySqlConnection(dbServerString);
         mysql.Open();
         clients = new ConcurrentDictionary<Guid, Client>();
-        packetHandlers = new Action<byte[], StateObject>[(int)PacketType.Max];
+        packetHandlers = new Action<byte[], Socket>[(int)PacketType.Max];
         clientQueue = new ConcurrentQueue<Client>();
         BindPacketHandlers();
 
@@ -78,6 +78,25 @@ public class Server
                 clients.TryRemove(iter.Value.userInfo.guid, out _);
             }
         }
+
+        var setNewQueue = false;
+        ConcurrentQueue<Client> newQueue = new ConcurrentQueue<Client>();
+        foreach (var client in clientQueue)
+        {
+            if (client.socket == _socket)
+            {
+                Console.WriteLine("[{0}] is removed from queue", _socket.RemoteEndPoint.ToString());
+                continue;
+            }
+            
+            newQueue.Enqueue(client);
+            setNewQueue = true;
+        }
+
+        if (setNewQueue)
+        {
+            clientQueue = newQueue;
+        }
     }
 
     private void OnDataReceived(IAsyncResult _asyncResult)
@@ -93,7 +112,7 @@ public class Server
 
         byte[] buffer = new byte[received];
         Array.Copy(stateObject.buffer, 0, buffer, 0, received);
-        ProcessPacket(buffer, stateObject);
+        ProcessPacket(buffer, socket);
         
         socket.BeginReceive(
             stateObject.buffer,
@@ -105,7 +124,7 @@ public class Server
         );
     }
 
-    private void ProcessPacket(byte[] buffer, StateObject _stateObject)
+    private void ProcessPacket(byte[] buffer, Socket _socket)
     {
         var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
         var packetHandler = packetHandlers[(int)packetBase.packetType];
@@ -115,7 +134,7 @@ public class Server
         }
         else
         {
-            packetHandlers[(int)packetBase.packetType](buffer, _stateObject);
+            packetHandlers[(int)packetBase.packetType](buffer, _socket);
         }
     }
 
@@ -129,31 +148,51 @@ public class Server
         return null;
     }
 
-    private void HandleLogin(byte[] _buffer, StateObject _stateObject)
+    private void HandleLogin(byte[] _buffer, Socket _socket)
     {
         var packet = OJ9Function.ByteArrayToObject<C2SLogin>(_buffer);
         var userInfo = CheckAccount(packet.id, packet.pw);
 
         if (userInfo.IsValid())
         {
-            var newClient = new Client(_stateObject.socket, userInfo);
+            var newClient = new Client(_socket, userInfo);
             clients.TryAdd(userInfo.guid, newClient);
         }
 
         var sendPacket = new S2CLogin(userInfo);
-        _stateObject.socket.Send(OJ9Function.ObjectToByteArray(sendPacket));
+        _socket.Send(OJ9Function.ObjectToByteArray(sendPacket));
+        
+        Console.WriteLine("[{0}] {1} Login", _socket.RemoteEndPoint.ToString(), userInfo.nickname);
     }
 
-    private void HandleStart(byte[] _buffer, StateObject _stateObject)
+    private void HandleStart(byte[] _buffer, Socket _socket)
     {
         var packet = OJ9Function.ByteArrayToObject<C2SStartGame>(_buffer);
 
         var client = GetConnectedClient(packet.guid);
-        if (client.HasValue)
+        if (!client.HasValue)
         {
-            clientQueue.Enqueue(client.Value);
-            TryMatch();
+            return;
         }
+
+        var isAlreadyInQueue = false;
+        foreach (var iter in clientQueue)
+        {
+            if (iter.socket == _socket)
+            {
+                isAlreadyInQueue = true;
+                break;
+            }
+        }
+
+        if (isAlreadyInQueue)
+        {
+            return;
+        }
+
+        Console.WriteLine("[{0}] {1} is now in queue", client.Value.socket.RemoteEndPoint.ToString(), client.Value.userInfo.nickname);
+        clientQueue.Enqueue(client.Value);
+        TryMatch();
     }
 
     private void TryMatch()
@@ -171,6 +210,8 @@ public class Server
 
     private void StartGame(Client _first, Client _second)
     {
+        Console.WriteLine("[{0}, {1}] is matched", _first.socket.RemoteEndPoint.ToString(), _second.socket.RemoteEndPoint.ToString());
+        
         // TODO
     }
 
