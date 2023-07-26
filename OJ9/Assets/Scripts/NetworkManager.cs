@@ -8,6 +8,7 @@ public class NetworkManager
     private Socket socket;
     private byte[] buffer;
     public NetState netState;
+    public Action<NetState> netStateChangedHandler;
     private Action<byte[]>[] packetHandlers;
     private Action<bool> blockAction;
 
@@ -43,8 +44,8 @@ public class NetworkManager
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            netStateChangedHandler(NetState.Closed);
+            return;
         }
         
         socket.BeginReceive(
@@ -57,6 +58,7 @@ public class NetworkManager
         );
 
         netState = NetState.Connected;
+        netStateChangedHandler(NetState.Connected);
         Debug.Log("Server connected");
     }
 

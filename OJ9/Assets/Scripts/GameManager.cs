@@ -75,4 +75,9 @@ public class GameManager : MonoBehaviour
         var packet = new C2SStartGame(userInfo.guid);
         networkManager.SendAndBindHandler(packet, _action);
     }
+
+    public void BindNetStateChangedHandler(Action<NetState> _action)
+    {
+        networkManager.netStateChangedHandler = _action;
+    }
 }

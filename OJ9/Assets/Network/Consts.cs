@@ -24,6 +24,9 @@ public enum NetState
 {
     None,
     Connected,
+    Closed,
+    LoginFailed,
+    LoginSucceed,
 }
 
 public enum ServerType

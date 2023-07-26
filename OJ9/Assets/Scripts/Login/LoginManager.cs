@@ -4,43 +4,63 @@ using System.Timers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class LoginManager : MonoBehaviour
 {
-    private enum LoginState
-    {
-        None,
-        Try,
-        Success,
-        Fail
-    }
-    
     [SerializeField] private TMP_InputField idText;
     [SerializeField] private TMP_InputField pwText;
-    [SerializeField] private GameObject connectingWidget;
+    [SerializeField] private GameObject connectionFailedWidget;
 
     private Timer loginTryTimer;
-    private LoginState loginState = LoginState.None;
+    private NetState netState = NetState.None;
 
     private void OnLoginButtonClicked()
     {
-        if (loginState != LoginState.None)
+        if (netState != NetState.Connected)
         {
-            throw new FormatException("login state is not 'None'");
+            throw new FormatException("Network does not connect");
         }
 
-        loginState = LoginState.Try;
         GameManager.Get().ReqLogin(idText.text, pwText.text, OnLogin);
+    }
+
+    private void Start()
+    {
+        GameManager.Get().BindNetStateChangedHandler(OnNetStateChanged);
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.Get().BindNetStateChangedHandler(null);
     }
 
     private void Update()
     {
-        if (loginState != LoginState.Success)
+        switch (netState)
         {
-            return;
+            case NetState.Closed:
+            {
+                connectionFailedWidget.SetActive(true);
+            }
+                break;
+            case NetState.LoginFailed:
+            {
+                connectionFailedWidget.SetActive(true);
+            }
+                break;
+            case NetState.LoginSucceed:
+            {
+                SceneManager.LoadScene("LobbyScene");
+            }
+                break;
+            default:
+            {
+                // Do nothing
+            }
+                break;
         }
 
-        SceneManager.LoadScene("LobbyScene");
     }
 
     private void OnLogin(byte[] _packet)
@@ -48,12 +68,17 @@ public class LoginManager : MonoBehaviour
         var packet = OJ9Function.ByteArrayToObject<S2CLogin>(_packet);
         if (!packet.isSuccess)
         {
-            loginState = LoginState.Fail;
+            netState = NetState.LoginFailed;
             Debug.LogError("Login Failed");
             return;
         }
         
         GameManager.Get().userInfo = packet.userInfo;
-        loginState = LoginState.Success;
+        netState = NetState.LoginSucceed;
+    }
+
+    private void OnNetStateChanged(NetState _netState)
+    {
+        netState = _netState;
     }
 }

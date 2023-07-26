@@ -1529,7 +1529,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1135282492}
   m_Layer: 5
-  m_Name: ConnectingWidget
+  m_Name: connectionFailedWidget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1956,7 +1956,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idText: {fileID: 491157247}
   pwText: {fileID: 353588217}
-  connectingWidget: {fileID: 1135282491}
+  connectionFailedWidget: {fileID: 1135282491}
 --- !u!4 &1690561182
 Transform:
   m_ObjectHideFlags: 0
