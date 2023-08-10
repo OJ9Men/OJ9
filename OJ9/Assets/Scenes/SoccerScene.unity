@@ -527,7 +527,7 @@ GameObject:
   m_Component:
   - component: {fileID: 242860460}
   m_Layer: 5
-  m_Name: ReadyWidget
+  m_Name: TurnWidget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -920,7 +920,7 @@ MonoBehaviour:
   goalLineHolder: {fileID: 1394473690}
   ballInitPos: {fileID: 330619817}
   ball: {fileID: 1768666737}
-  readyWidget: {fileID: 242860459}
+  turnWidget: {fileID: 242860459}
 --- !u!4 &452268804
 Transform:
   m_ObjectHideFlags: 0

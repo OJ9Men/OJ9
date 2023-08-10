@@ -12,6 +12,9 @@ public class Server
     private Action<byte[], Socket>[] packetHandlers;
 
     private ConcurrentQueue<Client> clientQueue;
+    private object roomLock;
+    private int roomNumber;
+    private ConcurrentDictionary<int /*roomNumber*/, Room> rooms;
 
     public void Start()
     {
@@ -38,6 +41,10 @@ public class Server
         listener.Listen(10);
         listener.BeginAccept(OnAccept, listener);
 
+        roomLock = new object();
+        roomNumber = 1;
+        rooms = new ConcurrentDictionary<int, Room>();
+        
         Console.WriteLine("Server is ready!");
     }
 
@@ -199,7 +206,10 @@ public class Server
     private void HandleShoot(byte[] _buffer, Socket _socket)
     {
         var packet = OJ9Function.ByteArrayToObject<C2SShoot>(_buffer);
-        // TODO : Broadcast to enemy player
+        var room = rooms[packet.roomNumber];
+        var sendBuffer = OJ9Function.ObjectToByteArray(new S2CShoot(packet.guid, packet.dir, packet.paddleId));
+        room.first.socket.Send(sendBuffer);
+        room.second.socket.Send(sendBuffer);
     }
     
     private void TryMatch()
@@ -219,11 +229,18 @@ public class Server
     {
         Console.WriteLine("[{0}, {1}] is matched", _first.socket.RemoteEndPoint.ToString(), _second.socket.RemoteEndPoint.ToString());
         
-        var firstPacket = new S2CStartGame(_second.userInfo, true);
+        var firstPacket = new S2CStartGame(roomNumber, _second.userInfo, true);
         _first.socket.Send(OJ9Function.ObjectToByteArray(firstPacket));
 
-        var secondPacket = new S2CStartGame(_first.userInfo, false);
+        var secondPacket = new S2CStartGame(roomNumber, _first.userInfo, false);
         _second.socket.Send(OJ9Function.ObjectToByteArray(secondPacket));
+
+        rooms.TryAdd(roomNumber, new Room(_first, _second));
+        
+        lock (roomLock)
+        {
+            ++roomNumber;
+        }
     }
 
     private UserInfo CheckAccount(string _id, string _pw)

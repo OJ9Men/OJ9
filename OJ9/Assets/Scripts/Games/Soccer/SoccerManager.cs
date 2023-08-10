@@ -1,6 +1,7 @@
 using System;
 using System.Net.Sockets;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 static class Constants
 {
@@ -10,13 +11,6 @@ static class Constants
 
 public class SoccerManager : MonoBehaviour
 {
-    enum GameState
-    {
-        None,
-        WaitForReady,
-        ShowReady,
-        Start,
-    }
     struct GoalLineBoundary
     {
         public float Up, Down;
@@ -56,16 +50,10 @@ public class SoccerManager : MonoBehaviour
     [SerializeField] private Transform ball;
 
     [Header("위젯")] 
-    [SerializeField] private GameObject readyWidget;
+    [SerializeField] private GameObject turnWidget;
 
     private GoalLineBoundary goalLineBoundary;
-    private GameState gameState;
-
-    // Network
-    private Socket socket;
-    private byte[] buffer;
-    private bool isMyTurn;
-
+    
     void Start()
     {
         playerInitPos = new Transform[Constants.PLAYER_NUM];
@@ -100,74 +88,35 @@ public class SoccerManager : MonoBehaviour
             goalLineHolder.GetChild(0).position.y,
             goalLineHolder.GetChild(1).position.y
         );
-
-        buffer = new byte[OJ9Const.BUFFER_SIZE];
-
-        switch (gameMode)
-        {
-            case GameMode.Dev:
-            case GameMode.Release:
-            {
-                ConnectGameServer();
-            }
-                break;
-            case GameMode.ClientOnly:
-            {
-                isMyTurn = true;
-            }
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-
-        gameState = GameState.None;
-    }
-
-    private void OnAimDone(Vector2 _vector2, int _paddleId)
-    {
-        if (!isMyTurn)
-        {
-            throw new FormatException("Not in turn, Aim must not be available");
-        }
-
-        Debug.Log(("Aim done : " + _vector2));
-
-        if (socket == null) // When client only mode
-        {
-            return;
-        }
         
-        //var packet = new C2GShoot(
-        //    GameManager.Get().GetGameInfo().GetRoomNumber(),
-        //    GameManager.Get().userInfo,
-        //    new System.Numerics.Vector2(_vector2.x, _vector2.y),
-        //    _paddleId
-        //);
-        //socket.Send(OJ9Function.ObjectToByteArray(packet));
+        turnWidget.SetActive(!GameManager.Get().GetGameInfo().isMyTurn);
     }
 
-    private void ProcessState()
+    private void OnAimDone(Vector2 _dir, int _paddleId)
     {
-        switch (gameState)
+        if (!GameManager.Get().GetGameInfo().isMyTurn)
         {
-            case GameState.WaitForReady:
-            {
-                readyWidget.SetActive(true);
-                gameState = GameState.ShowReady;
-            }
-                break;
-            case GameState.ShowReady:
-            {
-                // Do nothing
-            }
-                break;
-            case GameState.Start:
-            {
-                readyWidget.SetActive(false);
-            }
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+            throw new FormatException("Not my turn");
+        }
+        Debug.Log(("Aim done : " + _dir));
+        GameManager.Get().ReqShoot(_dir.x, _dir.y, _paddleId, OnShoot);
+    }
+
+    private void OnShoot(byte[] _buffer)
+    {
+        var packet = OJ9Function.ByteArrayToObject<S2CShoot>(_buffer);
+        
+        if (packet.guid == GameManager.Get().GetGameInfo().enemyInfo.guid)
+        {
+            enemyMovements[packet.paddleId].Shoot(new Vector2(packet.dir.X, packet.dir.Y));
+            GameManager.Get().GetGameInfo().SetIsMyTurn(true);
+            turnWidget.SetActive(false);
+        }
+        else if (packet.guid == GameManager.Get().userInfo.guid)
+        {
+            playerMovements[packet.paddleId].Shoot(new Vector2(packet.dir.X, packet.dir.Y));
+            GameManager.Get().GetGameInfo().SetIsMyTurn(false);
+            turnWidget.SetActive(true);
         }
     }
 
@@ -192,7 +141,6 @@ public class SoccerManager : MonoBehaviour
     }
     void Update()
     {
-        ProcessState();
         CheckGoalLine();
     }
 
@@ -223,40 +171,6 @@ public class SoccerManager : MonoBehaviour
         }
     }
 
-    private void ConnectGameServer()
-    {
-        if (socket != null)
-        {
-            socket.Close();
-            socket = null;
-        }
-
-        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-        var endPoint = OJ9Function.CreateIPEndPoint(
-            OJ9Const.SERVER_IP + ":" + Convert.ToString(OJ9Const.SOCCER_SERVER_PORT_NUM)
-        );
-        socket.BeginConnect(endPoint, OnConnectResponse, null);
-    }
-
-    private void OnConnectResponse(IAsyncResult _asyncResult)
-    {
-        try
-        {
-            socket.EndConnect(_asyncResult);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-
-        Debug.Log("Server connected");
-        socket.BeginReceive(buffer, 0, OJ9Const.BUFFER_SIZE, SocketFlags.None, OnDataReceived, null);
-
-        gameState = GameState.WaitForReady;
-    }
-
     public void OnReadyButtonClicked()
     {
         switch (gameMode)
@@ -275,39 +189,6 @@ public class SoccerManager : MonoBehaviour
                 //    GameManager.Get().userInfo
                 //);
                 //socket.Send(OJ9Function.ObjectToByteArray(packet));
-            }
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-    }
-
-    private void OnDataReceived(IAsyncResult _asyncResult)
-    {
-        socket.EndReceive(_asyncResult);
-        var packetBase = OJ9Function.ByteArrayToObject<PacketBase>(buffer);
-        switch (packetBase.packetType)
-        {
-            case PacketType.Start:
-            {
-                gameState = GameState.Start;
-                
-                var packet = OJ9Function.ByteArrayToObject<G2CStart>(buffer);
-                isMyTurn = packet.isMyTurn;
-                SetPlayerJoystickEnabled(packet.isMyTurn);
-                // TODO : show arrow, wait ui
-            }
-                break;
-            case PacketType.Shoot:
-            {
-                var packet = OJ9Function.ByteArrayToObject<G2CShoot>(buffer);
-                isMyTurn = true;
-                var paddleId = packet.paddleId;
-                if (enemyMovements.Length <= paddleId)
-                {
-                    throw new FormatException("Invalid paddle id");
-                }
-                enemyMovements[paddleId].Shoot(new Vector2(packet.dir.X, packet.dir.Y));
             }
                 break;
             default:

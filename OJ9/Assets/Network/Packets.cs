@@ -86,6 +86,7 @@ public class C2SStartGame : PacketBase
 
 public class S2CStartGame : PacketBase
 {
+    public int roomNumber { get; set; }
     public UserInfo enemy { get; set; }
     public bool isMyTurn { get; set; }
 
@@ -93,9 +94,10 @@ public class S2CStartGame : PacketBase
     {
     }
 
-    public S2CStartGame(UserInfo _enemy, bool _isMyTurn)
+    public S2CStartGame(int _roomNumber, UserInfo _enemy, bool _isMyTurn)
     {
         packetType = PacketType.Start;
+        roomNumber = _roomNumber;
         enemy = _enemy;
         isMyTurn = _isMyTurn;
     }
@@ -270,29 +272,31 @@ public class B2CError : PacketBase
 
 public class C2SShoot : PacketBase
 {
-    public int roomNumber;
-    public UserInfo userInfo;
-    public System.Numerics.Vector2 dir;
-    public int paddleId;
+    public int roomNumber { get; set; }
+    public Guid guid { get; set; }
+    public System.Numerics.Vector2 dir { get; set; }
+    public int paddleId { get; set; }
 
-    public C2SShoot(int _roomNumber, UserInfo _userInfo, System.Numerics.Vector2 _dir, int _paddleId)
+    public C2SShoot(int _roomNumber, Guid _guid, System.Numerics.Vector2 _dir, int _paddleId)
     {
+        packetType = PacketType.Shoot;
         roomNumber = _roomNumber;
-        userInfo = _userInfo;
+        guid = _guid;
         dir = _dir;
         paddleId = _paddleId;
-        packetType = PacketType.Shoot;
     }
 }
 
-public class G2CShoot : PacketBase
+public class S2CShoot : PacketBase
 {
-    public System.Numerics.Vector2 dir;
-    public int paddleId;
+    public Guid guid { get; set; }
+    public System.Numerics.Vector2 dir { get; set; }
+    public int paddleId { get; set; }
     
-    // this packet would be absolutely other player
-    public G2CShoot(System.Numerics.Vector2 _dir, int _paddleId)
+    public S2CShoot(Guid _guid, System.Numerics.Vector2 _dir, int _paddleId)
     {
+        packetType = PacketType.Shoot;
+        guid = _guid;
         dir = _dir;
         paddleId = _paddleId;
     }

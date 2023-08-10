@@ -6,18 +6,28 @@ using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-public readonly struct GameInfo
+public struct GameInfo
 {
-    private readonly int roomNumber;
-
-    public GameInfo(int _roomNumber)
+    public int roomNumber;
+    public UserInfo enemyInfo;
+    public bool isMyTurn;
+    public GameInfo(int _roomNumber, UserInfo _enemyInfo, bool _isMyTurn)
     {
         roomNumber = _roomNumber;
+        enemyInfo = _enemyInfo;
+        isMyTurn = _isMyTurn;
     }
 
-    public int GetRoomNumber()
+    public void Reset()
     {
-        return roomNumber;
+        roomNumber = 0;
+        enemyInfo = new UserInfo();
+        isMyTurn = false;
+    }
+
+    public void SetIsMyTurn(bool _isMyTurn)
+    {
+        isMyTurn = _isMyTurn;
     }
 }
 
@@ -38,7 +48,7 @@ public class GameManager : MonoBehaviour
     private NetworkManager networkManager;
     
     public UserInfo userInfo;
-    private GameInfo gameInfo;
+    private GameInfo? gameInfo = null;
 
     void Start()
     {
@@ -75,9 +85,46 @@ public class GameManager : MonoBehaviour
         var packet = new C2SStartGame(userInfo.guid);
         networkManager.SendAndBindHandler(packet, _action);
     }
+    
+    public void ReqShoot(float _x, float _y, int _paddleId, Action<byte[]> _action)
+    {
+        var packet = new C2SShoot(
+            gameInfo.Value.roomNumber,
+            userInfo.guid, 
+            new System.Numerics.Vector2(_x, _y),
+            _paddleId
+        );
+        
+        networkManager.SendAndBindHandler(packet, _action);
+    }
 
     public void BindNetStateChangedHandler(Action<NetState> _action)
     {
         networkManager.netStateChangedHandler = _action;
+    }
+
+    public void SetGameInfo(S2CStartGame _packet)
+    {
+        gameInfo = new GameInfo(_packet.roomNumber, _packet.enemy, _packet.isMyTurn);
+    }
+
+    public GameInfo GetGameInfo()
+    {
+        if (!gameInfo.HasValue)
+        {
+            throw new FormatException("GameInfo didn't set");
+        }
+
+        return gameInfo.Value;
+    }
+
+    public bool HasGameInfo()
+    {
+        return gameInfo.HasValue;
+    }
+
+    public void SetIsMyTurn(bool _isMyTurn)
+    {
+        gameInfo.Value.SetIsMyTurn(_isMyTurn);
     }
 }
