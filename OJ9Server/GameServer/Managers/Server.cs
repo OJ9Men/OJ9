@@ -45,6 +45,7 @@ public class Server
     {
         packetHandlers[(int)PacketType.Login] = HandleLogin;
         packetHandlers[(int)PacketType.Start] = HandleStart;
+        packetHandlers[(int)PacketType.Shoot] = HandleShoot;
     }
 
     private void OnAccept(IAsyncResult _asyncResult)
@@ -195,6 +196,12 @@ public class Server
         TryMatch();
     }
 
+    private void HandleShoot(byte[] _buffer, Socket _socket)
+    {
+        var packet = OJ9Function.ByteArrayToObject<C2SShoot>(_buffer);
+        // TODO : Broadcast to enemy player
+    }
+    
     private void TryMatch()
     {
         if (clientQueue.Count < 2)
@@ -212,7 +219,11 @@ public class Server
     {
         Console.WriteLine("[{0}, {1}] is matched", _first.socket.RemoteEndPoint.ToString(), _second.socket.RemoteEndPoint.ToString());
         
-        // TODO
+        var firstPacket = new S2CStartGame(_second.userInfo, true);
+        _first.socket.Send(OJ9Function.ObjectToByteArray(firstPacket));
+
+        var secondPacket = new S2CStartGame(_first.userInfo, false);
+        _second.socket.Send(OJ9Function.ObjectToByteArray(secondPacket));
     }
 
     private UserInfo CheckAccount(string _id, string _pw)

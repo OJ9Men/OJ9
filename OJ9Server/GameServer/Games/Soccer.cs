@@ -103,7 +103,7 @@ public class Soccer
                     break;
                 case PacketType.Shoot:
                 {
-                    var packet = OJ9Function.ByteArrayToObject<C2GShoot>(buffer);
+                    var packet = OJ9Function.ByteArrayToObject<C2SShoot>(buffer);
                     if (!rooms.TryGetValue(packet.roomNumber, out var found))
                     {
                         throw new FormatException("There is no room, How could you send this packet?");

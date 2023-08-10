@@ -44,6 +44,7 @@ public class NetworkManager
         }
         catch (Exception e)
         {
+            Debug.LogError(e);
             netStateChangedHandler(NetState.Closed);
             return;
         }
@@ -96,5 +97,14 @@ public class NetworkManager
             packetHandler(newBuffer);
             blockAction(false);
         }
+        
+        socket.BeginReceive(
+            buffer,
+            0,
+            buffer.Length,
+            SocketFlags.None,
+            OnReceived,
+            null
+        );
     }
 }
