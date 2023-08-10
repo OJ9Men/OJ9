@@ -84,6 +84,23 @@ public class C2SStartGame : PacketBase
     }
 }
 
+public class S2CStartGame : PacketBase
+{
+    public UserInfo enemy { get; set; }
+    public bool isMyTurn { get; set; }
+
+    public S2CStartGame()
+    {
+    }
+
+    public S2CStartGame(UserInfo _enemy, bool _isMyTurn)
+    {
+        packetType = PacketType.Start;
+        enemy = _enemy;
+        isMyTurn = _isMyTurn;
+    }
+}
+
 public class L2BCheckAccount : PacketBase
 {
     public Guid guid { get; set; }
@@ -251,14 +268,14 @@ public class B2CError : PacketBase
     }
 }
 
-public class C2GShoot : PacketBase
+public class C2SShoot : PacketBase
 {
     public int roomNumber;
     public UserInfo userInfo;
     public System.Numerics.Vector2 dir;
     public int paddleId;
 
-    public C2GShoot(int _roomNumber, UserInfo _userInfo, System.Numerics.Vector2 _dir, int _paddleId)
+    public C2SShoot(int _roomNumber, UserInfo _userInfo, System.Numerics.Vector2 _dir, int _paddleId)
     {
         roomNumber = _roomNumber;
         userInfo = _userInfo;

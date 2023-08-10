@@ -6,6 +6,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+//public struct GameSceneParameters : LoadSceneParameters
+//{
+//    
+//}
+
 public class LobbyManager : MonoBehaviour
 {
     [SerializeField] private GameObject gameHolder;
@@ -51,6 +56,9 @@ public class LobbyManager : MonoBehaviour
 
     private void OnSoccerGameStart(byte[] _buffer)
     {
-        SceneManager.LoadScene("SoccerScene");
+        var packet = OJ9Function.ByteArrayToObject<S2CStartGame>(_buffer);
+        
+        // TODO : overhand parameter
+        SceneManager.LoadSceneAsync("SoccerScene");
     }
 }
