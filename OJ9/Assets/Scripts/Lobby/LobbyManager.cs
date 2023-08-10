@@ -52,13 +52,16 @@ public class LobbyManager : MonoBehaviour
                 action?.Invoke();
             }
         }
+
+        if (GameManager.Get().HasGameInfo())
+        {
+            SceneManager.LoadScene("SoccerScene");
+        }
     }
 
     private void OnSoccerGameStart(byte[] _buffer)
     {
         var packet = OJ9Function.ByteArrayToObject<S2CStartGame>(_buffer);
-        
-        // TODO : overhand parameter
-        SceneManager.LoadSceneAsync("SoccerScene");
+        GameManager.Get().SetGameInfo(packet);
     }
 }

@@ -109,8 +109,8 @@ public class Soccer
                         throw new FormatException("There is no room, How could you send this packet?");
                     }
 
-                    var newPacket = OJ9Function.ObjectToByteArray(new G2CShoot(-packet.dir, packet.paddleId));
-                    var otherUser = found.GetOtherClient(packet.userInfo.guid);
+                    //var newPacket = OJ9Function.ObjectToByteArray(new S2CShoot(-packet.dir, packet.paddleId));
+                    //var otherUser = found.GetOtherClient(packet.guid);
                     //otherUser.Send(newPacket);
                 }
                     break;
@@ -140,71 +140,42 @@ public enum Turn
 
 public struct Room
 {
-    public Client clientA, clientB;
+    public Client first, second;
     public int elapsedTime = 0;
 
     public Room()
     {
-        clientA = default;
-        clientB = default;
+        first = default;
+        second = default;
         elapsedTime = 0;
     }
 
-    public Room(Client _clientA, Client _clientB)
+    public Room(Client _first, Client _second)
     {
-        clientA = _clientA;
-        clientB = _clientB;
-    }
-
-    public Client GetOtherClient(Guid _guid)
-    {
-        if (clientA.userInfo.guid != _guid)
-        {
-            if (clientB.userInfo.guid == _guid)
-            {
-                return clientB;
-            }
-            else
-            {
-                throw new FormatException("No User");
-            }
-        }
-
-        if (clientB.userInfo.guid != _guid)
-        {
-            if (clientA.userInfo.guid == _guid)
-            {
-                return clientA;
-            }
-            else
-            {
-                throw new FormatException("No User");
-            }
-        }
-
-        throw new FormatException("Cannot found client by entered _userInfo");
+        first = _first;
+        second = _second;
     }
 
     public void AddPlayer(Client _client)
     {
-        if (clientA.userInfo.guid == _client.userInfo.guid)
+        if (first.userInfo.guid == _client.userInfo.guid)
         {
-            if (clientB.userInfo.guid == _client.userInfo.guid)
+            if (second.userInfo.guid == _client.userInfo.guid)
             {
                 throw new FormatException("Same player entered");
             }
 
-            clientB = _client;
+            second = _client;
         }
 
-        if (clientB.userInfo.guid == _client.userInfo.guid)
+        if (second.userInfo.guid == _client.userInfo.guid)
         {
-            if (clientA.userInfo.guid == _client.userInfo.guid)
+            if (first.userInfo.guid == _client.userInfo.guid)
             {
                 throw new FormatException("Same player entered");
             }
 
-            clientA = _client;
+            first = _client;
         }
     }
 }

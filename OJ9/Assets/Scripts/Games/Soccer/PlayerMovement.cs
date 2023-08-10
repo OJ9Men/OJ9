@@ -49,7 +49,7 @@ public class PlayerMovement : MonoBehaviour
 
         joystickPanel.SetJoystickVisible(false);
         Vector2 oppositeDir = -joystickPanel.GetInputVector();
-        Shoot(oppositeDir);
+        //Shoot(oppositeDir);
 
         onGoingAim = false;
         aimDoneDelegate(oppositeDir, paddleId);
