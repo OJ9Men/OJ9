@@ -207,7 +207,7 @@ public class Server
     {
         var packet = OJ9Function.ByteArrayToObject<C2SShoot>(_buffer);
         var room = rooms[packet.roomNumber];
-        var sendBuffer = OJ9Function.ObjectToByteArray(new S2CShoot(packet.guid, packet.dir, packet.paddleId));
+        var sendBuffer = OJ9Function.ObjectToByteArray(new S2CShoot(packet.guid, packet.x, packet.y, packet.paddleId));
         room.first.socket.Send(sendBuffer);
         room.second.socket.Send(sendBuffer);
     }

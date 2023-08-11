@@ -105,7 +105,7 @@ public class SoccerManager : MonoBehaviour
         GameManager.Get().Request(new C2SShoot(
             GameManager.Get().GetGameInfo().roomNumber,
             GameManager.Get().userInfo.guid, 
-            new System.Numerics.Vector2(_dir.x, _dir.y),
+            _dir.x, _dir.y,
             _paddleId
         ), null /*Bind 'BroadcastShoot' on start*/);
     }
@@ -116,13 +116,13 @@ public class SoccerManager : MonoBehaviour
         
         if (packet.guid == GameManager.Get().GetGameInfo().enemyInfo.guid)
         {
-            enemyMovements[packet.paddleId].Shoot(new Vector2(packet.dir.X, packet.dir.Y));
+            enemyMovements[packet.paddleId].Shoot(new Vector2(packet.x, packet.y));
             GameManager.Get().GetGameInfo().SetIsMyTurn(true);
             turnWidget.SetActive(false);
         }
         else if (packet.guid == GameManager.Get().userInfo.guid)
         {
-            playerMovements[packet.paddleId].Shoot(new Vector2(packet.dir.X, packet.dir.Y));
+            playerMovements[packet.paddleId].Shoot(new Vector2(packet.x, packet.y));
             GameManager.Get().GetGameInfo().SetIsMyTurn(false);
             turnWidget.SetActive(true);
         }
