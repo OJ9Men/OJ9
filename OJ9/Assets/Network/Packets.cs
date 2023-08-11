@@ -275,15 +275,22 @@ public class C2SShoot : PacketBase
 {
     public int roomNumber { get; set; }
     public Guid guid { get; set; }
-    public System.Numerics.Vector2 dir { get; set; }
+    public float x { get; set; }
+    public float y { get; set; }
     public int paddleId { get; set; }
 
-    public C2SShoot(int _roomNumber, Guid _guid, System.Numerics.Vector2 _dir, int _paddleId)
+    public C2SShoot()
+    {
+        
+    }
+    
+    public C2SShoot(int _roomNumber, Guid _guid, float _x, float _y, int _paddleId)
     {
         packetType = PacketType.Shoot;
         roomNumber = _roomNumber;
         guid = _guid;
-        dir = _dir;
+        x = _x;
+        y = _y;
         paddleId = _paddleId;
     }
 }
@@ -291,14 +298,21 @@ public class C2SShoot : PacketBase
 public class S2CShoot : PacketBase
 {
     public Guid guid { get; set; }
-    public System.Numerics.Vector2 dir { get; set; }
+    public float x { get; set; }
+    public float y { get; set; }
     public int paddleId { get; set; }
+
+    public S2CShoot()
+    {
+        
+    }
     
-    public S2CShoot(Guid _guid, System.Numerics.Vector2 _dir, int _paddleId)
+    public S2CShoot(Guid _guid, float _x, float _y, int _paddleId)
     {
         packetType = PacketType.BroadcastShoot;
         guid = _guid;
-        dir = _dir;
+        x = _x;
+        y = _y;
         paddleId = _paddleId;
     }
 }
