@@ -33,6 +33,11 @@ public class NetworkManager
 
     private void BindPacketHandler(PacketType _packetType, Action<byte[]> _action)
     {
+        if (_action == null)
+        {
+            return;
+        }
+        
         packetHandlers[(int)_packetType] = _action;
     }
     
@@ -73,6 +78,11 @@ public class NetworkManager
         socket.Send(OJ9Function.ObjectToByteArray(_packet));
         BindPacketHandler(_packet.packetType, _action);
         blockAction(true);
+    }
+
+    public void BindHandler(PacketType _packetType, Action<byte[]> _action)
+    {
+        BindPacketHandler(_packetType, _action);
     }
 
     private void OnReceived(IAsyncResult _asyncResult)

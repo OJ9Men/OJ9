@@ -90,6 +90,7 @@ public class SoccerManager : MonoBehaviour
         );
         
         turnWidget.SetActive(!GameManager.Get().GetGameInfo().isMyTurn);
+        GameManager.Get().BindPacketHandler(PacketType.BroadcastShoot, OnShoot);
     }
 
     private void OnAimDone(Vector2 _dir, int _paddleId)
@@ -99,7 +100,14 @@ public class SoccerManager : MonoBehaviour
             throw new FormatException("Not my turn");
         }
         Debug.Log(("Aim done : " + _dir));
-        GameManager.Get().ReqShoot(_dir.x, _dir.y, _paddleId, OnShoot);
+
+        
+        GameManager.Get().Request(new C2SShoot(
+            GameManager.Get().GetGameInfo().roomNumber,
+            GameManager.Get().userInfo.guid, 
+            new System.Numerics.Vector2(_dir.x, _dir.y),
+            _paddleId
+        ), null /*Bind 'BroadcastShoot' on start*/);
     }
 
     private void OnShoot(byte[] _buffer)
