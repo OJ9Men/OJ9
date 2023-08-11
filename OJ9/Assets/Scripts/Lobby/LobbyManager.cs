@@ -35,7 +35,7 @@ public class LobbyManager : MonoBehaviour
     
     public void OnStartButtonClicked()
     {
-        GameManager.Get().ReqStart(OnSoccerGameStart);
+        GameManager.Get().Request(new C2SStartGame(GameManager.Get().userInfo.guid), OnSoccerGameStart);
     }
 
     private void Start()

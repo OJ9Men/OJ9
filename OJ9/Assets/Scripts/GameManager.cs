@@ -74,28 +74,14 @@ public class GameManager : MonoBehaviour
         // TODO : Block ui till receive packet.
     }
 
-    public void ReqLogin(string _id, string _pw, Action<byte[]> _action)
+    public void Request(PacketBase _packetBase, Action<byte[]> _action)
     {
-        var packet = new C2SLogin(_id, _pw);
-        networkManager.SendAndBindHandler(packet, _action);
+        networkManager.SendAndBindHandler(_packetBase, _action);
     }
 
-    public void ReqStart(Action<byte[]> _action)
+    public void BindPacketHandler(PacketType _packetType, Action<byte[]> _action)
     {
-        var packet = new C2SStartGame(userInfo.guid);
-        networkManager.SendAndBindHandler(packet, _action);
-    }
-    
-    public void ReqShoot(float _x, float _y, int _paddleId, Action<byte[]> _action)
-    {
-        var packet = new C2SShoot(
-            gameInfo.Value.roomNumber,
-            userInfo.guid, 
-            new System.Numerics.Vector2(_x, _y),
-            _paddleId
-        );
-        
-        networkManager.SendAndBindHandler(packet, _action);
+        networkManager.BindHandler(_packetType, _action);
     }
 
     public void BindNetStateChangedHandler(Action<NetState> _action)

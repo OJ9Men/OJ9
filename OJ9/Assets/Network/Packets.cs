@@ -17,6 +17,7 @@ public enum PacketType
     // Soccer
     Start,
     Shoot,
+    BroadcastShoot,
 
     // Error
     L2BError,
@@ -295,7 +296,7 @@ public class S2CShoot : PacketBase
     
     public S2CShoot(Guid _guid, System.Numerics.Vector2 _dir, int _paddleId)
     {
-        packetType = PacketType.Shoot;
+        packetType = PacketType.BroadcastShoot;
         guid = _guid;
         dir = _dir;
         paddleId = _paddleId;

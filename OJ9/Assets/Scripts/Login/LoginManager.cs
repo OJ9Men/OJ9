@@ -22,7 +22,7 @@ public class LoginManager : MonoBehaviour
             throw new FormatException("Network does not connect");
         }
 
-        GameManager.Get().ReqLogin(idText.text, pwText.text, OnLogin);
+        GameManager.Get().Request(new C2SLogin(idText.text, pwText.text), OnLogin);
     }
 
     private void Start()
