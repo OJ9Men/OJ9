@@ -116,7 +116,7 @@ public class SoccerManager : MonoBehaviour
         
         if (packet.guid == GameManager.Get().GetGameInfo().enemyInfo.guid)
         {
-            enemyMovements[packet.paddleId].Shoot(new Vector2(packet.x, packet.y));
+            enemyMovements[packet.paddleId].Shoot(new Vector2(-packet.x, -packet.y));
             GameManager.Get().GetGameInfo().SetIsMyTurn(true);
             turnWidget.SetActive(false);
         }
